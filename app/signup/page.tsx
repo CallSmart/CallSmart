@@ -12,10 +12,13 @@ const SignupPage = () => {
   useEffect(() => {
     async function checkUser() {
       const user = await supabase.auth.getUser();
-      console.log(user.data.user)
+      const session = await supabase.auth.getSession();
       if (user.data.user != null) {
         console.log('User is logged in');
-        router.push('/dashboard'); // Redirect to dashboard if user is already logged in
+        localStorage.setItem('token', session.data.session?.access_token as string)
+        localStorage.setItem('user', user.data.user?.id as string)
+        console.log('User is logged in');
+        router.push('/dashboard');
       }
     }
     checkUser();

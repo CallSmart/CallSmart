@@ -12,8 +12,11 @@ const LoginPage = () => {
   useEffect(() => {
     async function checkUser() {
       const user = await supabase.auth.getUser();
-      console.log(user.data.user)
-      if (user.data.user != null) {
+      const session = await supabase.auth.getSession();
+      if(user.data.user?.id != null) {
+        console.log('User is logged in');
+        localStorage.setItem('token', session.data.session?.access_token as string)
+        localStorage.setItem('user', user.data.user?.id as string)
         console.log('User is logged in');
         router.push('/dashboard'); 
       }
@@ -23,10 +26,11 @@ const LoginPage = () => {
 
   const handleLogin = async ({ email, password }: { email: string, password: string }) => {
     
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.log('Login error:', error.message);
     } else {
+      console.log('Login success:', data);
       router.push('/dashboard');
     }
   };

@@ -3,40 +3,78 @@
 import { HiHome } from "react-icons/hi";
 import { BiSearch } from "react-icons/bi";
 import  { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Box from "./Box";
+import {supabase} from '../supabase';
+import { redirect } from 'next/navigation';
+import { Session } from "@supabase/auth-helpers-nextjs";
 
 interface SidebarProps {
     children: React.ReactNode;
 }
 
+async function getSession(){
+
+  const session = await supabase.auth.getSession();
+  if (session) {
+    return session;
+  } else {
+    redirect('/signin');
+  }
+
+}
+
 const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   const pathname = usePathname();
+  const [session, setSession] = useState<Session | null>(null);
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const token = localStorage.getItem('token') as string;
+      const { data, error } = await supabase.auth.getSession();
+      const user = await supabase.auth.getUser(token);
+      console.log(user)
+      console.log('here')
+      console.log(data?.session?.user)
+      if (error) {
+        redirect('/signin');
+      } else {
+        setSession(data.session ?? null);
+        if(data?.session?.user?.id != null){
+          setHasSession(true);
+        }        
+      }
+    };
+    fetchSession();
+    
+  }, []);
+  
   const routes = useMemo(() => [
     {
       label: 'Home',
       href: '/',
-      active: pathname !== '/search',
+      active: !hasSession,
     },
     {
       label: 'Sign In',
       href: '/signin',
-      active: pathname !== '/search'
+      active: !hasSession,
     },
     {
       label: 'Sign Up',
       href: '/signup',
-      active: pathname !== '/search'
+      active: !hasSession,
     },
     {
       label: 'Dashboard',
       href: '/dashboard',
-      active: pathname !== '/search'
+      active: hasSession
     },
     {
       label: 'Profile',
       href: '/profile',
-      active: pathname !== '/search'
+      active: hasSession
     },
   ], [pathname]);
 
