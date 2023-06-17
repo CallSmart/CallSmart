@@ -47,34 +47,33 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       }
     };
     fetchSession();
-    
   }, []);
   
   const routes = useMemo(() => [
     {
       label: 'Home',
       href: '/',
-      active: !hasSession,
+      active:  pathname !== '/dashboard' && pathname !== '/profile',
     },
     {
       label: 'Sign In',
       href: '/signin',
-      active: !hasSession,
+      active: pathname !== '/dashboard' && pathname !== '/profile',
     },
     {
       label: 'Sign Up',
       href: '/signup',
-      active: !hasSession,
+      active: pathname !== '/dashboard' && pathname !== '/profile',
     },
     {
       label: 'Dashboard',
       href: '/dashboard',
-      active: hasSession
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup'
     },
     {
       label: 'Profile',
       href: '/profile',
-      active: hasSession
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup'
     },
   ], [pathname]);
 

@@ -1,65 +1,51 @@
 "use client";
+import { useRouter } from "next/navigation";
+// import { useRouter } from 'next/router';
+import React from "react";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-// import { Auth } from '@supabase/ui';
-import {supabase} from '../../supabase';
-import { redirect } from 'next/navigation';
+const choosePlan = () => {
+    const router = useRouter();
 
-const SignupPage = () => {
-  const router = useRouter();
+  const option1 = () => {
+    console.log("Option 1");
+    router.push('/signup/makeAccount?option=1');
+  }
 
-  useEffect(() => {
-    async function checkUser() {
-      const user = await supabase.auth.getUser();
-      const session = await supabase.auth.getSession();
-      if (user.data.user != null) {
-        console.log('User is logged in');
-        localStorage.setItem('token', session.data.session?.access_token as string)
-        localStorage.setItem('user', user.data.user?.id as string)
-        console.log('User is logged in');
-        router.push('/dashboard');
-      }
-    }
-    checkUser();
-  }, [router]);
+  const option2 = () => {
+    console.log("Option 2");
+  }    
 
-  const handleSignup = async ({ email, password }: { email: string, password: string }) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      console.log('Signup error:', error.message);
-    } else {
-      router.push('/dashboard');
-    }
-  };
-  
+  const option3 = () => {
+    console.log("Option 3");
+  }
+
+  const option4 = () => {
+    console.log("Option 4");
+  }
 
   return (
     <div>
-      <h1>Signup Page</h1>
-      <div>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          const target = e.target as typeof e.target & {
-            email: { value: string };
-            password: { value: string };
-          };
-          handleSignup({
-            email: target.email.value,
-            password: target.password.value
-          });
-        }
-        }>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" placeholder="Email" />
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" placeholder="password" />
-
-          <button type="submit" className='border-2'>Signup</button>
-        </form>
+      <h1>Choose Plan</h1>
+      <div className="grid grid-cols-4 gap-4 ">
+        <div className="col-span-1 flex flex-col items-center">
+          <h2>Option 1</h2>
+          <button onClick={() => option1()}>Select</button>
+        </div>
+        <div className="col-span-1 flex flex-col items-center">
+          <h2>Option 2</h2>
+          <button onClick={() => option2()}>Select</button>
+        </div>
+        <div className="col-span-1 flex flex-col items-center">
+          <h2>Option 3</h2>
+          <button onClick={() => option3()}>Select</button>
+        </div>
+        <div className="col-span-1 flex flex-col items-center">
+          <h2>Option 4</h2>
+          <button onClick={() => option4()}>Select</button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SignupPage;
+export default choosePlan;
