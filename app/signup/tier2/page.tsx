@@ -1,7 +1,7 @@
 const tier2Page = () => {
     return (
         <div>
-        <h1>tier1Page</h1>
+        <h1>tier2Page</h1>
         </div>
     );
 }
