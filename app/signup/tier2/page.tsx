@@ -1,7 +1,12 @@
-const tier2Page = () => {
+
+import SubscribeModal from "@/components/subscribeModal";
+
+const tier2Page = async () => {
+
+
     return (
         <div>
-        <h1>tier2Page</h1>
+            <h1>hello</h1>
         </div>
     );
 }

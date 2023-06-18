@@ -1,9 +1,15 @@
-const tier3Page = () => {
+
+import SubscribeModal from "@/components/subscribeModal";
+
+const tier3Page = async () => {
+
+
     return (
         <div>
-            <h1>tier3Page</h1>
+            <h1>hello</h1>
         </div>
     );
 }
+
 
 export default tier3Page;

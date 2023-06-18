@@ -35,7 +35,8 @@ const SignupPage = () => {
     if (error) {
       console.log('Signup error:', error.message);
     } else {
-      router.push('/dashboard');
+      // router.push('/dashboard');
+      router.push(`/signup/tier${option}`);
     }
   };
   
