@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 // import { Auth } from '@supabase/ui';
 import {supabase} from '../../../supabase';
 import { redirect } from 'next/navigation';
 import { useSearchParams } from 'next/navigation'
+import { Session } from '@supabase/auth-helpers-nextjs';
 
 const SignupPage = () => {
   const router = useRouter();
   // const params = useParams();
   const searchParams = useSearchParams()
+  const [session, setSession] = useState<Session>();
  
   const option = searchParams.get('option')
   console.log(option);
@@ -28,15 +30,21 @@ const SignupPage = () => {
       }
     }
     checkUser();
-  }, [router]);
+  }, [router, session]);
 
   const handleSignup = async ({ email, password }: { email: string, password: string }) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       console.log('Signup error:', error.message);
     } else {
       // router.push('/dashboard');
-      router.push(`/signup/tier${option}`);
+      console.log(data)
+      if(data.session != null){
+        setSession(data.session);
+        localStorage.setItem('token', data.session.access_token as string)
+      }
+      
+      // router.push(`/signup/tier${option}`);
     }
   };
   

@@ -15,8 +15,11 @@ export async function POST(
     const supabase = createRouteHandlerClient({ 
       cookies
       });      
-      const { data: { user }} = await supabase.auth.getUser();
-
+    
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    console.log('token', token)
+    const { data: { user }} = await supabase.auth.getUser(token);
+    console.log('user', user)
     const customer = await createOrRetrieveCustomer({
       uuid: user?.id || '',
       email: user?.email || ''

@@ -20,7 +20,6 @@ export const postData = async ({
   data?: { price: Price };
 }) => {
   console.log('posting,', url, data);
-
   const res: Response = await fetch(url, {
     method: 'POST',
     headers: new Headers({ 'Content-Type': 'application/json' }),

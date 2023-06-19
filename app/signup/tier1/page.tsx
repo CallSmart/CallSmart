@@ -10,6 +10,9 @@ import { getStripe } from '@/libs/stripeClient';
 const Tier1Page = async () => {
   const [priceIdLoading, setPriceIdLoading] = useState<string>();
   const { user, isLoading, subscription } = useUser();
+  console.log(user);
+  console.log(isLoading);
+  console.log(subscription);
   const url = getURL();
   
   const getProducts = async () => {
@@ -55,13 +58,24 @@ const Tier1Page = async () => {
       }
   
       try {
-        const { sessionId } = await postData({
-          url: '/api/create-checkout-session',
-          data: { price }
-        });
-  
+        const token = localStorage.getItem('token');
+        
+        const res = await fetch(url+'/api/create-checkout-session', {
+            method: 'POST',
+            headers: new Headers({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }),
+            credentials: 'same-origin',
+            body: JSON.stringify({price})
+          });
+
+        const sessionId = await res.json();
+        console.log(sessionId);
+        console.log(sessionId.sessionId)
         const stripe = await getStripe();
-        stripe?.redirectToCheckout({ sessionId });
+        console.log(stripe)
+        console.log("REDIRECTING TO CHECKOUT")
+        if(!stripe) return toast.error('Stripe not found');
+        stripe.redirectToCheckout({ sessionId: sessionId.sessionId });
+        console.log('stripe?.redirectToCheckout({ sessionId })');
       } catch (error) {
         return toast.error((error as Error)?.message);
       } finally {
