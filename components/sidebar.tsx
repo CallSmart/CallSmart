@@ -37,6 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       console.log(user)
       console.log('here')
       console.log(data?.session?.user)
+      
       if (error) {
         redirect('/signin');
       } else {
@@ -68,12 +69,17 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     {
       label: 'Dashboard',
       href: '/dashboard',
-      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup'
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
     },
     {
-      label: 'Profile',
-      href: '/profile',
-      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup'
+      label: 'Analytics',
+      href: '/analytics',
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
+    },
+    {
+      label: 'Account',
+      href: '/account',
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
     },
   ], [pathname]);
 

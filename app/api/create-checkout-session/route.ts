@@ -41,7 +41,7 @@ export async function POST(
         trial_from_plan: true,
         metadata
       },
-      success_url: `${getURL()}/account`,
+      success_url: `${getURL()}/dashboard`,
       cancel_url: `${getURL()}/`
     });
 

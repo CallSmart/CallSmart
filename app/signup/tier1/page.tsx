@@ -42,21 +42,22 @@ const Tier1Page = async () => {
   };
   
   const handleCheckout = async (price: any) => {
+    console.log('handleCheckout')
     if (!price) {
       return toast.error('No price found');
     } else {
       setPriceIdLoading(price.id);
-  
+      console.log('handleCheckout user')
       if (!user) {
         setPriceIdLoading(undefined);
         return toast.error('Must be logged in');
       }
-  
+      console.log('handleCheckout subscription')
       if (subscription) {
         setPriceIdLoading(undefined);
         return toast('Already subscribed');
       }
-  
+      console.log('handleCheckout try')
       try {
         const token = localStorage.getItem('token');
         
