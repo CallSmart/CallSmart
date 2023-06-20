@@ -81,30 +81,30 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   );
 
   return (
-    <div>
-      <div className="flex">
-        <div
-          className="
+    <div className="flex w-[100dvw] h-full">
+      <div
+        className="
           hidden 
           md:flex
           w-[100dvw]
-          h-fit
+          h-24
           p-4
           bg-dblue
+          items-center
+          justify-center
           fixed
           top-0"
-        >
-          {routes.map((route, index) => (
-            <Box
-              key={route.label} // or key={route.href}
-              href={route.href}
-              content={route.label}
-              className={"btn-action"}
-            />
-          ))}
-        </div>
+      >
+        {routes.map((route, index) => (
+          <Box
+            key={route.label} // or key={route.href}
+            href={route.href}
+            content={route.label}
+            className={`${"btn-action"} ${route.active ? "bg-[#585A66]" : ""}`}
+          />
+        ))}
       </div>
-      <main>{children}</main>
+      <main className="h-full pt-24">{children}</main>
     </div>
   );
 };
