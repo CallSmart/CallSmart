@@ -5,7 +5,7 @@ import Box from "@/components/Box";
 const Error = () => {
   return (
     <h2 className="h-full flex items-center justify-center">
-      Something went wrong
+      Oopsies. Something blew up.
     </h2>
   );
 };

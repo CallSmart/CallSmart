@@ -21,3 +21,7 @@ body,
 .container-label {
   @apply flex w-full bg-dblue px-4 py-1 text-white font-bold;
 }
+
+input {
+  @apply outline-none caret-[#0066CC] border-b-2 border-[#CBCCD0];
+}
