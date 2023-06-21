@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   return (
     <ProductNavBar>
-      <div className="text-blue-500">
+      <div className="">
         <h1>Dashboard</h1>
       </div>
     </ProductNavBar>

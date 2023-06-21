@@ -10,18 +10,14 @@ body,
   height: 100%;
 }
 
-.bg-dblue {
-  background-color: #2e3541;
-}
-
-.btn-action {
-  @apply py-2 px-4 bg-[#454855] rounded-lg text-white font-normal hover:bg-[#585A66] focus:bg-[#262935];
-}
-
-.container-label {
-  @apply flex w-full bg-dblue px-4 py-1 text-white font-bold;
-}
-
 input {
   @apply outline-none caret-[#0066CC] border-b-2 border-[#CBCCD0];
+}
+
+.product-nav-button {
+  @apply px-4 py-2 text-[#0066CC] hover:text-white hover:bg-[#80B2E5] focus:bg-[#0066CC] rounded-md;
+}
+
+.product-nav-button.active {
+  @apply text-white bg-[#0066CC];
 }

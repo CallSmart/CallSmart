@@ -6,28 +6,20 @@ import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
 
-export default function AccountPage() {
+export default function AnalyticsPage() {
   const router = useRouter();
 
   useEffect(() => {
     const session = supabase.auth.getSession();
     if (!session) {
-      router.push("/"); // Redirect to login if not signed in
+      router.push("/signin"); // Redirect to sign-in if no session found
     }
   }, []);
-
-  const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      router.push("/"); // Redirect to login after signing out
-    }
-  };
 
   return (
     <ProductNavBar>
       <div className="">
-        <h1>Profile</h1>
-        <button onClick={handleSignOut}>Sign Out</button>
+        <h1>FAQ</h1>
       </div>
     </ProductNavBar>
   );

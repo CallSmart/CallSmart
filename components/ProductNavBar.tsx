@@ -4,6 +4,7 @@ import { HiHome } from "react-icons/hi";
 import { BiSearch } from "react-icons/bi";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Box from "./Box";
 import { supabase } from "../supabase";
 import { redirect } from "next/navigation";
@@ -26,6 +27,17 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [hasSession, setHasSession] = useState(false);
+
+  const NavButton = ({ to, children }: { to: any; children: any }) => {
+    return (
+      <a
+        href={to}
+        className={`${"product-nav-button"} ${pathname == to ? "active" : ""}`}
+      >
+        <p>{children}</p>
+      </a>
+    );
+  };
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -82,35 +94,37 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
 
   return (
     <div className="flex flex-row ">
-      <div className="flex flex-col h-[100dvh] w-fit py-8 px-8 justify-center md:justify-between ">
-        <a className="h-fit w-fit self-center font-bold text-2xl" href="/">
-          CallSmart
-        </a>
-        <div className="flex flex-col gap-8 text-lg items-center">
-          <a className="" href="">
-            Pricing
+      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center md:justify-between bg-[#E5F0FA] border-r-[1px] border-[#0066CC] text-[#0066CC]">
+        <div className="flex flex-col gap-4">
+          <a className="h-fit w-fit font-bold text-2xl self-center" href="/">
+            CallSmart
           </a>
-          <a className="" href="">
-            FAQ
+          <a
+            className="flex flex-row p-2 border-[1px] border-[#0066CC] text-[#0066CC] rounded-md bg-[#BFD9F2] gap-2"
+            href="/account"
+          >
+            <div className="h-10 w-10 bg-white rounded-full"></div>
+            <div className="flex flex-col gap-0 leading-tight">
+              <p>Marcelo Chaman</p>
+              <em className="opacity-50 hover:opacity-100">Manage Account</em>
+            </div>
           </a>
-          <a className="" href="">
+          <div className="flex flex-col gap-2">
+            <p className="font-medium">Dashboards</p>
+            <hr className="border-[#0066CC]" />
+            <NavButton to="/dashboard">Tickets Dashboard</NavButton>
+            <NavButton to="/analytics">Analytics Dashboard</NavButton>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <hr className="border-[#0066CC]" />
+          <NavButton to="/faq">FAQ</NavButton>
+          <NavButton to="mailto:callsmartforwarder@gmail.com">
             Contact
-          </a>
-          <a
-            className="px-4 py-2 bg-dblue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white"
-            href="/signin"
-          >
-            Sign In
-          </a>
-          <a
-            className="px-4 py-2 ring-2 ring-inset rounded-xl ring-[#2E3541] hover:bg-[#2E3541] active:bg-transparent rounded-lg text-[#2E3541] hover:text-white"
-            href="/signup"
-          >
-            Sign Up
-          </a>
+          </NavButton>
         </div>
       </div>
-      {children}
+      <div className="w-[calc(100dvw-256px)] bg-white">{children}</div>
     </div>
   );
 };

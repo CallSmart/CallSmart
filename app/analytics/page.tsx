@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '../../supabase';
-import Sidebar from '@/components/sidebar';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../../supabase";
+import Sidebar from "@/components/sidebar";
+import ProductNavBar from "@/components/ProductNavBar";
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -11,15 +12,15 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const session = supabase.auth.getSession();
     if (!session) {
-      router.push('/signin'); // Redirect to sign-in if no session found
+      router.push("/signin"); // Redirect to sign-in if no session found
     }
   }, []);
 
   return (
-    <Sidebar>
-      <div className="text-blue-500">
+    <ProductNavBar>
+      <div className="">
         <h1>Analytics</h1>
       </div>
-    </Sidebar>
+    </ProductNavBar>
   );
 }
