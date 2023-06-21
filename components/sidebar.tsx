@@ -48,21 +48,6 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   }, []);
   const routes = useMemo(() => [
     {
-      label: 'Home',
-      href: '/',
-      active:  pathname !== '/dashboard' && pathname !== '/profile',
-    },
-    {
-      label: 'Sign In',
-      href: '/signin',
-      active: pathname !== '/dashboard' && pathname !== '/profile',
-    },
-    {
-      label: 'Sign Up',
-      href: '/signup',
-      active: pathname !== '/dashboard' && pathname !== '/profile',
-    },
-    {
       label: 'Dashboard',
       href: '/dashboard',
       active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
