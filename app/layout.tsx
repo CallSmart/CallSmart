@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import { Figtree } from "next/font/google";
@@ -19,10 +20,15 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={"flex h-[100dvh]"}>
+      <body
+        className={
+          "flex flex-col h-[100dvh] bg-gradient-to-b from-white to-[#0066CC3F] bg-white"
+        }
+      >
         <SupabaseProvider>
           <UserProvider>
-            <Sidebar>{children}</Sidebar>
+            {children}
+            {/* <Sidebar>{children}</Sidebar> */}
           </UserProvider>
         </SupabaseProvider>
       </body>
