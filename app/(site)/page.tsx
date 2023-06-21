@@ -16,12 +16,15 @@ export default function Home() {
             Contact
           </a>
           <a
-            className="px-4 py-2 bg-dblue hover:bg-[#585A66] active:bg-[#454855] rounded-lg text-white"
+            className="px-4 py-2 bg-dblue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white"
             href="/signin"
           >
             Sign In
           </a>
-          <a className="" href="/signup">
+          <a
+            className="px-4 py-2 ring-2 ring-inset rounded-xl ring-[#2E3541] hover:bg-[#2E3541] active:bg-transparent rounded-lg text-[#2E3541] hover:text-white"
+            href="/signup"
+          >
             Sign Up
           </a>
         </div>
