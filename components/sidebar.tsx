@@ -32,9 +32,9 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       const token = localStorage.getItem("token") as string;
       const { data, error } = await supabase.auth.getSession();
       const user = await supabase.auth.getUser(token);
-      console.log(user);
-      console.log("here");
-      console.log(data?.session?.user);
+      console.log(user)
+      console.log('here')
+      console.log(data?.session?.user)
       if (error) {
         redirect("/signin");
       } else {
@@ -46,39 +46,25 @@ const Sidebar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     };
     fetchSession();
   }, []);
+  const routes = useMemo(() => [
+    {
+      label: 'Dashboard',
+      href: '/dashboard',
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
+    },
+    {
+      label: 'Analytics',
+      href: '/analytics',
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
+    },
+    {
+      label: 'Account',
+      href: '/account',
+      active: pathname !== '/' && pathname !== '/signin' && pathname !== '/signup' && pathname !== '/signup/authorized' && pathname !== '/signup/tier1' && pathname !== '/signup/tier2' && pathname !== '/signup/tier3' && pathname !== '/signup/makeAccount'
+    },
+  ], [pathname]);
 
-  const routes = useMemo(
-    () => [
-      {
-        label: "Home",
-        href: "/",
-        active: pathname !== "/dashboard" && pathname !== "/profile",
-      },
-      {
-        label: "Sign In",
-        href: "/signin",
-        active: pathname !== "/dashboard" && pathname !== "/profile",
-      },
-      {
-        label: "Sign Up",
-        href: "/signup",
-        active: pathname !== "/dashboard" && pathname !== "/profile",
-      },
-      {
-        label: "Dashboard",
-        href: "/dashboard",
-        active:
-          pathname !== "/" && pathname !== "/signin" && pathname !== "/signup",
-      },
-      {
-        label: "Profile",
-        href: "/profile",
-        active:
-          pathname !== "/" && pathname !== "/signin" && pathname !== "/signup",
-      },
-    ],
-    [pathname]
-  );
+
 
   return (
     <div className="flex w-[100dvw] h-full">

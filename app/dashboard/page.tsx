@@ -1,11 +1,26 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../../supabase";
+import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
 
-export default function dashboard() {
+export default function DashboardPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const session = supabase.auth.getSession();
+    if (!session) {
+      router.push("/signin"); // Redirect to sign-in if no session found
+    }
+  }, []);
+
   return (
-    <div className="text-blue-500 w-[100dvw] h-[100dvh] bg-[#F5F5F5]">
-      <ProductNavBar>
-        <h1>dashboard</h1>
-      </ProductNavBar>
-    </div>
+    <ProductNavBar>
+      <div className="text-blue-500">
+        <h1>Dashboard</h1>
+      </div>
+    </ProductNavBar>
   );
 }

@@ -16,7 +16,7 @@ const sendEmail = async (name: string, email: string, phone: string) => {
   });
 
   // Compose the email message
-  const link = encodeURIComponent('http://localhost:3000/signup/makeAccount');
+  const link = encodeURIComponent('http://localhost:3000/signup/authorized');
   const content = encodeURIComponent("Do not hesitate to contact us if you have any questions!");
   const mailOptions = {
     from: process.env.GMAIL_EMAIL_ADDRESS,
