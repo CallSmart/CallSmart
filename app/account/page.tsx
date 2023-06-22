@@ -80,7 +80,7 @@ export default function AccountPage() {
             </h3>
           </div>
         </div>
-        <h4 className="font-semibold text-xl text-sec-blue">Settings</h4>
+        <h4 className="">Settings</h4>
         <div className="container flex-col ">
           <button className="w-fit" onClick={handleSignOut}>
             Sign Out

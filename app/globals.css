@@ -15,7 +15,7 @@ body,
 }
 
 input {
-  @apply outline-none caret-prim-blue border-b-2 border-[#CBCCD0];
+  @apply outline-none caret-prim-blue border-b-2 border-[#CBCCD0] bg-transparent;
 }
 
 .product-nav-button {
@@ -28,4 +28,8 @@ input {
 
 .container {
   @apply flex bg-white border-[1px] border-[#CBCCD0] px-8 py-4 rounded-lg;
+}
+
+h4 {
+  @apply font-semibold text-xl text-sec-blue;
 }

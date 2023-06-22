@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
+import { SearchIcon } from "@/components/svgs";
+import FAQComponent from "@/components/FAQComponent";
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -16,10 +18,28 @@ export default function AnalyticsPage() {
     }
   }, []);
 
+  const QnA = [
+    {
+      question: "question",
+      answer: "answer",
+    },
+  ];
+
   return (
     <ProductNavBar>
-      <div className="">
-        <h1>FAQ</h1>
+      <div className="flex flex-col gap-2">
+        <h4>Frequently Asked Questions</h4>
+        <div className="flex flex-row border-b-2 border-[#CBCCD0] items-center gap-2 py-1">
+          <SearchIcon className="text-xl text-sec-blue" />
+          <input placeholder="Search" className="w-full border-0" />
+        </div>
+        {QnA.map((question, key) => (
+          <FAQComponent
+            key={key}
+            question={question.question}
+            answer={question.answer}
+          />
+        ))}
       </div>
     </ProductNavBar>
   );

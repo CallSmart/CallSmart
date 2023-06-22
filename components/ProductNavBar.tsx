@@ -124,7 +124,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           </NavButton>
         </div>
       </div>
-      <div className="w-[calc(100dvw-256px)] bg-grey-light px-4 py-8">
+      <div className="w-[calc(100dvw-256px)] bg-grey-light px-6 py-8">
         {children}
       </div>
     </div>
