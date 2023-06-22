@@ -87,23 +87,23 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           CallSmart
         </a>
         <div className="flex gap-8 text-lg items-center">
-          <a className="" href="">
+          <a className="hover:opacity-50" href="">
             Pricing
           </a>
-          <a className="" href="">
+          <a className="hover:opacity-50" href="">
             FAQ
           </a>
-          <a className="" href="">
+          <a className="hover:opacity-50" href="">
             Contact
           </a>
           <a
-            className="px-4 py-2 bg-dblue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white"
+            className="px-4 py-2 bg-sec-blue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white"
             href="/signin"
           >
             Sign In
           </a>
           <a
-            className="px-4 py-2 ring-2 ring-inset rounded-xl ring-[#2E3541] hover:bg-[#2E3541] active:bg-transparent rounded-lg text-[#2E3541] hover:text-white"
+            className="px-4 py-2 ring-2 ring-inset rounded-xl ring-[#2E3541] hover:bg-sec-blue active:bg-transparent rounded-lg text-sec-blue hover:text-white"
             href="/signup"
           >
             Sign Up

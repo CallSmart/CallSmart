@@ -26,10 +26,7 @@ export default async function RootLayout({
         }
       >
         <SupabaseProvider>
-          <UserProvider>
-            {children}
-            {/* <Sidebar>{children}</Sidebar> */}
-          </UserProvider>
+          <UserProvider>{children}</UserProvider>
         </SupabaseProvider>
       </body>
     </html>

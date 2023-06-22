@@ -50,12 +50,10 @@ const LoginPage = () => {
 
   return (
     <HomeNavBar>
-      <div className="flex flex-col pt-12 items-center gap-8">
-        <div className="flex flex-col items-center gap-4">
-          <h1 className="text-center text-8xl w-1/2 font-bold text-[#0066CC]">
-            Welcome Back!
-          </h1>
-        </div>
+      <div className="flex flex-col h-full pt-12 items-center gap-8 self-center align-center justify-content center">
+        <h1 className="text-center text-8xl w-1/3 font-bold text-[#0066CC]">
+          Welcome Back!
+        </h1>
         <form
           onSubmit={(e) => {
             e.preventDefault();

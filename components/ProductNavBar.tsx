@@ -94,16 +94,16 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
 
   return (
     <div className="flex flex-row ">
-      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center md:justify-between bg-[#E5F0FA] border-r-[1px] border-[#0066CC] text-[#0066CC]">
+      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center md:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
         <div className="flex flex-col gap-4">
           <a className="h-fit w-fit font-bold text-2xl self-center" href="/">
             CallSmart
           </a>
           <a
-            className="flex flex-row p-2 border-[1px] border-[#0066CC] text-[#0066CC] rounded-md bg-[#BFD9F2] gap-2"
+            className="flex flex-row p-2 border-[1px] border-prim-blue text-prim-blue rounded-md bg-[#BFD9F2] gap-2"
             href="/account"
           >
-            <div className="h-10 w-10 bg-white rounded-full"></div>
+            <div className="h-10 w-10 bg-white rounded-full" />
             <div className="flex flex-col gap-0 leading-tight">
               <p>Marcelo Chaman</p>
               <em className="opacity-50 hover:opacity-100">Manage Account</em>
@@ -111,20 +111,22 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           </a>
           <div className="flex flex-col gap-2">
             <p className="font-medium">Dashboards</p>
-            <hr className="border-[#0066CC]" />
+            <hr className="border-prim-blue" />
             <NavButton to="/dashboard">Tickets Dashboard</NavButton>
             <NavButton to="/analytics">Analytics Dashboard</NavButton>
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <hr className="border-[#0066CC]" />
+          <hr className="border-prim-blue" />
           <NavButton to="/faq">FAQ</NavButton>
           <NavButton to="mailto:callsmartforwarder@gmail.com">
             Contact
           </NavButton>
         </div>
       </div>
-      <div className="w-[calc(100dvw-256px)] bg-white">{children}</div>
+      <div className="w-[calc(100dvw-256px)] bg-grey-light px-4 py-8">
+        {children}
+      </div>
     </div>
   );
 };
