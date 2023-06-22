@@ -1,13 +1,19 @@
 "use client";
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
 
+interface Clinic {
+  id: number;
+  name: string;
+}
+
 export default function AccountPage() {
   const router = useRouter();
+  const [clinics, setClinics] = useState<Clinic[]>([]);
+  const [newClinicName, setNewClinicName] = useState("");
 
   useEffect(() => {
     const session = supabase.auth.getSession();
@@ -15,6 +21,42 @@ export default function AccountPage() {
       router.push("/"); // Redirect to login if not signed in
     }
   }, []);
+
+  const fetchClinics = async () => {
+    const { data, error } = await supabase
+      .from("clinics")
+      .select()
+      .order("name", { ascending: true });
+    if (error) {
+      console.error("Error fetching clinics:", error.message);
+    } else {
+      console.log("data", data);
+      setClinics(data || []);
+    }
+  };
+
+  const addClinic = async () => {
+    // insert new clinic into database
+    const { error } = await supabase
+      .from("clinics")
+      .insert([{ name: newClinicName }]);
+    if (error) {
+      console.error("Error adding clinic:", error.message);
+    } else {
+      setNewClinicName("");
+      fetchClinics();
+    }
+  };
+  const deleteClinic = async (id: number) => {
+    const { error } = await supabase.from("clinics").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting clinic:", error.message);
+    } else {
+      setClinics((prevClinics) =>
+        prevClinics.filter((clinic) => clinic.id !== id)
+      );
+    }
+  };
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
