@@ -9,6 +9,8 @@ import Box from "./Box";
 import { supabase } from "../supabase";
 import { redirect } from "next/navigation";
 import { Session } from "@supabase/auth-helpers-nextjs";
+import router from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -27,6 +29,9 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [hasSession, setHasSession] = useState(false);
+  const [fName, setFName] = useState("");
+  const [lName, setLName] = useState("");
+  const router = useRouter();
 
   const NavButton = ({ to, children }: { to: any; children: any }) => {
     return (
@@ -40,6 +45,25 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   };
 
   useEffect(() => {
+    const getUser = async () => {
+      const user = await supabase.auth.getUser();
+      const id = user?.data?.user?.id;
+      if(id) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("firstname, lastname")
+          .eq("id", id);
+        if (error) {
+          console.error("Error fetching user:", error.message);
+        } else {
+          console.log("data", data);
+        }
+        setFName(data?.[0]?.firstname || "")
+        setLName(data?.[0]?.lastname || "")
+      }
+    }
+  
+
     const fetchSession = async () => {
       const token = localStorage.getItem("token") as string;
       const { data, error } = await supabase.auth.getSession();
@@ -53,11 +77,12 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
         setSession(data.session ?? null);
         if (data?.session?.user?.id != null) {
           setHasSession(true);
+          getUser();
         }
       }
     };
     fetchSession();
-  }, []);
+  }, [router]);
 
   const routes = useMemo(
     () => [
@@ -105,7 +130,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           >
             <div className="h-10 w-10 bg-white rounded-full" />
             <div className="flex flex-col gap-0 leading-tight">
-              <p>Marcelo Chaman</p>
+              <p>{fName} {lName}</p>
               <em className="opacity-50 hover:opacity-100">Manage Account</em>
             </div>
           </a>
