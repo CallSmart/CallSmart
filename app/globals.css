@@ -8,6 +8,7 @@ html,
 body,
 :root {
   height: 100%;
+  font-family: Inter;
 }
 
 .btn-action {
@@ -28,6 +29,14 @@ input {
 
 .container {
   @apply flex bg-white border-[1px] border-[#CBCCD0] px-8 py-4 rounded-lg;
+}
+
+.ticket-container {
+  @apply flex flex-col border-2 border-sec-blue rounded-lg bg-white;
+}
+
+.ticket-prop {
+  @apply flex flex-row font-medium rounded-md gap-1 px-2 py-1 items-center;
 }
 
 h4 {

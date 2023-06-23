@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
+import Ticket from "@/components/Ticket";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -20,6 +21,14 @@ export default function DashboardPage() {
     <ProductNavBar>
       <div className="">
         <h1>Dashboard</h1>
+        <Ticket
+          isNew={"new"}
+          urgent={"urgent"}
+          type={"cancel"}
+          name={"Bartek Kowalski"}
+          number={"+1 905 599 3866"}
+          time={"1:32pm"}
+        />
       </div>
     </ProductNavBar>
   );
