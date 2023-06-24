@@ -86,7 +86,7 @@ function Multiselect({
               <TicketProp
                 type={option}
                 closeable={false}
-                onClose={toggleOption}
+                onClose={() => null}
               />
             </li>
           ))}

@@ -25,10 +25,10 @@ const Ticket = ({
           } ${"flex flex-row gap-2"}`}
         >
           <div className={isNew !== "new" ? "hidden" : ""}>
-            <TicketProp type={isNew} />
+            <TicketProp type={isNew} closeable={false} onClose={() => null} />
           </div>
           <div className={urgent !== "urgent" ? "hidden" : ""}>
-            <TicketProp type={urgent} />
+            <TicketProp type={urgent} closeable={false} onClose={() => null} />
           </div>
         </div>
         <div className="flex flex-row gap-2 items-center">
@@ -37,7 +37,7 @@ const Ticket = ({
           <div className="text-sm opacity-50">{number}</div>
         </div>
         <div className="flex flex-row items-center w-full justify-between">
-          <TicketProp type={type} />
+          <TicketProp type={type} closeable={false} onClose={() => null} />
           <div className="opacity-50 text-sm">{time}</div>
         </div>
       </div>

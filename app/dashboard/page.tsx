@@ -7,6 +7,7 @@ import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
 import Ticket from "@/components/Ticket";
 import Multiselect from "@/components/Multiselect";
+import Select from "@/components/Select";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -48,7 +49,17 @@ export default function DashboardPage() {
     "urgent",
     "new",
   ];
-  const [selectedFilters, setSelectedFilters] = useState<string[]>();
+  const sortOptions = ["Most Recent", "Oldest"];
+
+  const handleSortSelection = (option: any) => {
+    setSortOption(option[0]);
+    console.log(sortOption);
+  };
+
+  const [selectedFiltersM, setSelectedFiltersM] = useState<string[]>([]);
+  const [selectedFiltersP, setSelectedFiltersP] = useState<string[]>([]);
+  const [selectedFiltersC, setSelectedFiltersC] = useState<string[]>([]);
+  const [sortOption, setSortOption] = useState("Most Recent");
 
   useEffect(() => {
     const session = supabase.auth.getSession();
@@ -75,6 +86,14 @@ export default function DashboardPage() {
       },
       {
         isNew: "not",
+        urgent: "not",
+        type: "book",
+        name: "Marcelo Chaman",
+        number: "+1 905 599 3866",
+        time: "1:32pm",
+      },
+      {
+        isNew: "new",
         urgent: "not",
         type: "book",
         name: "Marcelo Chaman",
@@ -138,9 +157,110 @@ export default function DashboardPage() {
     setCompletedTickets(tickets);
   };
 
-  const handleFilterChange = (options: string[]) => {
-    setSelectedFilters(options);
+  const handleFilterChangeM = (options: string[]) => {
+    setSelectedFiltersM(options);
   };
+
+  const handleFilterChangeP = (options: string[]) => {
+    setSelectedFiltersP(options);
+  };
+
+  const handleFilterChangeC = (options: string[]) => {
+    setSelectedFiltersC(options);
+  };
+
+  const sfMissedTickets = missedTickets.filter((ticket) => {
+    if (selectedFiltersM.length === 0) {
+      return true;
+    }
+    if (!ticket) {
+      return false;
+    }
+    return selectedFiltersM.every((filter) => {
+      if (
+        filter === "cancel" ||
+        filter === "book" ||
+        filter === "question" ||
+        filter === "reschedule"
+      ) {
+        return ticket.type === filter; // Match type property for "cancel" and "book" filters
+      } else if (filter === "new") {
+        return ticket.isNew === "new"; // Match isNew property for "new" filter
+      } else if (filter === "urgent") {
+        return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+      }
+      return false; // Return false for unknown filters
+    });
+  });
+  // .sort((a, b) => {
+  //   if (sortOption == "Most Recent") {
+  //     return b?.timestamp.localeCompare(a?.timestamp);
+  //   } else if (sortOption == "Oldest") {
+  //     return a?.timestamp.localeCompare(b?.timestamp);
+  //   }
+  // });
+
+  const sfPendingTickets = pendingTickets.filter((ticket) => {
+    if (selectedFiltersP.length === 0) {
+      return true;
+    }
+    if (!ticket) {
+      return false;
+    }
+    return selectedFiltersP.every((filter) => {
+      if (
+        filter === "cancel" ||
+        filter === "book" ||
+        filter === "question" ||
+        filter === "reschedule"
+      ) {
+        return ticket.type === filter; // Match type property for "cancel" and "book" filters
+      } else if (filter === "new") {
+        return ticket.isNew === "new"; // Match isNew property for "new" filter
+      } else if (filter === "urgent") {
+        return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+      }
+      return false; // Return false for unknown filters
+    });
+  });
+  // .sort((a, b) => {
+  //   if (sortOption == "Most Recent") {
+  //     return b?.timestamp.localeCompare(a?.timestamp);
+  //   } else if (sortOption == "Oldest") {
+  //     return a?.timestamp.localeCompare(b?.timestamp);
+  //   }
+  // });
+
+  const sfCompletedTickets = completedTickets.filter((ticket) => {
+    if (selectedFiltersC.length === 0) {
+      return true;
+    }
+    if (!ticket) {
+      return false;
+    }
+    return selectedFiltersC.every((filter) => {
+      if (
+        filter === "cancel" ||
+        filter === "book" ||
+        filter === "question" ||
+        filter === "reschedule"
+      ) {
+        return ticket.type === filter; // Match type property for "cancel" and "book" filters
+      } else if (filter === "new") {
+        return ticket.isNew === "new"; // Match isNew property for "new" filter
+      } else if (filter === "urgent") {
+        return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+      }
+      return false; // Return false for unknown filters
+    });
+  });
+  // .sort((a, b) => {
+  //   if (sortOption == "Most Recent") {
+  //     return b?.timestamp.localeCompare(a?.timestamp);
+  //   } else if (sortOption == "Oldest") {
+  //     return a?.timestamp.localeCompare(b?.timestamp);
+  //   }
+  // });
 
   return (
     <ProductNavBar>
@@ -156,17 +276,18 @@ export default function DashboardPage() {
             <div className="sf-container flex-col gap-2">
               <div className="flex flex-row w-full gap-4 justify-between">
                 Sort{" "}
+                <Select onChange={handleSortSelection} options={sortOptions} />
               </div>
               <div className="flex flex-row w-full gap-4 justify-between">
                 Filter{" "}
                 <Multiselect
                   options={filterOptions}
-                  onChange={handleFilterChange}
+                  onChange={handleFilterChangeM}
                 />
               </div>
             </div>
             <div className="backlog-container flex-col">
-              {missedTickets.map((ticket) => (
+              {sfMissedTickets.map((ticket) => (
                 <Ticket
                   isNew={ticket?.isNew}
                   urgent={ticket?.urgent}
@@ -186,12 +307,20 @@ export default function DashboardPage() {
               <h3>Pending</h3>
             </div>
             <div className="sf-container flex-col gap-2">
-              <div>Sort</div>
-              {/* needs sort and filter components */}
-              <div>Filter</div>
+              <div className="flex flex-row w-full gap-4 justify-between">
+                Sort{" "}
+                <Select onChange={handleSortSelection} options={sortOptions} />
+              </div>
+              <div className="flex flex-row w-full gap-4 justify-between">
+                Filter{" "}
+                <Multiselect
+                  options={filterOptions}
+                  onChange={handleFilterChangeP}
+                />
+              </div>
             </div>
             <div className="backlog-container flex-col">
-              {pendingTickets.map((ticket) => (
+              {sfPendingTickets.map((ticket) => (
                 <Ticket
                   isNew={ticket?.isNew}
                   urgent={ticket?.urgent}
@@ -211,12 +340,20 @@ export default function DashboardPage() {
               <h3>Completed</h3>
             </div>
             <div className="sf-container flex-col gap-2">
-              <div>Sort</div>
-              {/* needs sort and filter components */}
-              <div>Filter</div>
+              <div className="flex flex-row w-full gap-4 justify-between">
+                Sort{" "}
+                <Select onChange={handleSortSelection} options={sortOptions} />
+              </div>
+              <div className="flex flex-row w-full gap-4 justify-between">
+                Filter{" "}
+                <Multiselect
+                  options={filterOptions}
+                  onChange={handleFilterChangeC}
+                />
+              </div>
             </div>
             <div className="backlog-container flex-col">
-              {completedTickets.map((ticket) => (
+              {sfCompletedTickets.map((ticket) => (
                 <Ticket
                   isNew={ticket?.isNew}
                   urgent={ticket?.urgent}
