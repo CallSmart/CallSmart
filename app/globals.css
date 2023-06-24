@@ -28,17 +28,29 @@ input {
 }
 
 .container {
-  @apply flex bg-white border-[1px] border-[#CBCCD0] px-8 py-4 rounded-lg;
+  @apply flex px-8 py-4 bg-white border-[1px] border-[#CBCCD0] rounded-lg;
+}
+
+.sf-container {
+  @apply flex bg-white border-[1px] border-[#CBCCD0] p-4 rounded-lg;
 }
 
 .ticket-container {
   @apply flex flex-col border-2 border-sec-blue rounded-lg bg-white;
 }
 
+.backlog-container {
+  @apply flex bg-[#E5F0FA] border-[1px] border-prim-blue p-4 rounded-lg w-full gap-2 h-full overflow-y-scroll;
+}
+
 .ticket-prop {
-  @apply flex flex-row font-medium rounded-md gap-1 px-2 py-1 items-center;
+  @apply flex w-fit flex-row font-medium rounded-md gap-1 px-2 py-1 items-center leading-tight;
 }
 
 h4 {
   @apply font-semibold text-xl text-sec-blue;
+}
+
+h3 {
+  @apply font-medium text-sec-blue text-2xl;
 }

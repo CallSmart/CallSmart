@@ -10,7 +10,7 @@ import { supabase } from "../supabase";
 import { redirect } from "next/navigation";
 import { Session } from "@supabase/auth-helpers-nextjs";
 import router from "next/navigation";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -48,7 +48,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     const getUser = async () => {
       const user = await supabase.auth.getUser();
       const id = user?.data?.user?.id;
-      if(id) {
+      if (id) {
         const { data, error } = await supabase
           .from("users")
           .select("firstname, lastname")
@@ -58,11 +58,10 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
         } else {
           console.log("data", data);
         }
-        setFName(data?.[0]?.firstname || "")
-        setLName(data?.[0]?.lastname || "")
+        setFName(data?.[0]?.firstname || "");
+        setLName(data?.[0]?.lastname || "");
       }
-    }
-  
+    };
 
     const fetchSession = async () => {
       const token = localStorage.getItem("token") as string;
@@ -130,7 +129,9 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           >
             <div className="h-10 w-10 bg-white rounded-full" />
             <div className="flex flex-col gap-0 leading-tight">
-              <p>{fName} {lName}</p>
+              <p>
+                {fName} {lName}
+              </p>
               <em className="opacity-50 hover:opacity-100">Manage Account</em>
             </div>
           </a>
@@ -149,7 +150,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           </NavButton>
         </div>
       </div>
-      <div className="w-[calc(100dvw-256px)] bg-grey-light px-6 py-8">
+      <div className="w-[calc(100dvw-256px)] h-[100dvh] bg-grey-light px-6 py-8">
         {children}
       </div>
     </div>
