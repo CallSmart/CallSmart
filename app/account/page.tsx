@@ -210,6 +210,7 @@ export default function AccountPage() {
         console.error("Error sending password recovery email:", error.message);
       } else {
         console.log("Password recovery email sent successfully!");
+        window.alert("Password recovery email sent successfully! Make sure to check your spam folder.");
       }
     } catch (error) {
       console.error("Error sending password recovery email:", error);
