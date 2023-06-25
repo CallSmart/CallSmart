@@ -1,37 +1,49 @@
 "use client";
+import HomeNavBar from "@/components/HomeNavBar";
 import { useRouter } from "next/navigation";
 // import { useRouter } from 'next/router';
 import React from "react";
 
 const choosePlan = () => {
-    const router = useRouter();
+  const router = useRouter();
 
   const option = () => {
     router.push("/signup/contactForm");
   };
 
   return (
-    <div>
-      <h1>Choose Plan</h1>
-      <div className="grid grid-cols-4 gap-4 ">
-        <div className="col-span-1 flex flex-col items-center">
-          <h2>Option 1</h2>
-          <button onClick={() => option()}>Select</button>
+    <HomeNavBar>
+      <h1 className="text-center">Choose Your Plan</h1>
+      <div className="grid grid-cols-3 gap-2 w-3/4">
+        <div className="container flex-col gap-2 items-center">
+          <h4 className="text-prim-blue">Local Clinic</h4>
+          <h4>
+            <em>$39.99</em>
+          </h4>
+          <button className="btn-action" onClick={() => option()}>
+            Select
+          </button>
         </div>
-        <div className="col-span-1 flex flex-col items-center">
-          <h2>Option 2</h2>
-          <button onClick={() => option()}>Select</button>
+        <div className="container flex-col gap-2 items-center">
+          <h4 className="text-prim-blue">Multiple Clinic Company</h4>
+          <h4>
+            <em>$99.99</em>
+          </h4>
+          <button className="btn-action" onClick={() => option()}>
+            Select
+          </button>
         </div>
-        <div className="col-span-1 flex flex-col items-center">
-          <h2>Option 3</h2>
-          <button onClick={() => option()}>Select</button>
-        </div>
-        <div className="col-span-1 flex flex-col items-center">
-          <h2>Option 4</h2>
-          <button onClick={() => option()}>Select</button>
+        <div className="container flex-col gap-2 items-center">
+          <h4 className="text-prim-blue">Corporation</h4>
+          <h4>
+            <em>$299.99</em>
+          </h4>
+          <button className="btn-action" onClick={() => option()}>
+            Select
+          </button>
         </div>
       </div>
-    </div>
+    </HomeNavBar>
   );
 };
 

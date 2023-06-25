@@ -36,7 +36,13 @@ function Select({
         className="translate-x-1/4 w-[1px] font-semibold text-sec-blue px-2 z-50"
         onClick={() => setIsOpen((prevState) => !prevState)}
       >
-        <div className="translate-x-1/4 border-4 border-transparent border-t-sec-blue"></div>
+        <div
+          className={`${"translate-x-1/4 border-4 border-transparent"} ${
+            isOpen
+              ? "border-b-sec-blue -translate-y-1/4"
+              : "border-t-sec-blue translate-y-1/4"
+          }`}
+        />
         <ul
           className={`${"flex flex-col bg-white w-max px-2 py-1 border-[1px] border-[#CBCCD0] rounded-lg flex-col rounded-md absolute top-5 right-0 divide-y divide-grey-light"} ${
             isOpen ? "flex" : "hidden"

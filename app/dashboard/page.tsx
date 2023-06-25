@@ -53,7 +53,6 @@ export default function DashboardPage() {
 
   const handleSortSelection = (option: any) => {
     setSortOption(option[0]);
-    console.log(sortOption);
   };
 
   const [selectedFiltersM, setSelectedFiltersM] = useState<string[]>([]);
@@ -262,6 +261,14 @@ export default function DashboardPage() {
   //   }
   // });
 
+  const handleDidNot = (id: string) => {
+    console.log("I STILL DID NOT!!!");
+  };
+
+  const handleComplete = (id: string) => {
+    console.log("I STILL DID!!!");
+  };
+
   return (
     <ProductNavBar>
       <div className="flex h-full w-full">
@@ -287,9 +294,14 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="backlog-container flex-col">
-              {sfMissedTickets.map((ticket) => (
+              {sfMissedTickets.map((ticket, key) => (
                 <Ticket
+                  key={key}
                   isNew={ticket?.isNew}
+                  // id={ticket,id}
+                  id={"key"}
+                  onComplete={handleComplete}
+                  onDidNot={handleDidNot}
                   urgent={ticket?.urgent}
                   type={ticket?.type}
                   name={ticket?.name}
@@ -320,9 +332,14 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="backlog-container flex-col">
-              {sfPendingTickets.map((ticket) => (
+              {sfPendingTickets.map((ticket, key) => (
                 <Ticket
+                  key={key}
                   isNew={ticket?.isNew}
+                  // id={ticket,id}
+                  id={"key"}
+                  onComplete={handleComplete}
+                  onDidNot={handleDidNot}
                   urgent={ticket?.urgent}
                   type={ticket?.type}
                   name={ticket?.name}
@@ -353,9 +370,14 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="backlog-container flex-col">
-              {sfCompletedTickets.map((ticket) => (
+              {sfCompletedTickets.map((ticket, key) => (
                 <Ticket
+                  key={key}
                   isNew={ticket?.isNew}
+                  // id={ticket,id}
+                  id={"key"}
+                  onComplete={handleComplete}
+                  onDidNot={handleDidNot}
                   urgent={ticket?.urgent}
                   type={ticket?.type}
                   name={ticket?.name}
