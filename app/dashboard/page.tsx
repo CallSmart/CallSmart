@@ -273,7 +273,7 @@ export default function DashboardPage() {
     <ProductNavBar>
       <div className="flex h-full w-full">
         <div className="flex flex-row w-full gap-4 self-stretch">
-          <div className="flex flex-col gap-4  w-[calc(33%-0.5rem)]">
+          <div className="flex flex-col gap-4 w-[calc(33%-0.5rem)]">
             <div className="flex flex-row items-center gap-1">
               <div className="flex items-center justify-center h-[25px] w-[25px] bg-sec-blue text-white font-semibold text-sm rounded-full">
                 {missedTickets.length}
@@ -311,7 +311,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div className="flex flex-col gap-4  w-[calc(33%-0.5rem)]">
+          <div className="flex flex-col gap-4 w-[calc(33%-0.5rem)]">
             <div className="flex flex-row items-center gap-1">
               <div className="flex items-center justify-center h-[25px] w-[25px] bg-sec-blue text-white font-semibold text-sm rounded-full">
                 {pendingTickets.length}
@@ -349,7 +349,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div className="flex flex-col gap-4  w-[calc(33%-0.5rem)]">
+          <div className="flex flex-col gap-4 w-[calc(33%-0.5rem)]">
             <div className="flex flex-row items-center gap-1">
               <div className="flex items-center justify-center h-[25px] w-[25px] bg-sec-blue text-white font-semibold text-sm rounded-full">
                 {completedTickets.length}

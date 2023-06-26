@@ -55,7 +55,7 @@ function Multiselect({
         <em className="opacity-50">No Filter</em>
       )}
       <div
-        className="translate-x-1/4 w-[1px] font-semibold text-sec-blue px-2 z-40"
+        className="translate-x-1/4 w-[1px] font-semibold text-sec-blue px-2 z-40 cursor-pointer"
         onClick={() => {
           if (selectedOptions.length === options.length) {
             setSelectedOptions([]);
@@ -64,7 +64,11 @@ function Multiselect({
           }
         }}
       >
-        {selectedOptions.length === options.length ? <span>&times;</span> : "+"}
+        {selectedOptions.length === options.length ? (
+          <span className="hover:text-[#ff0000]">&times;</span>
+        ) : (
+          "+"
+        )}
         <ul
           className={`${"flex flex-col bg-white w-max px-2 py-1 border-[1px] border-[#CBCCD0] rounded-lg flex-col rounded-md absolute top-5 right-0 divide-y divide-grey-light"} ${
             isOpen ? "flex" : "hidden"

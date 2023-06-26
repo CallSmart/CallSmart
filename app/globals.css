@@ -11,6 +11,10 @@ body,
   font-family: Inter, Arial, Helvetica, sans-serif;
 }
 
+::-webkit-scrollbar {
+  @apply hidden;
+}
+
 .btn-action {
   @apply px-4 py-2 bg-sec-blue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white w-fit;
 }
@@ -33,9 +37,6 @@ input {
 
 .container {
   @apply flex px-8 py-4 bg-white border-[1px] border-[#CBCCD0] rounded-lg;
-}
-
-label {
 }
 
 .sf-container {
