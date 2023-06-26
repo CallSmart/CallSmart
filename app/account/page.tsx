@@ -255,6 +255,45 @@ export default function AccountPage() {
     }
   };
 
+  const deleteEmployee = async (id: number) => {
+    const { error } = await supabase.from("employees").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting employee:", error.message);
+    } else {
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((employee) => employee.id !== id)
+      );
+    }
+  };
+
+  const deleteOfficeManager = async (id: number) => {
+    const { error } = await supabase.from("managers").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting office manager:", error.message);
+    } else {
+      setOfficeManagers((prevManagers) =>
+        prevManagers.filter((manager) => manager.id !== id)
+      );
+    }
+  };
+
+  const sendPasswordRecoveryEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+      if (error) {
+        console.error("Error sending password recovery email:", error.message);
+      } else {
+        console.log("Password recovery email sent successfully!");
+        window.alert(
+          "Password recovery email sent successfully! Make sure to check your spam folder."
+        );
+      }
+    } catch (error) {
+      console.error("Error sending password recovery email:", error);
+    }
+  };
+
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
