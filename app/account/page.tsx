@@ -62,6 +62,8 @@ export default function AccountPage() {
   const [isInputClicked, setIsInputClicked] = useState(false);
 
   const [errorOnAdd, setErrorOnAdd] = useState(false);
+  const [clinicId, setClinicId] = useState(0);
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
     const session = supabase.auth.getSession();
@@ -136,40 +138,65 @@ export default function AccountPage() {
   const getUser = async () => {
     const user = await supabase.auth.getUser();
     const id = user?.data?.user?.id;
+    
     if (id) {
-      if (id) {
-        const { data, error } = await supabase
-          .from("users")
-          .select("firstname, lastname, organization, role")
-          .eq("id", id);
-        if (error) {
-          console.error("Error fetching user:", error.message);
-        } else {
-          setFName(data?.[0]?.firstname || "");
-          setLName(data?.[0]?.lastname || "");
-          setOrganization(data?.[0]?.organization || "");
-          setRole(data?.[0]?.role || "");
-        }
+      setUserId(id);
+      const { data, error } = await supabase
+        .from("users")
+        .select("firstname, lastname, organization, role")
+        .eq("id", id);
+      if (error) {
+        console.error("Error fetching user:", error.message);
+      } else {
         setFName(data?.[0]?.firstname || "");
         setLName(data?.[0]?.lastname || "");
         setOrganization(data?.[0]?.organization || "");
         setRole(data?.[0]?.role || "");
       }
+      setFName(data?.[0]?.firstname || "");
+      setLName(data?.[0]?.lastname || "");
+      setOrganization(data?.[0]?.organization || "");
+      setRole(data?.[0]?.role || "");
     }
+    
   };
 
-  const addClinic = async () => {
+  const addClinicMain = async () => {
+    await addClinic();
+    console.log('added clinic')
+    
+    console.log('added relation')
+  };
+
+  const addClinicRelation = async () => {
     const { error } = await supabase
+      .from("owner_clinics")
+      .insert([{ clinic: clinicId, owner: userId }]);
+    if (error) {
+      console.error("Error adding clinic:", error.message);
+      handleErrorOnAdd();
+    }
+    fetchClinics();
+    setIsClinicOpen(false);
+  }
+
+  const addClinic = async () => {
+    const { data, error } = await supabase
       .from("clinics")
-      .insert([{ name: newClinicName }]);
+      .insert([{ name: newClinicName }])
+      .select()
     if (error) {
       console.error("Error adding clinic:", error.message);
       handleErrorOnAdd();
     } else {
+      console.log("data", data);
+      await addClinicRelation();
+      setClinicId(data?.[0]?.id || 0);
       setNewClinicName("");
-      fetchClinics();
+      return
     }
-    setIsClinicOpen(false);
+    return
+    // return(data?.[0]?.id || 0)
   };
 
   const addEmployee = async () => {
@@ -401,7 +428,7 @@ export default function AccountPage() {
                     type="text"
                     value={newClinicName}
                     placeholder="Clinic Name"
-                    onKeyDown={(e) => (e.key == "Enter" ? addClinic() : null)}
+                    onKeyDown={(e) => (e.key == "Enter" ? addClinicMain() : null)}
                     onChange={(e) => setNewClinicName(e.target.value)}
                     onFocus={(e) => {
                       e.stopPropagation();

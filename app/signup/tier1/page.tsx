@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Button from "@/components/Button";
 import { useUser } from "@/hooks/useUser";
@@ -9,6 +9,7 @@ import { getStripe } from "@/libs/stripeClient";
 
 const Tier1Page = async () => {
   const [priceIdLoading, setPriceIdLoading] = useState<string>();
+  const [products, setProducts] = useState<any>([]);
   const { user, isLoading, subscription } = useUser();
   console.log(user);
   console.log(isLoading);
@@ -99,7 +100,15 @@ const Tier1Page = async () => {
     }
   };
 
-  const products = await fetchProducts(); //might this be your loop?
+  // const products = await fetchProducts(); //might this be your loop?
+  useEffect(() => {
+    const getProducts = async () => {
+      const { products } = await fetchProducts();
+      console.log(products);
+      setProducts(products);
+    };
+    getProducts();
+  }, []);
 
   return (
     <div>
