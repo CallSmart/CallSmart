@@ -56,7 +56,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
         if (error) {
           console.error("Error fetching user:", error.message);
         } else {
-          console.log("data", data);
+          // console.log("data", data);
         }
         setFName(data?.[0]?.firstname || "");
         setLName(data?.[0]?.lastname || "");
@@ -67,9 +67,9 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       const token = localStorage.getItem("token") as string;
       const { data, error } = await supabase.auth.getSession();
       const user = await supabase.auth.getUser(token);
-      console.log(user);
-      console.log("here");
-      console.log(data?.session?.user);
+      // console.log(user);
+      // console.log("here");
+      // console.log(data?.session?.user);
       if (error) {
         redirect("/signin");
       } else {

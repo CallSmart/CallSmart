@@ -74,86 +74,51 @@ export default function DashboardPage() {
     // const userId = localStorage.getItem("userId");
     // const token = localStorage.getItem("token"); // are we using same logic here?
     //api call for all notes here
-    const tickets = [
-      {
-        isNew: "new",
-        urgent: "urgent",
-        type: "cancel",
-        name: "Bartek Kowalski",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-      {
-        isNew: "not",
-        urgent: "not",
-        type: "book",
-        name: "Marcelo Chaman",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-      {
-        isNew: "new",
-        urgent: "not",
-        type: "book",
-        name: "Marcelo Chaman",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-    ];
+
+    const token = localStorage.getItem("token") as string;
+    const user = await supabase.auth.getUser();
+    const id = user?.data?.user?.id;
+
+    console.log("Got user: ", id);
+
+    const { data: clinics, error: clinicsError } = await supabase
+      .from("owner_clinics")
+      .select("clinic")
+      .eq("owner", id);
+
+    if (clinicsError) {
+      console.error("Error fetching clinics:", clinicsError);
+      return;
+    }
+
+    console.log("Got clinics: ", clinics);
+
+    const clinicIds = clinics.map((clinic) => clinic.clinic);
+    console.log("Got clinic IDs: ", clinicIds);
+
+    const { data: tickets, error: ticketsError } = await supabase
+      .from("tickets")
+      .select("*")
+      .in("clinic", clinicIds)
+      .eq("stage", 1);
+
+    if (ticketsError) {
+      console.error("Error fetching tickets:", ticketsError);
+      return;
+    }
+    console.log("Got tickets: ", tickets);
 
     setMissedTickets(tickets);
   };
 
   const fetchPendingTickets = async () => {
-    // const userId = localStorage.getItem("userId");
-    // const token = localStorage.getItem("token"); // are we using same logic here?
-    //api call for all notes here
-    const tickets = [
-      {
-        isNew: "new",
-        urgent: "urgent",
-        type: "cancel",
-        name: "Bartek Kowalski",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-      {
-        isNew: "not",
-        urgent: "not",
-        type: "book",
-        name: "Marcelo Chaman",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-    ];
-
-    setPendingTickets(tickets);
+    // const tickets = [];
+    // setPendingTickets(tickets);
   };
 
   const fetchCompletedTickets = async () => {
-    // const userId = localStorage.getItem("userId");
-    // const token = localStorage.getItem("token"); // are we using same logic here?
-    //api call for all notes here
-    const tickets = [
-      {
-        isNew: "new",
-        urgent: "urgent",
-        type: "cancel",
-        name: "Bartek Kowalski",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-      {
-        isNew: "not",
-        urgent: "not",
-        type: "book",
-        name: "Marcelo Chaman",
-        number: "+1 905 599 3866",
-        time: "1:32pm",
-      },
-    ];
-
-    setCompletedTickets(tickets);
+    // const tickets = [];
+    // setCompletedTickets(tickets);
   };
 
   const handleFilterChangeM = (options: string[]) => {
@@ -168,98 +133,105 @@ export default function DashboardPage() {
     setSelectedFiltersC(options);
   };
 
-  const sfMissedTickets = missedTickets.filter((ticket) => {
-    if (selectedFiltersM.length === 0) {
-      return true;
-    }
-    if (!ticket) {
-      return false;
-    }
-    return selectedFiltersM.every((filter) => {
-      if (
-        filter === "cancel" ||
-        filter === "book" ||
-        filter === "question" ||
-        filter === "reschedule"
-      ) {
-        return ticket.type === filter; // Match type property for "cancel" and "book" filters
-      } else if (filter === "new") {
-        return ticket.isNew === "new"; // Match isNew property for "new" filter
-      } else if (filter === "urgent") {
-        return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+  const sfMissedTickets = missedTickets
+    .filter((ticket) => {
+      if (selectedFiltersM.length === 0) {
+        return true;
       }
-      return false; // Return false for unknown filters
+      if (!ticket) {
+        return false;
+      }
+      return selectedFiltersM.every((filter) => {
+        if (
+          filter === "cancel" ||
+          filter === "book" ||
+          filter === "question" ||
+          filter === "reschedule"
+        ) {
+          return ticket.type === filter; // Match type property for "cancel" and "book" filters
+        } else if (filter === "new") {
+          return ticket.isNew === "new"; // Match isNew property for "new" filter
+        } else if (filter === "urgent") {
+          return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+        }
+        return false; // Return false for unknown filters
+      });
+    })
+    .sort((a, b) => {
+      if (sortOption == "Most Recent") {
+        return b?.time.localeCompare(a?.time);
+      } else if (sortOption == "Oldest") {
+        return a?.time.localeCompare(b?.time);
+      }
+      return 0;
     });
-  });
-  // .sort((a, b) => {
-  //   if (sortOption == "Most Recent") {
-  //     return b?.timestamp.localeCompare(a?.timestamp);
-  //   } else if (sortOption == "Oldest") {
-  //     return a?.timestamp.localeCompare(b?.timestamp);
-  //   }
-  // });
 
-  const sfPendingTickets = pendingTickets.filter((ticket) => {
-    if (selectedFiltersP.length === 0) {
-      return true;
-    }
-    if (!ticket) {
-      return false;
-    }
-    return selectedFiltersP.every((filter) => {
-      if (
-        filter === "cancel" ||
-        filter === "book" ||
-        filter === "question" ||
-        filter === "reschedule"
-      ) {
-        return ticket.type === filter; // Match type property for "cancel" and "book" filters
-      } else if (filter === "new") {
-        return ticket.isNew === "new"; // Match isNew property for "new" filter
-      } else if (filter === "urgent") {
-        return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+  const sfPendingTickets = pendingTickets
+    .filter((ticket) => {
+      if (selectedFiltersP.length === 0) {
+        return true;
       }
-      return false; // Return false for unknown filters
+      if (!ticket) {
+        return false;
+      }
+      return selectedFiltersP.some((filter) => {
+        // Use some() instead of every()
+        if (
+          filter === "cancel" ||
+          filter === "book" ||
+          filter === "question" ||
+          filter === "reschedule"
+        ) {
+          return ticket.type === filter; // Match type property for these filters
+        } else if (filter === "new") {
+          return ticket.isNew === "new"; // Match isNew property for "new" filter
+        } else if (filter === "urgent") {
+          return ticket.urgent === "urgent"; // Match urgent property for "urgent" filter
+        }
+        return false; // Return false for unknown filters
+      });
+    })
+    .sort((a, b) => {
+      if (sortOption == "Most Recent") {
+        return b?.time.localeCompare(a?.time);
+      } else if (sortOption == "Oldest") {
+        return a?.time.localeCompare(b?.time);
+      }
+      return 0;
     });
-  });
-  // .sort((a, b) => {
-  //   if (sortOption == "Most Recent") {
-  //     return b?.timestamp.localeCompare(a?.timestamp);
-  //   } else if (sortOption == "Oldest") {
-  //     return a?.timestamp.localeCompare(b?.timestamp);
-  //   }
-  // });
 
-  const sfCompletedTickets = completedTickets.filter((ticket) => {
-    if (selectedFiltersC.length === 0) {
-      return true;
-    }
-    if (!ticket) {
-      return false;
-    }
-    return selectedFiltersC.every((filter) => {
-      if (
-        filter === "cancel" ||
-        filter === "book" ||
-        filter === "question" ||
-        filter === "reschedule"
-      ) {
-        return ticket.type === filter; // Match type property for "cancel" and "book" filters
-      } else if (filter === "new") {
-        return ticket.isNew === "new"; // Match isNew property for "new" filter
-      } else if (filter === "urgent") {
-        return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+  const sfCompletedTickets = completedTickets
+    .filter((ticket) => {
+      if (selectedFiltersC.length === 0) {
+        return true;
       }
-      return false; // Return false for unknown filters
+      if (!ticket) {
+        return false;
+      }
+      return selectedFiltersC.every((filter) => {
+        if (
+          filter === "cancel" ||
+          filter === "book" ||
+          filter === "question" ||
+          filter === "reschedule"
+        ) {
+          return ticket.type === filter; // Match type property for "cancel" and "book" filters
+        } else if (filter === "new") {
+          return ticket.isNew === "new"; // Match isNew property for "new" filter
+        } else if (filter === "urgent") {
+          return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+        }
+        return false; // Return false for unknown filters
+      });
+    })
+    .sort((a, b) => {
+      if (sortOption == "Most Recent") {
+        return b?.time.localeCompare(a?.time);
+      } else if (sortOption == "Oldest") {
+        return a?.time.localeCompare(b?.time);
+      }
+      return 0;
     });
-  });
-  // .sort((a, b) => {
-  //   if (sortOption == "Most Recent") {
-  //     return b?.timestamp.localeCompare(a?.timestamp);
-  //   } else if (sortOption == "Oldest") {
-  //     return a?.timestamp.localeCompare(b?.timestamp);
-  //   }
-  // });
 
   const handleDidNot = (id: string) => {
     console.log("I STILL DID NOT!!!");
