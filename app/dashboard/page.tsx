@@ -11,34 +11,52 @@ import Select from "@/components/Select";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [missedTickets, setMissedTickets] = useState<
+  const [allTickets, setAllTickets] = useState<
     {
+      id: number;
       isNew: string;
       urgent: string;
       type: string;
       name: string;
       number: string;
       time: string;
+      stage: number;
+    }[]
+  >([]);
+  const [missedTickets, setMissedTickets] = useState<
+    {
+      id: number;
+      isNew: string;
+      urgent: string;
+      type: string;
+      name: string;
+      number: string;
+      time: string;
+      stage: number;
     }[]
   >([]);
   const [pendingTickets, setPendingTickets] = useState<
     {
+      id: number;
       isNew: string;
       urgent: string;
       type: string;
       name: string;
       number: string;
       time: string;
+      stage: number;
     }[]
   >([]);
   const [completedTickets, setCompletedTickets] = useState<
     {
+      id: number;
       isNew: string;
       urgent: string;
       type: string;
       name: string;
       number: string;
       time: string;
+      stage: number;
     }[]
   >([]);
   const filterOptions = [
@@ -51,10 +69,6 @@ export default function DashboardPage() {
   ];
   const sortOptions = ["Most Recent", "Oldest"];
 
-  const handleSortSelection = (option: any) => {
-    setSortOption(option[0]);
-  };
-
   const [selectedFiltersM, setSelectedFiltersM] = useState<string[]>([]);
   const [selectedFiltersP, setSelectedFiltersP] = useState<string[]>([]);
   const [selectedFiltersC, setSelectedFiltersC] = useState<string[]>([]);
@@ -65,16 +79,23 @@ export default function DashboardPage() {
     if (!session) {
       router.push("/signin"); // Redirect to sign-in if no session found
     }
-    fetchMissedTickets();
-    fetchPendingTickets();
-    fetchCompletedTickets();
+    fetchAllTickets();
   }, []);
 
-  const fetchMissedTickets = async () => {
-    // const userId = localStorage.getItem("userId");
-    // const token = localStorage.getItem("token"); // are we using same logic here?
-    //api call for all notes here
+  useEffect(() => {
+    settingMissedTickets();
+    settingPendingTickets();
+    settingCompletedTickets();
+  }, [allTickets]);
 
+  const updateTickets = async () => {
+    console.log("Updating tickets");
+    await settingMissedTickets();
+    await settingPendingTickets();
+    await settingCompletedTickets();
+  };
+
+  const fetchAllTickets = async () => {
     const token = localStorage.getItem("token") as string;
     const user = await supabase.auth.getUser();
     const id = user?.data?.user?.id;
@@ -99,8 +120,7 @@ export default function DashboardPage() {
     const { data: tickets, error: ticketsError } = await supabase
       .from("tickets")
       .select("*")
-      .in("clinic", clinicIds)
-      .eq("stage", 1);
+      .in("clinic", clinicIds);
 
     if (ticketsError) {
       console.error("Error fetching tickets:", ticketsError);
@@ -108,17 +128,46 @@ export default function DashboardPage() {
     }
     console.log("Got tickets: ", tickets);
 
+    setAllTickets(tickets);
+  };
+
+  const settingMissedTickets = async () => {
+    console.log("setting missed tickets");
+    const tickets = allTickets.filter((ticket) => {
+      if (ticket.stage == 1) {
+        return true;
+      } else {
+        return false;
+      }
+    });
     setMissedTickets(tickets);
+    console.log("set missed tickets");
   };
 
-  const fetchPendingTickets = async () => {
-    // const tickets = [];
-    // setPendingTickets(tickets);
+  const settingPendingTickets = async () => {
+    console.log("setting pending tickets");
+    const tickets = allTickets.filter((ticket) => {
+      if (ticket.stage == 2) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    setPendingTickets(tickets);
+    console.log("set pending tickets");
   };
 
-  const fetchCompletedTickets = async () => {
-    // const tickets = [];
-    // setCompletedTickets(tickets);
+  const settingCompletedTickets = async () => {
+    console.log("setting completed tickets");
+    const tickets = allTickets.filter((ticket) => {
+      if (ticket.stage == 3) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    setCompletedTickets(tickets);
+    console.log("set completed tickets");
   };
 
   const handleFilterChangeM = (options: string[]) => {
@@ -131,6 +180,10 @@ export default function DashboardPage() {
 
   const handleFilterChangeC = (options: string[]) => {
     setSelectedFiltersC(options);
+  };
+
+  const handleSortSelection = (option: any) => {
+    setSortOption(option[0]);
   };
 
   const sfMissedTickets = missedTickets
@@ -233,12 +286,35 @@ export default function DashboardPage() {
       return 0;
     });
 
-  const handleDidNot = (id: string) => {
-    console.log("I STILL DID NOT!!!");
+  const handleDidNot = async (id: number) => {
+    const { data, error } = await supabase
+      .from("tickets")
+      .update({ stage: 2 })
+      .eq("id", id)
+      .select();
+    if (error) {
+      console.log("Error updating ticket stage: ", error);
+    } else {
+      console.log("Updated ticket stage: ", data);
+    }
+
+    await fetchAllTickets();
+
+    console.log("I STILL DID NOT!!!: ", id);
   };
 
-  const handleComplete = (id: string) => {
-    console.log("I STILL DID!!!");
+  const handleComplete = async (id: number) => {
+    const { data, error } = await supabase
+      .from("tickets")
+      .update({ stage: 3 })
+      .eq("id", id)
+      .select();
+    if (error) {
+      console.log("Error updating ticket stage: ", error);
+    } else {
+      console.log("Updated ticket stage: ", data);
+    }
+    await fetchAllTickets();
   };
 
   return (
@@ -253,11 +329,11 @@ export default function DashboardPage() {
               <h3>Missed Calls</h3>
             </div>
             <div className="sf-container flex-col gap-2">
-              <div className="flex flex-row w-full gap-4 justify-between">
+              <div className="flex flex-row w-full gap-4 justify-between min-h-[28px] items-center">
                 Sort{" "}
                 <Select onChange={handleSortSelection} options={sortOptions} />
               </div>
-              <div className="flex flex-row w-full gap-4 justify-between">
+              <div className="flex flex-row w-full gap-4 justify-between min-h-[28px] items-center">
                 Filter{" "}
                 <Multiselect
                   options={filterOptions}
@@ -270,8 +346,7 @@ export default function DashboardPage() {
                 <Ticket
                   key={key}
                   isNew={ticket?.isNew}
-                  // id={ticket,id}
-                  id={"key"}
+                  id={ticket?.id}
                   onComplete={handleComplete}
                   onDidNot={handleDidNot}
                   urgent={ticket?.urgent}
@@ -279,6 +354,7 @@ export default function DashboardPage() {
                   name={ticket?.name}
                   number={ticket?.number}
                   time={ticket?.time}
+                  stage={ticket?.stage}
                 />
               ))}
             </div>
@@ -291,11 +367,11 @@ export default function DashboardPage() {
               <h3>Pending</h3>
             </div>
             <div className="sf-container flex-col gap-2">
-              <div className="flex flex-row w-full gap-4 justify-between">
+              <div className="flex flex-row w-full gap-4 justify-between min-h-[28px] items-center">
                 Sort{" "}
                 <Select onChange={handleSortSelection} options={sortOptions} />
               </div>
-              <div className="flex flex-row w-full gap-4 justify-between">
+              <div className="flex flex-row w-full gap-4 justify-between min-h-[28px] items-center">
                 Filter{" "}
                 <Multiselect
                   options={filterOptions}
@@ -308,8 +384,7 @@ export default function DashboardPage() {
                 <Ticket
                   key={key}
                   isNew={ticket?.isNew}
-                  // id={ticket,id}
-                  id={"key"}
+                  id={ticket?.id}
                   onComplete={handleComplete}
                   onDidNot={handleDidNot}
                   urgent={ticket?.urgent}
@@ -317,6 +392,7 @@ export default function DashboardPage() {
                   name={ticket?.name}
                   number={ticket?.number}
                   time={ticket?.time}
+                  stage={ticket?.stage}
                 />
               ))}
             </div>
@@ -329,11 +405,11 @@ export default function DashboardPage() {
               <h3>Completed</h3>
             </div>
             <div className="sf-container flex-col gap-2">
-              <div className="flex flex-row w-full gap-4 justify-between">
+              <div className="flex flex-row w-full gap-4 justify-between min-h-[28px] items-center">
                 Sort{" "}
                 <Select onChange={handleSortSelection} options={sortOptions} />
               </div>
-              <div className="flex flex-row w-full gap-4 justify-between">
+              <div className="flex flex-row w-full gap-4 justify-between min-h-[28px] items-center">
                 Filter{" "}
                 <Multiselect
                   options={filterOptions}
@@ -346,8 +422,7 @@ export default function DashboardPage() {
                 <Ticket
                   key={key}
                   isNew={ticket?.isNew}
-                  // id={ticket,id}
-                  id={"key"}
+                  id={ticket?.id}
                   onComplete={handleComplete}
                   onDidNot={handleDidNot}
                   urgent={ticket?.urgent}
@@ -355,6 +430,7 @@ export default function DashboardPage() {
                   name={ticket?.name}
                   number={ticket?.number}
                   time={ticket?.time}
+                  stage={ticket?.stage}
                 />
               ))}
             </div>

@@ -11,6 +11,8 @@ import { redirect } from "next/navigation";
 import { Session } from "@supabase/auth-helpers-nextjs";
 import router from "next/navigation";
 import { useRouter } from "next/navigation";
+import * as Img from "../app/images";
+import Image from "next/image";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -120,8 +122,15 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     <div className="flex flex-row ">
       <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center md:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
         <div className="flex flex-col gap-4">
-          <a className="h-fit w-fit font-bold text-2xl self-center" href="/">
-            CallSmart
+          <a
+            className="h-fit w-fit font-bold text-2xl self-center justify-center flex"
+            href="/"
+          >
+            <Image
+              src={Img.LogoFull}
+              alt="CallSmart Logo"
+              className="w-4/5 h-auto"
+            />
           </a>
           <a
             className="flex flex-row p-2 border-[1px] border-prim-blue text-prim-blue rounded-md bg-[#BFD9F2] gap-2"

@@ -1,7 +1,7 @@
 import * as Icons from "@/components/svgs";
 import TicketProp from "./TicketProp";
 import { useState } from "react";
-type FunctionType = (id: string) => void;
+type FunctionType = (id: number) => void;
 
 const Ticket = ({
   id,
@@ -13,8 +13,9 @@ const Ticket = ({
   name,
   number,
   time,
+  stage,
 }: {
-  id: string;
+  id: number;
   onDidNot: FunctionType;
   onComplete: FunctionType;
   isNew: string;
@@ -23,16 +24,17 @@ const Ticket = ({
   name: string;
   number: string;
   time: string;
+  stage: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [textOpen, setTextOpen] = useState(false);
 
-  const handleDidNot = (id: string) => {
+  const handleDidNot = (id: number) => {
     console.log("I DID NOT!!!");
     onDidNot(id);
   };
 
-  const handleComplete = (id: string) => {
+  const handleComplete = (id: number) => {
     console.log("I DID!!!");
     onComplete(id);
   };
@@ -178,7 +180,7 @@ const Ticket = ({
           </div>
           <div className="flex flex-row justify-between items-center text-white bg-sec-blue px-3 py-2 text-sm font-semibold absolute bottom-0 w-full h-fit">
             <em className="opacity-50 text-sm font-normal">
-              {new Date(time).toLocaleTimeString()}
+              Ticket ID: {id} - {customDateFormat(time)}
             </em>
             <div className="flex flex-row gap-2">
               <button
