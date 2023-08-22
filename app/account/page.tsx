@@ -59,8 +59,6 @@ export default function AccountPage() {
   const [isManagerOpen, setIsManagerOpen] = useState(false);
   const [isEmployeeOpen, setIsEmployeeOpen] = useState(false);
 
-  const [isInputClicked, setIsInputClicked] = useState(false);
-
   const [errorOnAdd, setErrorOnAdd] = useState(false);
 
   useEffect(() => {
@@ -158,7 +156,14 @@ export default function AccountPage() {
     }
   };
 
-  const addClinic = async () => {
+  const addClinic = async (e: any) => {
+    e.preventDefault();
+    setIsClinicOpen(false);
+    if (!newClinicName.slice()) {
+      e.preventDefault();
+      handleErrorOnAdd();
+      return;
+    }
     const { error } = await supabase
       .from("clinics")
       .insert([{ name: newClinicName }]);
@@ -172,7 +177,10 @@ export default function AccountPage() {
     setIsClinicOpen(false);
   };
 
-  const addEmployee = async () => {
+  const addEmployee = async (e: any) => {
+    e.preventDefault();
+    setIsEmployeeOpen(false);
+
     const { data, error } = await supabase.auth.signUp({
       email: newEmployeeEmail,
       password: newEmployeePassword,
@@ -189,7 +197,7 @@ export default function AccountPage() {
             firstName: newEmployeeFirstName,
             lastName: newEmployeeLastName,
             userId: data?.user?.id,
-            clinicId: newEmployeeClinicId,
+            clinic_id: newEmployeeClinicId,
             email: newEmployeeEmail,
           },
         ]);
@@ -205,10 +213,11 @@ export default function AccountPage() {
         fetchEmployees();
       }
     }
-    setIsEmployeeOpen(false);
   };
 
-  const addOfficeManager = async () => {
+  const addOfficeManager = async (e: any) => {
+    e.preventDefault();
+    setIsManagerOpen(false);
     const { data, error } = await supabase.auth.signUp({
       email: newOfficeManagerEmail,
       password: newOfficeManagerPassword,
@@ -241,7 +250,6 @@ export default function AccountPage() {
         fetchOfficeManagers();
       }
     }
-    setIsManagerOpen(false);
   };
 
   const deleteClinic = async (id: number) => {
@@ -301,16 +309,6 @@ export default function AccountPage() {
     }
   };
 
-  const handleBlur = () => {
-    setTimeout(() => {
-      if (!isInputClicked) {
-        setIsClinicOpen(false);
-        setIsManagerOpen(false);
-        setIsEmployeeOpen(false);
-      }
-    }, 200);
-  };
-
   const handleErrorOnAdd = () => {
     setErrorOnAdd(true);
     setTimeout(() => {
@@ -338,19 +336,30 @@ export default function AccountPage() {
         <div
           className={`${
             errorOnAdd
-              ? "font-semibold text-xl px-4 py-2 bg-[#E44D43] text-[#FAE3DE] rounded-xl w-fit z-50 absolute-center"
+              ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
               : "hidden"
           }`}
         >
-          Error on Add
+          <div
+            className={`${
+              errorOnAdd
+                ? "font-semibold text-xl px-4 py-2 bg-[#E44D43] text-[#FAE3DE] rounded-xl w-fit z-50 absolute-center static"
+                : "hidden"
+            }`}
+          >
+            Error on Add
+          </div>
         </div>
         <div className="ticket-container flex-col divide-y border-px divide-sec-blue">
-          <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold px-2">
-            <p className="text-left">CLINICS</p>
+          <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold px-2 text-left">
+            <p>CLINICS</p>
           </div>
           <ul className="divide-y border-px divide-sec-blue">
             {clinics.map((clinic) => (
-              <li className="w-full flex flex-row" key={clinic.id}>
+              <li
+                className="w-full flex flex-row overflow-scroll"
+                key={clinic.id}
+              >
                 <div className="flex bg-sec-blue text-white font-semibold text-sm w-8 justify-center items-center">
                   {clinic.id}
                 </div>
@@ -364,13 +373,9 @@ export default function AccountPage() {
               </li>
             ))}
           </ul>
-          <div
-            tabIndex={0}
-            onBlur={() => handleBlur()}
-            className="bg-sec-blue w-full"
-          >
+          <div className="bg-sec-blue w-full">
             <span
-              className="flex text-white font-bold w-8 items-center justify-center"
+              className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
               onClick={() => setIsClinicOpen((prevState) => !prevState)}
             >
               <p>+</p>
@@ -383,46 +388,24 @@ export default function AccountPage() {
               />
             </span>
             {isClinicOpen ? (
-              <div
-                className={
-                  "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                }
+              <form
+                className="ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
+                onSubmit={addClinic}
               >
                 <h4>Add a Clinic</h4>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Clinic Name</label>
                   <input
-                    className=""
                     type="text"
                     value={newClinicName}
                     placeholder="Clinic Name"
-                    onKeyDown={(e) => (e.key == "Enter" ? addClinic() : null)}
                     onChange={(e) => setNewClinicName(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
+                  ></input>
                 </span>
-                <button
-                  className="btn-action"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addClinic();
-                  }}
-                >
+                <button className="btn-action" type="submit">
                   Add Clinic
                 </button>
-              </div>
+              </form>
             ) : (
               ""
             )}
@@ -445,10 +428,18 @@ export default function AccountPage() {
                 className="flex flex-row w-full divide-x divide-sec-blue border-px border-sec-blue"
                 key={manager.id}
               >
-                <span className="w-1/4 pl-2">{manager.firstName}</span>
-                <span className="w-1/4 pl-2">{manager.lastName}</span>
-                <span className="w-1/4 pl-2">{manager.email}</span>
-                <span className="w-1/4 pl-2">{manager.clinicId}</span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {manager.firstName}
+                </span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {manager.lastName}
+                </span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {manager.email}
+                </span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {manager.clinicId}
+                </span>
                 <button
                   className="bg-sec-blue text-white font-bold w-20 items-center"
                   onClick={() => sendPasswordRecoveryEmail(manager.email)}
@@ -464,37 +455,29 @@ export default function AccountPage() {
               </li>
             ))}
           </ul>
-          <div
-            tabIndex={0}
-            onBlur={() => handleBlur()}
-            className="bg-sec-blue w-full"
-          >
+          <div className="bg-sec-blue w-full">
             <span
-              className="flex text-white font-bold w-8 items-center justify-center"
+              className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
               onClick={() => setIsManagerOpen((prevState) => !prevState)}
             >
               <p>+</p>
               <div
                 className={`${
-                  isManagerOpen || errorOnAdd
+                  isManagerOpen
                     ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
                     : ""
                 }`}
               />
             </span>
             {isManagerOpen ? (
-              <div
+              <form
+                onSubmit={addOfficeManager}
                 className={
                   "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
                 }
               >
                 <h4>Add an Office Manager</h4>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>First Name</label>
                   <input
                     type="text"
@@ -503,22 +486,9 @@ export default function AccountPage() {
                     onChange={(e) =>
                       setNewOfficeManagerFirstName(e.target.value)
                     }
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Last Name</label>
                   <input
                     type="text"
@@ -527,44 +497,18 @@ export default function AccountPage() {
                     onChange={(e) =>
                       setNewOfficeManagerLastName(e.target.value)
                     }
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Email</label>
                   <input
                     type="text"
                     value={newOfficeManagerEmail}
                     placeholder="Email"
                     onChange={(e) => setNewOfficeManagerEmail(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Password</label>
                   <input
                     type="password"
@@ -573,14 +517,6 @@ export default function AccountPage() {
                     onChange={(e) =>
                       setNewOfficeManagerPassword(e.target.value)
                     }
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
                 <span>
@@ -604,16 +540,10 @@ export default function AccountPage() {
                     ))}
                   </select>
                 </span>
-                <button
-                  className="btn-action"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addOfficeManager();
-                  }}
-                >
-                  Add Clinic
+                <button className="btn-action" type="submit">
+                  Add Manager
                 </button>
-              </div>
+              </form>
             ) : (
               ""
             )}
@@ -636,10 +566,18 @@ export default function AccountPage() {
                 className="flex flex-row w-full divide-x divide-sec-blue border-px border-sec-blue"
                 key={employee.id}
               >
-                <span className="w-1/4 pl-2">{employee.firstName}</span>
-                <span className="w-1/4 pl-2">{employee.lastName}</span>
-                <span className="w-1/4 pl-2">{employee.email}</span>
-                <span className="w-1/4 pl-2">{employee.clinicId}</span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {employee.firstName}
+                </span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {employee.lastName}
+                </span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {employee.email}
+                </span>
+                <span className="w-1/4 pl-2 overflow-scroll">
+                  {employee.clinicId}
+                </span>
                 <button
                   className="bg-sec-blue text-white font-bold w-20 items-center"
                   onClick={() => sendPasswordRecoveryEmail(employee.email)}
@@ -655,13 +593,9 @@ export default function AccountPage() {
               </li>
             ))}
           </ul>
-          <div
-            tabIndex={0}
-            onBlur={() => handleBlur()}
-            className="bg-sec-blue w-full"
-          >
+          <div className="bg-sec-blue w-full">
             <span
-              className="flex text-white font-bold w-8 items-center justify-center"
+              className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
               onClick={() => setIsEmployeeOpen((prevState) => !prevState)}
             >
               <p>+</p>
@@ -674,98 +608,47 @@ export default function AccountPage() {
               />
             </span>
             {isEmployeeOpen ? (
-              <div
+              <form
+                onSubmit={addEmployee}
                 className={
                   "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
                 }
               >
                 <h4>Add an Employee</h4>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>First Name</label>
                   <input
                     type="text"
                     value={newEmployeeFirstName}
                     placeholder="Clinic Name"
                     onChange={(e) => setNewEmployeeFirstName(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Last Name</label>
                   <input
                     type="text"
                     value={newEmployeeLastName}
                     placeholder="Last Name"
                     onChange={(e) => setNewEmployeeLastName(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Email</label>
                   <input
                     type="text"
                     value={newEmployeeEmail}
                     placeholder="Email"
                     onChange={(e) => setNewEmployeeEmail(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
+                <span>
                   <label>Password</label>
                   <input
                     type="password"
                     value={newEmployeePassword}
                     placeholder="password"
                     onChange={(e) => setNewEmployeePassword(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
                   />
                 </span>
                 <span>
@@ -789,16 +672,8 @@ export default function AccountPage() {
                     ))}
                   </select>
                 </span>
-                <button
-                  className="btn-action"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addEmployee();
-                  }}
-                >
-                  Add Clinic
-                </button>
-              </div>
+                <button className="btn-action">Add Employee</button>
+              </form>
             ) : (
               ""
             )}
