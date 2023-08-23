@@ -120,7 +120,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
 
   return (
     <div className="flex flex-row ">
-      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center md:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
+      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center sm:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
         <div className="flex flex-col gap-4">
           <a
             className="h-fit w-fit font-bold text-2xl self-center justify-center flex"
