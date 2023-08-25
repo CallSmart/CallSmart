@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
+import ClinicTable from "@/components/ClinicTable";
+import ManagerEmployeeTable from "@/components/MananagerEmployeeTable";
 
 interface Clinic {
   id: number;
@@ -32,37 +34,11 @@ export default function AccountPage() {
   const [clinics, setClinics] = useState<Clinic[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [officeManagers, setOfficeManagers] = useState<OfficeManager[]>([]);
-  const [newClinicName, setNewClinicName] = useState("");
-  const [newEmployeeFirstName, setNewEmployeeFirstName] = useState("");
-  const [newEmployeeLastName, setNewEmployeeLastName] = useState("");
-  const [newOfficeManagerFirstName, setNewOfficeManagerFirstName] =
-    useState("");
-  const [newOfficeManagerLastName, setNewOfficeManagerLastName] = useState("");
-  const [selectedClinicIdEmployee, setSelectedClinicIdEmployee] = useState<
-    number | null
-  >(null);
-  const [selectedClinicIdManager, setSelectedClinicIdManager] = useState<
-    number | null
-  >(null);
-  const [newEmployeeEmail, setNewEmployeeEmail] = useState("");
-  const [newEmployeePassword, setNewEmployeePassword] = useState("");
-  const [newOfficeManagerEmail, setNewOfficeManagerEmail] = useState("");
-  const [newOfficeManagerPassword, setNewOfficeManagerPassword] = useState("");
-
-  const [goToEmail, setGoToEmail] = useState("");
-  const [goToPassword, setGoToPassword] = useState("");
-  const [goToClinic, setGoToClinic] = useState<number | null>(null);
 
   const [fName, setFName] = useState("");
   const [lName, setLName] = useState("");
   const [organization, setOrganization] = useState("");
   const [role, setRole] = useState("");
-
-  const [isClinicOpen, setIsClinicOpen] = useState(false);
-  const [isManagerOpen, setIsManagerOpen] = useState(false);
-  const [isEmployeeOpen, setIsEmployeeOpen] = useState(false);
-  const [isGoToOpen, setIsGoToOpen] = useState(false);
-  const [editedClinicId, setEditedClinicId] = useState<number | null>(null);
 
   const [errorOnAdd, setErrorOnAdd] = useState(false);
 
@@ -76,26 +52,6 @@ export default function AccountPage() {
     fetchEmployees();
     fetchOfficeManagers();
   }, []);
-
-  useEffect(() => {
-    setNewClinicName("");
-  }, [isClinicOpen]);
-
-  useEffect(() => {
-    setNewEmployeeFirstName("");
-    setNewEmployeeLastName("");
-    setNewEmployeeEmail("");
-    setNewEmployeePassword("");
-    setSelectedClinicIdEmployee(null);
-  }, [isEmployeeOpen]);
-
-  useEffect(() => {
-    setNewOfficeManagerFirstName("");
-    setNewOfficeManagerLastName("");
-    setNewOfficeManagerEmail("");
-    setNewOfficeManagerPassword("");
-    setSelectedClinicIdManager(null);
-  }, [isManagerOpen]);
 
   const fetchClinics = async () => {
     const { data, error } = await supabase
@@ -159,40 +115,49 @@ export default function AccountPage() {
     }
   };
 
-  const addClinic = async (e: any) => {
+  const addClinic = async (
+    e: any,
+    name: string,
+    email: string,
+    password: string
+  ) => {
     e.preventDefault();
     setIsClinicOpen(false);
-    if (!newClinicName.slice()) {
+    if (!name.slice()) {
       e.preventDefault();
       handleErrorOnAdd();
       return;
     }
     const { error } = await supabase.from("clinics").insert([
       {
-        name: newClinicName,
-        gotoemail: goToEmail,
-        gotopassword: goToPassword,
+        name: name,
+        gotoemail: email,
+        gotopassword: password,
       },
     ]);
     if (error) {
       console.error("Error adding clinic:", error.message);
       handleErrorOnAdd();
     } else {
-      setNewClinicName("");
-      setGoToEmail("");
-      setGoToPassword("");
       fetchClinics();
     }
     setIsClinicOpen(false);
   };
 
-  const addEmployee = async (e: any) => {
+  const addEmployee = async (
+    e: any,
+    firstName: string,
+    lastName: string,
+    clinic: number | null,
+    email: string,
+    password: string
+  ) => {
     e.preventDefault();
     setIsEmployeeOpen(false);
 
     const { data, error } = await supabase.auth.signUp({
-      email: newEmployeeEmail,
-      password: newEmployeePassword,
+      email: email,
+      password: password,
     });
 
     if (error) {
@@ -203,11 +168,11 @@ export default function AccountPage() {
         .from("employees")
         .insert([
           {
-            firstName: newEmployeeFirstName,
-            lastName: newEmployeeLastName,
+            firstName: firstName,
+            lastName: lastName,
             userId: data?.user?.id,
-            clinic_id: selectedClinicIdEmployee,
-            email: newEmployeeEmail,
+            clinic_id: clinic,
+            email: email,
           },
         ]);
 
@@ -215,21 +180,25 @@ export default function AccountPage() {
         console.error("Error adding employee:", insertError.message);
         handleErrorOnAdd();
       } else {
-        setNewEmployeeFirstName("");
-        setNewEmployeeLastName("");
-        setNewEmployeeEmail("");
-        setNewEmployeePassword("");
         fetchEmployees();
       }
     }
   };
 
-  const addOfficeManager = async (e: any) => {
+  const addOfficeManager = async (
+    e: any,
+    firstName: string,
+    lastName: string,
+    clinic: number | null,
+    email: string,
+    password: string
+  ) => {
+    console.log(firstName, lastName, clinic, email, password);
     e.preventDefault();
     setIsManagerOpen(false);
     const { data, error } = await supabase.auth.signUp({
-      email: newOfficeManagerEmail,
-      password: newOfficeManagerPassword,
+      email: email,
+      password: password,
     });
 
     if (error) {
@@ -240,11 +209,11 @@ export default function AccountPage() {
         .from("managers")
         .insert([
           {
-            firstName: newOfficeManagerFirstName,
-            lastName: newOfficeManagerLastName,
+            firstName: firstName,
+            lastName: lastName,
             userId: data?.user?.id,
-            clinicId: selectedClinicIdManager,
-            email: newOfficeManagerEmail,
+            clinicId: clinic,
+            email: email,
           },
         ]);
 
@@ -252,27 +221,28 @@ export default function AccountPage() {
         console.error("Error adding office manager:", insertError.message);
         handleErrorOnAdd();
       } else {
-        setNewOfficeManagerFirstName("");
-        setNewOfficeManagerLastName("");
-        setNewOfficeManagerEmail("");
-        setNewOfficeManagerPassword("");
-        setSelectedClinicIdManager(null);
         fetchOfficeManagers();
       }
     }
   };
 
-  const addGoToInfo = async (e: any, clinicId: number, name: string) => {
+  const editGoToInfo = async (
+    e: any,
+    clinicId: number,
+    name: string,
+    email: string,
+    password: string
+  ) => {
     e.preventDefault();
     setIsGoToOpen(false);
-    if (!goToPassword.slice() || !goToEmail.slice()) {
+    if (!password.slice() || !email.slice()) {
       handleErrorOnAdd();
       return;
     }
 
     const dataToInsertOrUpdate = {
-      gotoemail: goToEmail,
-      gotopassword: goToPassword,
+      gotoemail: email,
+      gotopassword: password,
       id: clinicId,
       name: name,
     };
@@ -287,10 +257,6 @@ export default function AccountPage() {
     if (error) {
       console.error("Error saving GoTo Information:", error.message);
       handleErrorOnAdd();
-    } else {
-      setGoToClinic(null);
-      setGoToEmail("");
-      setGoToPassword("");
     }
     setIsGoToOpen(false);
     fetchClinics();
@@ -395,466 +361,28 @@ export default function AccountPage() {
             Error on Form Submission
           </div>
         </div>
-        <div className="w-full border-2 border-sec-blue rounded-lg bg-white overflow-scroll">
-          <table className="w-full table-auto border-sec-blue overflow-hidden">
-            <thead className="bg-sec-blue text-white text-sm font-semibold overflow-scroll">
-              <tr>
-                <th colSpan={5} className="py-1 px-2 text-left">
-                  CLINICS
-                </th>
-              </tr>
-              <tr className="font-medium indent-2 text-left">
-                <th>ID</th>
-                <th>Clinic Name</th>
-                <th>GoTo Email</th>
-                <th colSpan={2}></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sec-blue overflow-scroll">
-              {clinics.map((clinic, key) => (
-                <tr className="divide-x divide-sec-blue indent-2" key={key}>
-                  <td className="max-w-[100px] overflow-scroll bg-sec-blue text-white font-semibold px-2 indent-0">
-                    {clinic.id}
-                  </td>
-                  <td className="w-1/2 max-w-[100px] overflow-scroll">
-                    {clinic.name}
-                  </td>
-                  <td className="w-1/2 max-w-[100px] overflow-scroll">
-                    {clinic.gotoemail}
-                  </td>
-                  <td className="w-fit bg-sec-blue">
-                    <button
-                      className="bg-sec-blue text-white font-bold w-24 items-center justify-center"
-                      onClick={() => {
-                        setIsGoToOpen((prevState) => !prevState);
-                        setEditedClinicId(clinic.id);
-                      }}
-                    >
-                      Edit Info
-                      {key == 1 ? (
-                        <div
-                          className={`${
-                            isGoToOpen
-                              ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                              : ""
-                          }`}
-                        />
-                      ) : (
-                        ""
-                      )}
-                    </button>
-                  </td>
-                  <td className="w-fit pl-2 pr-4 bg-sec-blue">
-                    <button
-                      className="bg-sec-blue text-white hover:text-[#ff0000] font-bold w-8 items-center justify-center"
-                      onClick={() => deleteClinic(clinic.id)}
-                    >
-                      -
-                    </button>
-                    {isGoToOpen && clinic.id === editedClinicId ? (
-                      <form
-                        onSubmit={(e) =>
-                          addGoToInfo(e, editedClinicId, clinic.name)
-                        }
-                        className={
-                          "ticket-container w-1/4 flex-col p-4 z-40 absolute-center text-left static gap-4"
-                        }
-                      >
-                        <h4>Edit GoTo Info</h4>
-                        <span>
-                          <label>GoTo Email</label>
-                          <input
-                            type="text"
-                            value={goToEmail}
-                            placeholder="Email"
-                            onChange={(e) => setGoToEmail(e.target.value)}
-                          />
-                        </span>
-                        <span>
-                          <label>GoTo Password</label>
-                          <input
-                            type="password"
-                            value={goToPassword}
-                            placeholder="Password (Case sensitive)"
-                            onChange={(e) => setGoToPassword(e.target.value)}
-                          />
-                        </span>
-                        <button type="submit" className="btn-action">
-                          Save GoTo Info
-                        </button>
-                      </form>
-                    ) : (
-                      ""
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-sec-blue w-full">
-              <tr>
-                <td colSpan={5}>
-                  <span
-                    className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
-                    onClick={() => setIsClinicOpen((prevState) => !prevState)}
-                  >
-                    <p>+</p>
-                    <div
-                      className={`${
-                        isClinicOpen
-                          ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                          : ""
-                      }`}
-                    />
-                  </span>
-                  {isClinicOpen ? (
-                    <form
-                      className="ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                      onSubmit={addClinic}
-                    >
-                      <h4>Add a Clinic</h4>
-                      <span>
-                        <label>Clinic Name</label>
-                        <input
-                          type="text"
-                          value={newClinicName}
-                          placeholder="Clinic Name"
-                          onChange={(e) => setNewClinicName(e.target.value)}
-                        ></input>
-                      </span>
-                      <span>
-                        <label>GoTo Email</label>
-                        <input
-                          type="text"
-                          value={goToEmail}
-                          placeholder="Email"
-                          onChange={(e) => setGoToEmail(e.target.value)}
-                        />
-                      </span>
-                      <span>
-                        <label>GoTo Password</label>
-                        <input
-                          type="password"
-                          value={goToPassword}
-                          placeholder="Password (Case sensitive)"
-                          onChange={(e) => setGoToPassword(e.target.value)}
-                        />
-                      </span>
-                      <button className="btn-action" type="submit">
-                        Add Clinic
-                      </button>
-                    </form>
-                  ) : (
-                    ""
-                  )}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <div className="w-full border-2 border-sec-blue rounded-lg bg-white overflow-scroll">
-          <table className="w-full table-auto border-sec-blue overflow-hidden ">
-            <thead className="bg-sec-blue text-white text-sm font-semibold overflow-scroll">
-              <tr>
-                <th colSpan={6} className="py-1 px-2 text-left">
-                  OFFICE MANAGERS
-                </th>
-              </tr>
-              <tr className="font-medium indent-2 text-left">
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Clinic ID</th>
-                <th colSpan={2}></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sec-blue overflow-scroll">
-              {officeManagers.map((manager) => (
-                <tr
-                  className="divide-x divide-sec-blue indent-2"
-                  key={manager.id}
-                >
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {manager.firstName}
-                  </td>
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {manager.lastName}
-                  </td>
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {manager.email}
-                  </td>
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {manager.clinicId}
-                  </td>
-                  <td className="w-fit bg-sec-blue">
-                    <button
-                      className="text-white font-bold items-center"
-                      onClick={() => sendPasswordRecoveryEmail(manager.email)}
-                    >
-                      Recover
-                    </button>
-                  </td>
-                  <td className="w-fit pl-2 pr-4 bg-sec-blue">
-                    <button
-                      className="text-white hover:text-[#ff0000] font-bold items-center justify-center"
-                      onClick={() => deleteOfficeManager(manager.id)}
-                    >
-                      -
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-sec-blue w-full">
-              <tr>
-                <td colSpan={6}>
-                  <span
-                    className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
-                    onClick={() => setIsManagerOpen((prevState) => !prevState)}
-                  >
-                    <p>+</p>
-                    <div
-                      className={`${
-                        isManagerOpen
-                          ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                          : ""
-                      }`}
-                    />
-                  </span>
-                  {isManagerOpen ? (
-                    <form
-                      onSubmit={addOfficeManager}
-                      className={
-                        "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                      }
-                    >
-                      <h4>Add an Office Manager</h4>
-                      <span>
-                        <label>First Name</label>
-                        <input
-                          type="text"
-                          value={newOfficeManagerFirstName}
-                          placeholder="Clinic Name"
-                          onChange={(e) =>
-                            setNewOfficeManagerFirstName(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Last Name</label>
-                        <input
-                          type="text"
-                          value={newOfficeManagerLastName}
-                          placeholder="Last Name"
-                          onChange={(e) =>
-                            setNewOfficeManagerLastName(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Email</label>
-                        <input
-                          type="text"
-                          value={newOfficeManagerEmail}
-                          placeholder="Email"
-                          onChange={(e) =>
-                            setNewOfficeManagerEmail(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Password</label>
-                        <input
-                          type="password"
-                          value={newOfficeManagerPassword}
-                          placeholder="password"
-                          onChange={(e) =>
-                            setNewOfficeManagerPassword(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Assign Clinic</label>
-                        <select
-                          value={
-                            selectedClinicIdManager !== null
-                              ? String(selectedClinicIdManager)
-                              : ""
-                          }
-                          onChange={(e) =>
-                            setSelectedClinicIdManager(Number(e.target.value))
-                          }
-                          className="border-b-2 border-[#CBCCD0] w-full"
-                        >
-                          <option value="">Clinic Name</option>
-                          {clinics.map((clinic) => (
-                            <option key={clinic.id} value={clinic.id}>
-                              {clinic.name}
-                            </option>
-                          ))}
-                        </select>
-                      </span>
-                      <button className="btn-action" type="submit">
-                        Add Manager
-                      </button>
-                    </form>
-                  ) : null}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <div className="w-full border-2 border-sec-blue rounded-lg bg-white overflow-scroll">
-          <table className="w-full table-auto border-sec-blue overflow-hidden">
-            <thead className="bg-sec-blue text-white text-sm font-semibold overflow-scroll">
-              <tr>
-                <th colSpan={6} className="py-1 indent-2 text-left">
-                  EMPLOYEES
-                </th>
-              </tr>
-              <tr className="font-medium indent-2 text-left">
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Clinic ID</th>
-                <th colSpan={2}></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sec-blue overflow-scroll">
-              {employees.map((employee) => (
-                <tr
-                  className="divide-x divide-sec-blue indent-2"
-                  key={employee.id}
-                >
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {employee.firstName}
-                  </td>
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {employee.lastName}
-                  </td>
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {employee.email}
-                  </td>
-                  <td className="w-1/4 max-w-[100px] overflow-scroll">
-                    {employee.clinicId}
-                  </td>
-                  <td className="w-fit bg-sec-blue">
-                    <button
-                      className="text-white font-bold items-center"
-                      onClick={() => sendPasswordRecoveryEmail(employee.email)}
-                    >
-                      Recover
-                    </button>
-                  </td>
-                  <td className="w-fit pl-2 pr-4 bg-sec-blue">
-                    <button
-                      className="text-white hover:text-[#ff0000] font-bold items-center justify-center"
-                      onClick={() => deleteEmployee(employee.id)}
-                    >
-                      -
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-sec-blue w-full">
-              <tr>
-                <td colSpan={6}>
-                  <span
-                    className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
-                    onClick={() => setIsEmployeeOpen((prevState) => !prevState)}
-                  >
-                    <p>+</p>
-                    <div
-                      className={`${
-                        isEmployeeOpen
-                          ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                          : ""
-                      }`}
-                    />
-                  </span>
-                  {isEmployeeOpen ? (
-                    <form
-                      onSubmit={addEmployee}
-                      className={
-                        "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                      }
-                    >
-                      <h4>Add an Employee</h4>
-                      <span>
-                        <label>First Name</label>
-                        <input
-                          type="text"
-                          value={newEmployeeFirstName}
-                          placeholder="Clinic Name"
-                          onChange={(e) =>
-                            setNewEmployeeFirstName(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Last Name</label>
-                        <input
-                          type="text"
-                          value={newEmployeeLastName}
-                          placeholder="Last Name"
-                          onChange={(e) =>
-                            setNewEmployeeLastName(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Email</label>
-                        <input
-                          type="text"
-                          value={newEmployeeEmail}
-                          placeholder="Email"
-                          onChange={(e) => setNewEmployeeEmail(e.target.value)}
-                        />
-                      </span>
-                      <span>
-                        <label>Password</label>
-                        <input
-                          type="password"
-                          value={newEmployeePassword}
-                          placeholder="password"
-                          onChange={(e) =>
-                            setNewEmployeePassword(e.target.value)
-                          }
-                        />
-                      </span>
-                      <span>
-                        <label>Assign Clinic</label>
-                        <select
-                          value={
-                            selectedClinicIdEmployee !== null
-                              ? String(selectedClinicIdEmployee)
-                              : ""
-                          }
-                          onChange={(e) =>
-                            setSelectedClinicIdEmployee(Number(e.target.value))
-                          }
-                          className="border-b-2 border-[#CBCCD0] w-full"
-                        >
-                          <option value="">Clinic Name</option>
-                          {clinics.map((clinic) => (
-                            <option key={clinic.id} value={clinic.id}>
-                              {clinic.name}
-                            </option>
-                          ))}
-                        </select>
-                      </span>
-                      <button type="submit" className="btn-action">
-                        Add Employee
-                      </button>
-                    </form>
-                  ) : (
-                    ""
-                  )}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+        <ClinicTable
+          clinics={clinics}
+          deleteFunction={deleteClinic}
+          editFunction={editGoToInfo}
+          addFunction={addClinic}
+        />
+        <ManagerEmployeeTable
+          label={"OFFICE MANAGERS"}
+          people={officeManagers}
+          clinics={clinics}
+          deleteFunction={deleteOfficeManager}
+          recoverFunction={sendPasswordRecoveryEmail}
+          addFunction={addOfficeManager}
+        />
+        <ManagerEmployeeTable
+          label={"EMPLOYEES"}
+          people={employees}
+          clinics={clinics}
+          deleteFunction={deleteEmployee}
+          recoverFunction={sendPasswordRecoveryEmail}
+          addFunction={addEmployee}
+        />
         <h4>Settings</h4>
         <div className="container flex-col gap-2">
           <button
