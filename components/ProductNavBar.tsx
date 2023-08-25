@@ -11,6 +11,8 @@ import { redirect } from "next/navigation";
 import { Session } from "@supabase/auth-helpers-nextjs";
 import router from "next/navigation";
 import { useRouter } from "next/navigation";
+import * as Img from "../app/images";
+import Image from "next/image";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -56,7 +58,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
         if (error) {
           console.error("Error fetching user:", error.message);
         } else {
-          console.log("data", data);
+          // console.log("data", data);
         }
         setFName(data?.[0]?.firstname || "");
         setLName(data?.[0]?.lastname || "");
@@ -67,9 +69,9 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       const token = localStorage.getItem("token") as string;
       const { data, error } = await supabase.auth.getSession();
       const user = await supabase.auth.getUser(token);
-      console.log(user);
-      console.log("here");
-      console.log(data?.session?.user);
+      // console.log(user);
+      // console.log("here");
+      // console.log(data?.session?.user);
       if (error) {
         redirect("/signin");
       } else {
@@ -118,10 +120,17 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
 
   return (
     <div className="flex flex-row ">
-      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center md:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
+      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center sm:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
         <div className="flex flex-col gap-4">
-          <a className="h-fit w-fit font-bold text-2xl self-center" href="/">
-            CallSmart
+          <a
+            className="h-fit w-fit font-bold text-2xl self-center justify-center flex"
+            href="/"
+          >
+            <Image
+              src={Img.LogoFull}
+              alt="CallSmart Logo"
+              className="w-4/5 h-auto"
+            />
           </a>
           <a
             className="flex flex-row p-2 border-[1px] border-prim-blue text-prim-blue rounded-md bg-[#BFD9F2] gap-2"

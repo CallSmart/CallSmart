@@ -1,7 +1,7 @@
 import * as Icons from "@/components/svgs";
 import TicketProp from "./TicketProp";
 import { useState } from "react";
-type FunctionType = (id: string) => void;
+type FunctionType = (id: number) => void;
 
 const Ticket = ({
   id,
@@ -13,8 +13,9 @@ const Ticket = ({
   name,
   number,
   time,
+  stage,
 }: {
-  id: string;
+  id: number;
   onDidNot: FunctionType;
   onComplete: FunctionType;
   isNew: string;
@@ -23,16 +24,17 @@ const Ticket = ({
   name: string;
   number: string;
   time: string;
+  stage: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [textOpen, setTextOpen] = useState(false);
 
-  const handleDidNot = (id: string) => {
+  const handleDidNot = (id: number) => {
     console.log("I DID NOT!!!");
     onDidNot(id);
   };
 
-  const handleComplete = (id: string) => {
+  const handleComplete = (id: number) => {
     console.log("I DID!!!");
     onComplete(id);
   };
@@ -41,6 +43,37 @@ const Ticket = ({
     setTimeout(() => {
       setIsOpen(false);
     }, 200);
+  };
+
+  const customDateFormat = (time: string) => {
+    const date = new Date(time);
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = months[date.getMonth()];
+
+    const day = date.getDate();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const amPm = hours >= 12 ? "pm" : "am";
+
+    hours = hours % 12;
+    hours = hours || 12; // To display "12" instead of "0" for noon and midnight
+
+    return `${month} ${day}, ${hours}:${minutes}${amPm}`;
   };
 
   return (
@@ -77,7 +110,7 @@ const Ticket = ({
           </div>
           <div className="flex flex-row items-center w-full justify-between">
             <TicketProp type={type} closeable={false} onClose={() => null} />
-            <div className="opacity-50 text-sm">{time}</div>
+            <div className="opacity-50 text-sm">{customDateFormat(time)}</div>
           </div>
         </div>
         <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold">
@@ -146,7 +179,9 @@ const Ticket = ({
             </div>
           </div>
           <div className="flex flex-row justify-between items-center text-white bg-sec-blue px-3 py-2 text-sm font-semibold absolute bottom-0 w-full h-fit">
-            <em className="opacity-50 text-sm font-normal">{time}</em>
+            <em className="opacity-50 text-sm font-normal">
+              Ticket ID: {id} - {customDateFormat(time)}
+            </em>
             <div className="flex flex-row gap-2">
               <button
                 onClick={(e) => {

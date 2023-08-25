@@ -4,10 +4,13 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
+import ClinicTable from "@/components/ClinicTable";
+import ManagerEmployeeTable from "@/components/MananagerEmployeeTable";
 
 interface Clinic {
   id: number;
   name: string;
+  gotoemail: string;
 }
 
 interface Employee {
@@ -31,39 +34,15 @@ export default function AccountPage() {
   const [clinics, setClinics] = useState<Clinic[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [officeManagers, setOfficeManagers] = useState<OfficeManager[]>([]);
-  const [newClinicName, setNewClinicName] = useState("");
-  const [newEmployeeFirstName, setNewEmployeeFirstName] = useState("");
-  const [newEmployeeLastName, setNewEmployeeLastName] = useState("");
-  const [newEmployeeClinicId, setNewEmployeeClinicId] = useState(0);
-  const [newOfficeManagerFirstName, setNewOfficeManagerFirstName] =
-    useState("");
-  const [newOfficeManagerLastName, setNewOfficeManagerLastName] = useState("");
-  const [newOfficeManagerClinicId, setNewOfficeManagerClinicId] = useState(0);
-  const [selectedClinicIdEmployee, setSelectedClinicIdEmployee] = useState<
-    number | null
-  >(null);
-  const [selectedClinicIdManager, setSelectedClinicIdManager] = useState<
-    number | null
-  >(null);
-  const [newEmployeeEmail, setNewEmployeeEmail] = useState("");
-  const [newEmployeePassword, setNewEmployeePassword] = useState("");
-  const [newOfficeManagerEmail, setNewOfficeManagerEmail] = useState("");
-  const [newOfficeManagerPassword, setNewOfficeManagerPassword] = useState("");
 
   const [fName, setFName] = useState("");
   const [lName, setLName] = useState("");
   const [organization, setOrganization] = useState("");
   const [role, setRole] = useState("");
 
-  const [isClinicOpen, setIsClinicOpen] = useState(false);
-  const [isManagerOpen, setIsManagerOpen] = useState(false);
-  const [isEmployeeOpen, setIsEmployeeOpen] = useState(false);
-
-  const [isInputClicked, setIsInputClicked] = useState(false);
-
   const [errorOnAdd, setErrorOnAdd] = useState(false);
   const [clinicId, setClinicId] = useState(0);
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     const session = supabase.auth.getSession();
@@ -75,28 +54,6 @@ export default function AccountPage() {
     fetchEmployees();
     fetchOfficeManagers();
   }, []);
-
-  useEffect(() => {
-    setNewClinicName("");
-  }, [isClinicOpen]);
-
-  useEffect(() => {
-    setNewEmployeeFirstName("");
-    setNewEmployeeLastName("");
-    setNewEmployeeClinicId(0);
-    setNewEmployeeEmail("");
-    setNewEmployeePassword("");
-    setSelectedClinicIdEmployee(null);
-  }, [isEmployeeOpen]);
-
-  useEffect(() => {
-    setNewOfficeManagerFirstName("");
-    setNewOfficeManagerLastName("");
-    setNewOfficeManagerClinicId(0);
-    setNewOfficeManagerEmail("");
-    setNewOfficeManagerPassword("");
-    setSelectedClinicIdManager(null);
-  }, [isManagerOpen]);
 
   const fetchClinics = async () => {
     const { data, error } = await supabase
@@ -138,7 +95,7 @@ export default function AccountPage() {
   const getUser = async () => {
     const user = await supabase.auth.getUser();
     const id = user?.data?.user?.id;
-    
+
     if (id) {
       setUserId(id);
       const { data, error } = await supabase
@@ -158,51 +115,50 @@ export default function AccountPage() {
       setOrganization(data?.[0]?.organization || "");
       setRole(data?.[0]?.role || "");
     }
-    
   };
 
-  const addClinicMain = async () => {
-    await addClinic();
-    console.log('added clinic')
-    
-    console.log('added relation')
-  };
-
-  const addClinicRelation = async () => {
-    const { error } = await supabase
-      .from("owner_clinics")
-      .insert([{ clinic: clinicId, owner: userId }]);
-    if (error) {
-      console.error("Error adding clinic:", error.message);
+  const addClinic = async (
+    e: any,
+    name: string,
+    email: string,
+    password: string
+  ) => {
+    e.preventDefault();
+    if (!name.slice()) {
+      e.preventDefault();
       handleErrorOnAdd();
+      return;
     }
-    fetchClinics();
-    setIsClinicOpen(false);
-  }
-
-  const addClinic = async () => {
-    const { data, error } = await supabase
-      .from("clinics")
-      .insert([{ name: newClinicName }])
-      .select()
+    const { error } = await supabase.from("clinics").insert([
+      {
+        name: name,
+        gotoemail: email,
+        gotopassword: password,
+      },
+    ]);
     if (error) {
       console.error("Error adding clinic:", error.message);
       handleErrorOnAdd();
     } else {
-      console.log("data", data);
-      await addClinicRelation();
-      setClinicId(data?.[0]?.id || 0);
-      setNewClinicName("");
-      return
+      fetchClinics();
     }
-    return
+    return;
     // return(data?.[0]?.id || 0)
   };
 
-  const addEmployee = async () => {
+  const addEmployee = async (
+    e: any,
+    firstName: string,
+    lastName: string,
+    clinic: number | null,
+    email: string,
+    password: string
+  ) => {
+    e.preventDefault();
+
     const { data, error } = await supabase.auth.signUp({
-      email: newEmployeeEmail,
-      password: newEmployeePassword,
+      email: email,
+      password: password,
     });
 
     if (error) {
@@ -213,11 +169,11 @@ export default function AccountPage() {
         .from("employees")
         .insert([
           {
-            firstName: newEmployeeFirstName,
-            lastName: newEmployeeLastName,
+            firstName: firstName,
+            lastName: lastName,
             userId: data?.user?.id,
-            clinicId: newEmployeeClinicId,
-            email: newEmployeeEmail,
+            clinic_id: clinic,
+            email: email,
           },
         ]);
 
@@ -225,20 +181,24 @@ export default function AccountPage() {
         console.error("Error adding employee:", insertError.message);
         handleErrorOnAdd();
       } else {
-        setNewEmployeeFirstName("");
-        setNewEmployeeLastName("");
-        setNewEmployeeEmail("");
-        setNewEmployeePassword("");
         fetchEmployees();
       }
     }
-    setIsEmployeeOpen(false);
   };
 
-  const addOfficeManager = async () => {
+  const addOfficeManager = async (
+    e: any,
+    firstName: string,
+    lastName: string,
+    clinic: number | null,
+    email: string,
+    password: string
+  ) => {
+    console.log(firstName, lastName, clinic, email, password);
+    e.preventDefault();
     const { data, error } = await supabase.auth.signUp({
-      email: newOfficeManagerEmail,
-      password: newOfficeManagerPassword,
+      email: email,
+      password: password,
     });
 
     if (error) {
@@ -249,11 +209,11 @@ export default function AccountPage() {
         .from("managers")
         .insert([
           {
-            firstName: newOfficeManagerFirstName,
-            lastName: newOfficeManagerLastName,
+            firstName: firstName,
+            lastName: lastName,
             userId: data?.user?.id,
-            clinicId: newOfficeManagerClinicId,
-            email: newOfficeManagerEmail,
+            clinicId: clinic,
+            email: email,
           },
         ]);
 
@@ -261,14 +221,44 @@ export default function AccountPage() {
         console.error("Error adding office manager:", insertError.message);
         handleErrorOnAdd();
       } else {
-        setNewOfficeManagerFirstName("");
-        setNewOfficeManagerLastName("");
-        setNewOfficeManagerEmail("");
-        setNewOfficeManagerPassword("");
         fetchOfficeManagers();
       }
     }
-    setIsManagerOpen(false);
+  };
+
+  const editGoToInfo = async (
+    e: any,
+    clinicId: number,
+    name: string,
+    email: string,
+    password: string
+  ) => {
+    e.preventDefault();
+    if (!password.slice() || !email.slice()) {
+      handleErrorOnAdd();
+      return;
+    }
+
+    const dataToInsertOrUpdate = {
+      gotoemail: email,
+      gotopassword: password,
+      id: clinicId,
+      name: name,
+    };
+
+    console.log(dataToInsertOrUpdate);
+
+    const { error } = await supabase
+      .from("clinics")
+      .upsert([dataToInsertOrUpdate], {
+        onConflict: "id",
+      });
+    if (error) {
+      console.error("Error saving GoTo Information:", error.message);
+      handleErrorOnAdd();
+    }
+    fetchClinics();
+    return;
   };
 
   const deleteClinic = async (id: number) => {
@@ -328,16 +318,6 @@ export default function AccountPage() {
     }
   };
 
-  const handleBlur = () => {
-    setTimeout(() => {
-      if (!isInputClicked) {
-        setIsClinicOpen(false);
-        setIsManagerOpen(false);
-        setIsEmployeeOpen(false);
-      }
-    }, 200);
-  };
-
   const handleErrorOnAdd = () => {
     setErrorOnAdd(true);
     setTimeout(() => {
@@ -365,475 +345,48 @@ export default function AccountPage() {
         <div
           className={`${
             errorOnAdd
-              ? "font-semibold text-xl px-4 py-2 bg-[#E44D43] text-[#FAE3DE] rounded-xl w-fit z-50 absolute-center"
+              ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
               : "hidden"
           }`}
         >
-          Error on Add
-        </div>
-        <div className="ticket-container flex-col divide-y border-px divide-sec-blue">
-          <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold px-2">
-            <p className="text-left">CLINICS</p>
-          </div>
-          <ul className="divide-y border-px divide-sec-blue">
-            {clinics.map((clinic) => (
-              <li className="w-full flex flex-row" key={clinic.id}>
-                <div className="flex bg-sec-blue text-white font-semibold text-sm w-8 justify-center items-center">
-                  {clinic.id}
-                </div>
-                <div className="w-full pl-2">{clinic.name}</div>
-                <button
-                  className="bg-sec-blue text-white hover:text-[#ff0000] font-bold w-8 items-center justify-center"
-                  onClick={() => deleteClinic(clinic.id)}
-                >
-                  -
-                </button>
-              </li>
-            ))}
-          </ul>
           <div
-            tabIndex={0}
-            onBlur={() => handleBlur()}
-            className="bg-sec-blue w-full"
+            className={`${
+              errorOnAdd
+                ? "font-semibold text-xl px-4 py-2 bg-[#E44D43] text-[#FAE3DE] rounded-xl w-fit z-50 absolute-center static"
+                : "hidden"
+            }`}
           >
-            <span
-              className="flex text-white font-bold w-8 items-center justify-center"
-              onClick={() => setIsClinicOpen((prevState) => !prevState)}
-            >
-              <p>+</p>
-              <div
-                className={`${
-                  isClinicOpen
-                    ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                    : ""
-                }`}
-              />
-            </span>
-            {isClinicOpen ? (
-              <div
-                className={
-                  "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                }
-              >
-                <h4>Add a Clinic</h4>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Clinic Name</label>
-                  <input
-                    className=""
-                    type="text"
-                    value={newClinicName}
-                    placeholder="Clinic Name"
-                    onKeyDown={(e) => (e.key == "Enter" ? addClinicMain() : null)}
-                    onChange={(e) => setNewClinicName(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <button
-                  className="btn-action"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addClinic();
-                  }}
-                >
-                  Add Clinic
-                </button>
-              </div>
-            ) : (
-              ""
-            )}
+            Error on Form Submission
           </div>
         </div>
-        <div className="ticket-container flex-col divide-y border-px divide-sec-blue">
-          <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold px-2">
-            <p className="text-left">OFFICE MANAGERS</p>
-          </div>
-          <div className="flex flex-row w-full divide-x divide-sec-blue border-px border-sec-blue font-medium">
-            <span className="w-1/4 pl-2">First Name</span>
-            <span className="w-1/4 pl-2">Last Name</span>
-            <span className="w-1/4 pl-2">Email</span>
-            <span className="w-1/4 pl-2">Clinic ID</span>
-            <span className="w-28 bg-sec-blue" />
-          </div>
-          <ul className="w-full divide-y border-px divide-sec-blue">
-            {officeManagers.map((manager) => (
-              <li
-                className="flex flex-row w-full divide-x divide-sec-blue border-px border-sec-blue"
-                key={manager.id}
-              >
-                <span className="w-1/4 pl-2">{manager.firstName}</span>
-                <span className="w-1/4 pl-2">{manager.lastName}</span>
-                <span className="w-1/4 pl-2">{manager.email}</span>
-                <span className="w-1/4 pl-2">{manager.clinicId}</span>
-                <button
-                  className="bg-sec-blue text-white font-bold w-20 items-center"
-                  onClick={() => sendPasswordRecoveryEmail(manager.email)}
-                >
-                  Recover
-                </button>
-                <button
-                  className="bg-sec-blue text-white hover:text-[#ff0000] font-bold w-8 items-center justify-center"
-                  onClick={() => deleteOfficeManager(manager.id)}
-                >
-                  -
-                </button>
-              </li>
-            ))}
-          </ul>
-          <div
-            tabIndex={0}
-            onBlur={() => handleBlur()}
-            className="bg-sec-blue w-full"
-          >
-            <span
-              className="flex text-white font-bold w-8 items-center justify-center"
-              onClick={() => setIsManagerOpen((prevState) => !prevState)}
-            >
-              <p>+</p>
-              <div
-                className={`${
-                  isManagerOpen || errorOnAdd
-                    ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                    : ""
-                }`}
-              />
-            </span>
-            {isManagerOpen ? (
-              <div
-                className={
-                  "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                }
-              >
-                <h4>Add an Office Manager</h4>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>First Name</label>
-                  <input
-                    type="text"
-                    value={newOfficeManagerFirstName}
-                    placeholder="Clinic Name"
-                    onChange={(e) =>
-                      setNewOfficeManagerFirstName(e.target.value)
-                    }
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Last Name</label>
-                  <input
-                    type="text"
-                    value={newOfficeManagerLastName}
-                    placeholder="Last Name"
-                    onChange={(e) =>
-                      setNewOfficeManagerLastName(e.target.value)
-                    }
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Email</label>
-                  <input
-                    type="text"
-                    value={newOfficeManagerEmail}
-                    placeholder="Email"
-                    onChange={(e) => setNewOfficeManagerEmail(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    value={newOfficeManagerPassword}
-                    placeholder="password"
-                    onChange={(e) =>
-                      setNewOfficeManagerPassword(e.target.value)
-                    }
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span>
-                  <label>Assign Clinic</label>
-                  <select
-                    value={
-                      selectedClinicIdManager !== null
-                        ? String(selectedClinicIdManager)
-                        : ""
-                    }
-                    onChange={(e) =>
-                      setSelectedClinicIdManager(Number(e.target.value))
-                    }
-                    className="border-b-2 border-[#CBCCD0] w-full"
-                  >
-                    <option value="">Clinic Name</option>
-                    {clinics.map((clinic) => (
-                      <option key={clinic.id} value={clinic.id}>
-                        {clinic.name}
-                      </option>
-                    ))}
-                  </select>
-                </span>
-                <button
-                  className="btn-action"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addOfficeManager();
-                  }}
-                >
-                  Add Clinic
-                </button>
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
-        <div className="ticket-container flex-col divide-y border-px divide-sec-blue">
-          <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold px-2">
-            <p className="text-left">EMPLOYEES</p>
-          </div>
-          <div className="flex flex-row w-full divide-x divide-sec-blue border-px border-sec-blue font-medium">
-            <span className="w-1/4 pl-2">First Name</span>
-            <span className="w-1/4 pl-2">Last Name</span>
-            <span className="w-1/4 pl-2">Email</span>
-            <span className="w-1/4 pl-2">Clinic ID</span>
-            <span className="w-28 bg-sec-blue" />
-          </div>
-          <ul className="w-full divide-y border-px divide-sec-blue">
-            {employees.map((employee) => (
-              <li
-                className="flex flex-row w-full divide-x divide-sec-blue border-px border-sec-blue"
-                key={employee.id}
-              >
-                <span className="w-1/4 pl-2">{employee.firstName}</span>
-                <span className="w-1/4 pl-2">{employee.lastName}</span>
-                <span className="w-1/4 pl-2">{employee.email}</span>
-                <span className="w-1/4 pl-2">{employee.clinicId}</span>
-                <button
-                  className="bg-sec-blue text-white font-bold w-20 items-center"
-                  onClick={() => sendPasswordRecoveryEmail(employee.email)}
-                >
-                  Recover
-                </button>
-                <button
-                  className="bg-sec-blue text-white hover:text-[#ff0000] font-bold w-8 items-center justify-center"
-                  onClick={() => deleteEmployee(employee.id)}
-                >
-                  -
-                </button>
-              </li>
-            ))}
-          </ul>
-          <div
-            tabIndex={0}
-            onBlur={() => handleBlur()}
-            className="bg-sec-blue w-full"
-          >
-            <span
-              className="flex text-white font-bold w-8 items-center justify-center"
-              onClick={() => setIsEmployeeOpen((prevState) => !prevState)}
-            >
-              <p>+</p>
-              <div
-                className={`${
-                  isEmployeeOpen
-                    ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                    : ""
-                }`}
-              />
-            </span>
-            {isEmployeeOpen ? (
-              <div
-                className={
-                  "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                }
-              >
-                <h4>Add an Employee</h4>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>First Name</label>
-                  <input
-                    type="text"
-                    value={newEmployeeFirstName}
-                    placeholder="Clinic Name"
-                    onChange={(e) => setNewEmployeeFirstName(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Last Name</label>
-                  <input
-                    type="text"
-                    value={newEmployeeLastName}
-                    placeholder="Last Name"
-                    onChange={(e) => setNewEmployeeLastName(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Email</label>
-                  <input
-                    type="text"
-                    value={newEmployeeEmail}
-                    placeholder="Email"
-                    onChange={(e) => setNewEmployeeEmail(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="flex flex-col"
-                >
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    value={newEmployeePassword}
-                    placeholder="password"
-                    onChange={(e) => setNewEmployeePassword(e.target.value)}
-                    onFocus={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsInputClicked(true);
-                    }}
-                  />
-                </span>
-                <span>
-                  <label>Assign Clinic</label>
-                  <select
-                    value={
-                      selectedClinicIdEmployee !== null
-                        ? String(selectedClinicIdEmployee)
-                        : ""
-                    }
-                    onChange={(e) =>
-                      setSelectedClinicIdEmployee(Number(e.target.value))
-                    }
-                    className="border-b-2 border-[#CBCCD0] w-full"
-                  >
-                    <option value="">Clinic Name</option>
-                    {clinics.map((clinic) => (
-                      <option key={clinic.id} value={clinic.id}>
-                        {clinic.name}
-                      </option>
-                    ))}
-                  </select>
-                </span>
-                <button
-                  className="btn-action"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addEmployee();
-                  }}
-                >
-                  Add Clinic
-                </button>
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
+        <ClinicTable
+          clinics={clinics}
+          deleteFunction={deleteClinic}
+          editFunction={editGoToInfo}
+          addFunction={addClinic}
+        />
+        <ManagerEmployeeTable
+          label={"OFFICE MANAGERS"}
+          people={officeManagers}
+          clinics={clinics}
+          deleteFunction={deleteOfficeManager}
+          recoverFunction={sendPasswordRecoveryEmail}
+          addFunction={addOfficeManager}
+        />
+        <ManagerEmployeeTable
+          label={"EMPLOYEES"}
+          people={employees}
+          clinics={clinics}
+          deleteFunction={deleteEmployee}
+          recoverFunction={sendPasswordRecoveryEmail}
+          addFunction={addEmployee}
+        />
         <h4>Settings</h4>
-        <div className="container flex-col ">
-          <button className="w-fit" onClick={handleSignOut}>
+        <div className="container flex-col gap-2">
+          <button
+            className="w-fit hover:text-prim-blue"
+            onClick={handleSignOut}
+          >
             Sign Out
           </button>
         </div>
