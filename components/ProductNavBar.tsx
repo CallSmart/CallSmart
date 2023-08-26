@@ -31,8 +31,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [hasSession, setHasSession] = useState(false);
-  const [fName, setFName] = useState("");
-  const [lName, setLName] = useState("");
+  const [fullName, setFullName] = useState("");
   const router = useRouter();
 
   const NavButton = ({ to, children }: { to: any; children: any }) => {
@@ -46,25 +45,35 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     );
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      const user = await supabase.auth.getUser();
-      const id = user?.data?.user?.id;
-      if (id) {
-        const { data, error } = await supabase
-          .from("users")
-          .select("firstname, lastname")
-          .eq("id", id);
-        if (error) {
-          console.error("Error fetching user:", error.message);
-        } else {
-          // console.log("data", data);
-        }
-        setFName(data?.[0]?.firstname || "");
-        setLName(data?.[0]?.lastname || "");
-      }
-    };
+  const getUser = async () => {
+    console.log("Calling get user in Prod Nav");
+    const user = await supabase.auth.getUser();
 
+    if (user.error) {
+      console.log("Calling redirect: ", user.error);
+      router.push("/signin");
+    }
+
+    const id = user?.data?.user?.id;
+    if (id) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("firstname, lastname")
+        .eq("id", id);
+      if (error) {
+        console.error("Error fetching user:", error.message);
+      }
+      localStorage.setItem("firstname", data?.[0]?.firstname || "");
+      localStorage.setItem("lastname", data?.[0]?.lastname || "");
+      setFullName(
+        localStorage.getItem("firstname") +
+          " " +
+          localStorage.getItem("lastname")
+      );
+    }
+  };
+
+  useEffect(() => {
     const fetchSession = async () => {
       const token = localStorage.getItem("token") as string;
       const { data, error } = await supabase.auth.getSession();
@@ -73,17 +82,35 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       // console.log("here");
       // console.log(data?.session?.user);
       if (error) {
-        redirect("/signin");
+        router.push("/signin");
       } else {
         setSession(data.session ?? null);
         if (data?.session?.user?.id != null) {
           setHasSession(true);
-          getUser();
+          // getUser();
         }
       }
     };
     fetchSession();
   }, [router]);
+
+  useEffect(() => {
+    if (
+      !localStorage.getItem("firstname") ||
+      !localStorage.getItem("lastname") ||
+      !localStorage.getItem("token")
+    ) {
+      console.log("Did not find full name in local storage");
+      getUser();
+    } else {
+      setFullName(
+        localStorage.getItem("firstname") +
+          " " +
+          localStorage.getItem("lastname")
+      );
+      console.log("Found Name in local storage: ", fullName);
+    }
+  }, []);
 
   const routes = useMemo(
     () => [
@@ -136,11 +163,8 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
             className="flex flex-row p-2 border-[1px] border-prim-blue text-prim-blue rounded-md bg-[#BFD9F2] gap-2"
             href="/account"
           >
-            <div className="h-10 w-10 bg-white rounded-full" />
             <div className="flex flex-col gap-0 leading-tight">
-              <p>
-                {fName} {lName}
-              </p>
+              <p>{fullName}</p>
               <em className="opacity-50 hover:opacity-100">Manage Account</em>
             </div>
           </a>

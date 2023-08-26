@@ -11,6 +11,7 @@ interface Clinic {
   id: number;
   name: string;
   gotoemail: string;
+  gotopassword: string;
 }
 
 interface Employee {
@@ -143,7 +144,6 @@ export default function AccountPage() {
       fetchClinics();
     }
     return;
-    // return(data?.[0]?.id || 0)
   };
 
   const addEmployee = async (
@@ -329,16 +329,12 @@ export default function AccountPage() {
     <ProductNavBar>
       <div className="flex flex-col gap-4">
         <div className="container flex-row gap-4">
-          <div className="h-20 w-20 bg-black rounded-full" />
-          <div className="flex flex-col">
+          <div className="flex flex-row items-center gap-8">
             <h2 className="text-3xl leading-tight">
               {fName} {lName}
             </h2>
-            <h3 className="text-lg opacity-30 leading-tight">
-              <em>{organization}</em>
-            </h3>
-            <h3 className="text-lg opacity-30 leading-tight">
-              <em>{role}</em>
+            <h3 className="flex flex-row gap-2 text-lg opacity-20 leading-tight">
+              <em>{organization}</em> | <em>{role}</em>
             </h3>
           </div>
         </div>

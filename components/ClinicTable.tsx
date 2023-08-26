@@ -5,6 +5,7 @@ interface Clinic {
   id: number;
   name: string;
   gotoemail: string;
+  gotopassword: string;
 }
 
 type IDBasedFunction = (id: number) => Promise<void>;
@@ -61,36 +62,30 @@ const ClinicTable = ({
 
   return (
     <div>
-      <div className="w-full border-2 border-sec-blue rounded-lg bg-white overflow-scroll">
-        <table className="w-full table-auto border-sec-blue overflow-hidden">
-          <thead className="bg-sec-blue text-white text-sm font-semibold overflow-scroll">
-            <tr>
-              <th colSpan={5} className="py-1 px-2 text-left">
-                CLINICS
-              </th>
-            </tr>
-            <tr className="font-medium indent-2 text-left">
-              <th>ID</th>
-              <th>Clinic Name</th>
-              <th>GoTo Email</th>
-              <th colSpan={2}></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-sec-blue overflow-scroll">
+      <div className="w-full border-2 border-sec-blue rounded-lg bg-white overflow-scroll ">
+        <div className="w-full table-auto border-sec-blue overflow-hidden divide-y divide-sec-blue">
+          <div className="w-full bg-sec-blue indent-2 text-white py-1 font-semibold">
+            CLINICS
+          </div>
+          <div className="divide-y overflow-scroll">
             {clinics.map((clinic, key) => (
-              <tr className="divide-x divide-sec-blue indent-2" key={key}>
-                <td className="max-w-[100px] overflow-scroll bg-sec-blue text-white font-semibold px-2 indent-0">
-                  {clinic.id}
-                </td>
-                <td className="w-1/2 max-w-[100px] overflow-scroll">
-                  {clinic.name}
-                </td>
-                <td className="w-1/2 max-w-[100px] overflow-scroll">
-                  {clinic.gotoemail}
-                </td>
-                <td className="w-fit bg-sec-blue">
+              <div
+                className="py-4 px-8 flex flex-row justify-between"
+                key={key}
+              >
+                <div className="flex flex-row gap-6">
+                  <p className="text-sec-blue"> {clinic.name}</p>
+                  <p className="text-black/20 flex flex-row gap-2 divide-x">
+                    <span>ID: {clinic.id}</span>
+                    <span className="pl-2">{clinic.gotoemail}</span>
+                    <span className="pl-2 text-white hover:text-black/20">
+                      {clinic.gotopassword}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex flex-row gap-2 divide-x">
                   <button
-                    className="bg-sec-blue text-white font-bold w-24 items-center justify-center"
+                    className="text-sec-blue hover:text-sec-blue/50"
                     onClick={() => {
                       setIsGoToOpen((prevState) => !prevState);
                       setEditedClinicId(clinic.id);
@@ -109,122 +104,118 @@ const ClinicTable = ({
                       ""
                     )}
                   </button>
-                </td>
-                <td className="w-fit pl-2 pr-4 bg-sec-blue">
-                  <button
-                    className="bg-sec-blue text-white hover:text-[#ff0000] font-bold w-8 items-center justify-center"
-                    onClick={() => deleteFunction(clinic.id)}
-                  >
-                    -
-                  </button>
-                  {isGoToOpen && clinic.id === editedClinicId ? (
-                    <form
-                      onSubmit={(e) =>
-                        editFunction(
-                          e,
-                          editedClinicId,
-                          clinic.name,
-                          formEmail,
-                          formPassword
-                        )
-                      }
-                      className={
-                        "ticket-container w-1/4 flex-col p-4 z-40 absolute-center text-left static gap-4"
-                      }
+                  <div className="w-fit pl-2">
+                    <button
+                      className="text-[#ff0000] hover:text-[#ff0000]/50"
+                      onClick={() => deleteFunction(clinic.id)}
                     >
-                      <h4>Edit GoTo Info</h4>
-                      <span>
-                        <label>GoTo Email</label>
-                        <input
-                          type="text"
-                          value={formEmail}
-                          placeholder="Email"
-                          onChange={(e) => setFormEmail(e.target.value)}
-                        />
-                      </span>
-                      <span>
-                        <label>GoTo Password</label>
-                        <input
-                          type="password"
-                          value={formPassword}
-                          placeholder="Password (Case sensitive)"
-                          onChange={(e) => setFormPassword(e.target.value)}
-                        />
-                      </span>
-                      <button type="submit" className="btn-action">
-                        Save GoTo Info
-                      </button>
-                    </form>
-                  ) : (
-                    ""
-                  )}
-                </td>
-              </tr>
+                      Delete
+                    </button>
+                    {isGoToOpen && clinic.id === editedClinicId ? (
+                      <form
+                        onSubmit={(e) =>
+                          editFunction(
+                            e,
+                            editedClinicId,
+                            clinic.name,
+                            formEmail,
+                            formPassword
+                          )
+                        }
+                        className={
+                          "ticket-container w-1/4 flex-col p-4 z-40 absolute-center text-left static gap-4"
+                        }
+                      >
+                        <h4>Edit GoTo Info</h4>
+                        <span>
+                          <label>GoTo Email</label>
+                          <input
+                            type="text"
+                            value={formEmail}
+                            placeholder="Email"
+                            onChange={(e) => setFormEmail(e.target.value)}
+                          />
+                        </span>
+                        <span>
+                          <label>GoTo Password</label>
+                          <input
+                            type="password"
+                            value={formPassword}
+                            placeholder="Password (Case sensitive)"
+                            onChange={(e) => setFormPassword(e.target.value)}
+                          />
+                        </span>
+                        <button type="submit" className="btn-action">
+                          Save GoTo Info
+                        </button>
+                      </form>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-          <tfoot className="bg-sec-blue w-full">
-            <tr>
-              <td colSpan={5}>
-                <span
-                  className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
-                  onClick={() => setIsClinicOpen((prevState) => !prevState)}
-                >
-                  <p>+</p>
-                  <div
-                    className={`${
-                      isClinicOpen
-                        ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
-                        : ""
-                    }`}
+          </div>
+          <div className="bg-sec-blue w-full">
+            <span
+              className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
+              onClick={() => setIsClinicOpen((prevState) => !prevState)}
+            >
+              <p>+</p>
+              <div
+                className={`${
+                  isClinicOpen
+                    ? "h-[100dvh] w-[100dvw] absolute left-0 top-0 bg-black bg-opacity-75"
+                    : ""
+                }`}
+              />
+            </span>
+            {isClinicOpen ? (
+              <form
+                className="ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
+                onSubmit={(e) => {
+                  addFunction(e, formName, formEmail, formPassword);
+                  resetForm();
+                }}
+              >
+                <h4>Add a Clinic</h4>
+                <span>
+                  <label>Clinic Name</label>
+                  <input
+                    type="text"
+                    value={formName}
+                    placeholder="Clinic Name"
+                    onChange={(e) => setFormName(e.target.value)}
+                  ></input>
+                </span>
+                <span>
+                  <label>GoTo Email</label>
+                  <input
+                    type="text"
+                    value={formEmail}
+                    placeholder="Email"
+                    onChange={(e) => setFormEmail(e.target.value)}
                   />
                 </span>
-                {isClinicOpen ? (
-                  <form
-                    className="ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
-                    onSubmit={(e) => {
-                      addFunction(e, formName, formEmail, formPassword);
-                      resetForm();
-                    }}
-                  >
-                    <h4>Add a Clinic</h4>
-                    <span>
-                      <label>Clinic Name</label>
-                      <input
-                        type="text"
-                        value={formName}
-                        placeholder="Clinic Name"
-                        onChange={(e) => setFormName(e.target.value)}
-                      ></input>
-                    </span>
-                    <span>
-                      <label>GoTo Email</label>
-                      <input
-                        type="text"
-                        value={formEmail}
-                        placeholder="Email"
-                        onChange={(e) => setFormEmail(e.target.value)}
-                      />
-                    </span>
-                    <span>
-                      <label>GoTo Password</label>
-                      <input
-                        type="password"
-                        value={formPassword}
-                        placeholder="Password (Case sensitive)"
-                        onChange={(e) => setFormPassword(e.target.value)}
-                      />
-                    </span>
-                    <button className="btn-action" type="submit">
-                      Add Clinic
-                    </button>
-                  </form>
-                ) : (
-                  ""
-                )}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+                <span>
+                  <label>GoTo Password</label>
+                  <input
+                    type="password"
+                    value={formPassword}
+                    placeholder="Password (Case sensitive)"
+                    onChange={(e) => setFormPassword(e.target.value)}
+                  />
+                </span>
+                <button className="btn-action" type="submit">
+                  Add Clinic
+                </button>
+              </form>
+            ) : (
+              ""
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

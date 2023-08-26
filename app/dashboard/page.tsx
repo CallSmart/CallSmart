@@ -8,6 +8,8 @@ import SFContainer from "@/components/SFContainer";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [allTickets, setAllTickets] = useState<
     {
       id: number;
@@ -92,9 +94,6 @@ export default function DashboardPage() {
     const id = user?.data?.user?.id;
     let clinics: { [key: string]: any }[] | null;
 
-    console.log("Got user: ", id);
-
-    console.log("Trying owner_clinicss");
     const { data, error } = await supabase
       .from("owner_clinics")
       .select("clinic")
@@ -102,32 +101,25 @@ export default function DashboardPage() {
     clinics = data;
 
     if (clinics?.length == 0) {
-      console.log("Not in owner_clinics, trying manager");
       const { data, error } = await supabase
         .from("managers")
-        .select("clinic")
+        .select("clinicId")
         .eq("userId", id);
       clinics = data;
     } else if (clinics?.length == 0) {
-      console.log("Not in managers, trying employees");
       const { data, error } = await supabase
         .from("employees")
-        .select("clinic_id")
+        .select("clinicId")
         .eq("userId", id);
       clinics = data;
     } else if (clinics?.length == 0 || clinics == null) {
-      console.log("Not in employees, error fetching clinics");
       return;
     }
-
-    console.log("Got clinics: ", clinics);
 
     const clinicIds = clinics?.map((clinic) => clinic.clinic);
     if (!clinicIds) {
       return;
     }
-
-    console.log("Got clinic IDs: ", clinicIds);
 
     const { data: tickets, error: ticketsError } = await supabase
       .from("tickets")
@@ -144,7 +136,6 @@ export default function DashboardPage() {
   };
 
   const settingMissedTickets = async () => {
-    console.log("setting missed tickets");
     const tickets = allTickets.filter((ticket) => {
       if (ticket.stage == 1) {
         return true;
@@ -153,11 +144,9 @@ export default function DashboardPage() {
       }
     });
     setMissedTickets(tickets);
-    console.log("set missed tickets");
   };
 
   const settingPendingTickets = async () => {
-    console.log("setting pending tickets");
     const tickets = allTickets.filter((ticket) => {
       if (ticket.stage == 2) {
         return true;
@@ -166,11 +155,9 @@ export default function DashboardPage() {
       }
     });
     setPendingTickets(tickets);
-    console.log("set pending tickets");
   };
 
   const settingCompletedTickets = async () => {
-    console.log("setting completed tickets");
     const tickets = allTickets.filter((ticket) => {
       if (ticket.stage == 3) {
         return true;
@@ -179,7 +166,6 @@ export default function DashboardPage() {
       }
     });
     setCompletedTickets(tickets);
-    console.log("set completed tickets");
   };
 
   const handleDidNot = async (id: number) => {
