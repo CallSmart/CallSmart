@@ -6,6 +6,7 @@ import { supabase } from "../../supabase";
 import ProductNavBar from "@/components/ProductNavBar";
 import * as Icons from "@/components/svgs";
 import FAQComponent from "@/components/FAQComponent";
+import { Card } from "@tremor/react";
 
 export default function AnalyticsPage() {
   const router = useRouter();

@@ -72,10 +72,22 @@ const SFContainer = ({
       }
       return 0;
     });
+
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    // Simulate a delay before expanding the div
+    const timer = setTimeout(() => {
+      setIsExpanded(true);
+    }, 200); // delay of 1 second before expanding
+
+    return () => clearTimeout(timer); // Clear timer on component unmount
+  }, []);
+
   return (
     <div className="flex flex-col gap-4 w-[calc(33%-0.5rem)]">
-      <div className="flex flex-row items-center gap-1">
-        <div className="flex items-center justify-center h-[25px] w-[25px] bg-sec-blue text-white font-semibold text-sm rounded-full">
+      <div className="flex flex-row items-center gap-2">
+        <div className="flex items-center justify-center h-[28px] w-[28px] bg-sec-blue text-white font-semibold text-sm rounded-full">
           {tickets.length}
         </div>
         <h3>{label}</h3>
@@ -89,22 +101,32 @@ const SFContainer = ({
           <Multiselect options={filterOptions} onChange={handleFilterChange} />
         </div>
       </div>
-      <div className="backlog-container flex-col">
-        {sfTickets.map((ticket, key) => (
-          <Ticket
-            key={key}
-            isNew={ticket?.isNew}
-            id={ticket?.id}
-            onComplete={handleComplete}
-            onDidNot={handleDidNot}
-            urgent={ticket?.urgent}
-            type={ticket?.type}
-            name={ticket?.name}
-            number={ticket?.number}
-            time={ticket?.time}
-            stage={ticket?.stage}
-          />
-        ))}
+      <div
+        className={`bg-white overflow-hidden rounded-xl transition-height duration-100 ease-out ${
+          isExpanded ? "h-full" : "h-0"
+        }`}
+      >
+        <div
+          className={`backlog-container flex-col transition-height duration-500 ease-in ${
+            isExpanded ? "h-full gap-4" : "h-0 -gap-4"
+          }`}
+        >
+          {sfTickets.map((ticket, key) => (
+            <Ticket
+              key={key}
+              isNew={ticket?.isNew}
+              id={ticket?.id}
+              onComplete={handleComplete}
+              onDidNot={handleDidNot}
+              urgent={ticket?.urgent}
+              type={ticket?.type}
+              name={ticket?.name}
+              number={ticket?.number}
+              time={ticket?.time}
+              stage={ticket?.stage}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

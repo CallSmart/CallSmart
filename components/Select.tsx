@@ -57,7 +57,7 @@ function Select({
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
               key={index}
-              className="py-1"
+              className="py-1 px-2 cursor-pointer"
             >
               {option}
             </li>

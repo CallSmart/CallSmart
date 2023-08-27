@@ -9,6 +9,7 @@ body,
 :root {
   height: 100%;
   font-family: Inter, Arial, Helvetica, sans-serif;
+  font-size: 15px;
 }
 
 ::-webkit-scrollbar {
@@ -40,15 +41,15 @@ input {
 }
 
 .sf-container {
-  @apply flex bg-white border-[1px] border-[#CBCCD0] p-4 rounded-lg;
+  @apply flex bg-white border-[1px] border-[#CBCCD0] py-4 px-6 rounded-xl;
 }
 
 .ticket-container {
-  @apply flex flex-col border-2 border-sec-blue rounded-lg bg-white;
+  @apply flex flex-col ring-1 ring-sec-blue rounded-lg bg-white overflow-hidden;
 }
 
 .backlog-container {
-  @apply flex bg-[#E5F0FA] border-[1px] border-prim-blue p-4 rounded-lg w-full gap-2 h-full overflow-y-scroll;
+  @apply flex bg-prim-blue/10 border-[1px] border-prim-blue p-4 rounded-xl w-full gap-4 overflow-y-scroll;
 }
 
 .ticket-prop {
@@ -72,5 +73,5 @@ h1 {
 }
 
 form span {
-  @apply flex flex-col;
+  @apply flex flex-col indent-0;
 }

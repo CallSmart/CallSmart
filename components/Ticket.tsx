@@ -1,6 +1,6 @@
 import * as Icons from "@/components/svgs";
 import TicketProp from "./TicketProp";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 type FunctionType = (id: number) => void;
 
 const Ticket = ({
@@ -76,11 +76,24 @@ const Ticket = ({
     return `${month} ${day}, ${hours}:${minutes}${amPm}`;
   };
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    // Simulate a delay before expanding the div
+    const timer = setTimeout(() => {
+      setIsExpanded(true);
+    }, 1); // delay of 1 second before expanding
+
+    return () => clearTimeout(timer); // Clear timer on component unmount
+  }, []);
+
   return (
     <div
       tabIndex={0}
       onBlur={() => handleBlur()}
-      className="ticket-container leading-tight static"
+      className={`ticket-container leading-tight static transition-height duration-300 ease-out ${
+        isExpanded ? "h-[108.75px]" : "h-0"
+      }`}
     >
       <span
         className="cursor-pointer"
@@ -103,14 +116,17 @@ const Ticket = ({
               />
             </div>
           </div>
-          <div className="flex flex-row gap-2 items-center">
-            <div className="text-xl font-medium">{name}</div>
-            <div className="opacity-25">|</div>
-            <div className="text-sm opacity-50">{number}</div>
+          <div className="flex flex-row gap-2 items-center divide-x divide-gray-500">
+            <div className="text-xl font-medium whitespace-nowrap overflow-hidden truncate ">
+              {name}
+            </div>
+            <div className="text-sm opacity-50 pl-2">{number}</div>
           </div>
-          <div className="flex flex-row items-center w-full justify-between">
+          <div className="flex flex-row gap-4 items-center w-full justify-between">
             <TicketProp type={type} closeable={false} onClose={() => null} />
-            <div className="opacity-50 text-sm">{customDateFormat(time)}</div>
+            <div className="opacity-50 text-sm whitespace-nowrap overflow-hidden truncate">
+              {customDateFormat(time)}
+            </div>
           </div>
         </div>
         <div className="text-white bg-sec-blue justify-center py-1 text-sm font-semibold">
@@ -147,10 +163,9 @@ const Ticket = ({
                 />
               </div>
             </div>
-            <div className="flex flex-row gap-2 items-center">
+            <div className="flex flex-row gap-2 items-center divide-x divide-gray-500">
               <div className="text-xl font-medium">{name}</div>
-              <div className="opacity-25">|</div>
-              <div className="text-sm opacity-50">{number}</div>
+              <div className="text-sm opacity-50 pl-2">{number}</div>
             </div>
             <div className="flex flex-row items-center w-full justify-between">
               <TicketProp type={type} closeable={false} onClose={() => null} />

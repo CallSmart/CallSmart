@@ -13,6 +13,7 @@ import router from "next/navigation";
 import { useRouter } from "next/navigation";
 import * as Img from "../app/images";
 import Image from "next/image";
+import { Card } from "@tremor/react";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -38,9 +39,16 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     return (
       <a
         href={to}
-        className={`${"product-nav-button"} ${pathname == to ? "active" : ""}`}
+        className={
+          "indent-6 py-2 text-prim-blue hover:bg-prim-blue/10 active:bg-prim-blue/25 rounded-xl flex flex-row items-center relative"
+        }
       >
-        <p>{children}</p>
+        {pathname == to ? (
+          <div className="h-[5px] w-[5px] rounded-full bg-prim-blue absolute left-2" />
+        ) : (
+          ""
+        )}
+        <p>{children}</p>{" "}
       </a>
     );
   };
@@ -146,33 +154,50 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   );
 
   return (
-    <div className="flex flex-row ">
-      <div className="flex flex-col h-[100dvh] w-64 py-8 px-4 justify-center sm:justify-between bg-[#E5F0FA] border-r-[1px] border-prim-blue text-prim-blue">
-        <div className="flex flex-col gap-4">
-          <a
-            className="h-fit w-fit font-bold text-2xl self-center justify-center flex"
-            href="/"
-          >
+    <div className="flex flex-row bg-white">
+      <Card
+        decoration="right"
+        className="flex flex-col h-[100dvh] w-52 lg:w-72 py-8 px-6 justify-between rounded-l-none rounded-r-3xl bg-prim-blue/10 border-prim-blue text-prim-blue transition-all duration-300 ease-in"
+      >
+        <div className="flex flex-col gap-6">
+          <a className="h-fit w-fit self-center justify-center flex" href="/">
             <Image
               src={Img.LogoFull}
               alt="CallSmart Logo"
-              className="w-4/5 h-auto"
+              className="hidden lg:block w-4/5 h-auto"
+            />
+            <Image
+              src={Img.IconFull}
+              alt="CallSmart Logo"
+              className="lg:hidden h-6 w-auto"
             />
           </a>
-          <a
-            className="flex flex-row p-2 border-[1px] border-prim-blue text-prim-blue rounded-md bg-[#BFD9F2] gap-2"
-            href="/account"
-          >
-            <div className="flex flex-col gap-0 leading-tight">
-              <p>{fullName}</p>
-              <em className="opacity-50 hover:opacity-100">Manage Account</em>
+          <div className="flex flex-row px-4 py-2 border-[1px] border-prim-blue text-prim-blue rounded-xl bg-[#BFD9F2] gap-2">
+            <div className="flex flex-col gap-0 leading-tight overflow-hidden">
+              <p className="w-full whitespace-nowrap overflow-hidden truncate">
+                {fullName}
+              </p>
+              <a href="/account" className="flex flex-row w-full items-center">
+                <em className="opacity-50 hover:opacity-100 hidden lg:block">
+                  Manage Account
+                </em>
+                <em className="opacity-50 hover:opacity-100 lg:hidden">
+                  Manage Acc.
+                </em>
+              </a>
             </div>
-          </a>
+          </div>
           <div className="flex flex-col gap-2">
             <p className="font-medium">Dashboards</p>
             <hr className="border-prim-blue" />
-            <NavButton to="/dashboard">Tickets Dashboard</NavButton>
-            <NavButton to="/analytics">Analytics Dashboard</NavButton>
+            <span className="lg:hidden">
+              <NavButton to="/dashboard">Tickets</NavButton>
+              <NavButton to="/analytics">Analytics</NavButton>
+            </span>
+            <span className="hidden lg:block">
+              <NavButton to="/dashboard">Tickets Dashboard</NavButton>
+              <NavButton to="/analytics">Analytics Dashboard</NavButton>
+            </span>
           </div>
         </div>
         <div className="flex flex-col gap-2">
@@ -182,8 +207,8 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
             Contact
           </NavButton>
         </div>
-      </div>
-      <div className="w-[calc(100dvw-256px)] h-[100dvh] bg-grey-light px-6 py-8">
+      </Card>
+      <div className="w-[calc(100dvw-13rem)] lg:w-[calc(100dvw-256px)] h-[100dvh] bg-gray-100 px-6 py-8 overflow-scroll">
         {children}
       </div>
     </div>

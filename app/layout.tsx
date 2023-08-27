@@ -22,7 +22,7 @@ export default async function RootLayout({
     <html lang="en">
       <body
         className={
-          "flex flex-col h-[100dvh] bg-gradient-to-b from-white to-[#0066CC3F] bg-white"
+          "flex flex-col h-[100dvh] bg-gradient-to-b from-white to-prim-blue/25 bg-white"
         }
       >
         <SupabaseProvider>

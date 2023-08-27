@@ -6,6 +6,7 @@ import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
 import ClinicTable from "@/components/ClinicTable";
 import ManagerEmployeeTable from "@/components/MananagerEmployeeTable";
+import { Card, Text } from "@tremor/react";
 
 interface Clinic {
   id: number;
@@ -42,7 +43,6 @@ export default function AccountPage() {
   const [role, setRole] = useState("");
 
   const [errorOnAdd, setErrorOnAdd] = useState(false);
-  const [clinicId, setClinicId] = useState(0);
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
@@ -98,7 +98,6 @@ export default function AccountPage() {
     const id = user?.data?.user?.id;
 
     if (id) {
-      setUserId(id);
       const { data, error } = await supabase
         .from("users")
         .select("firstname, lastname, organization, role")
@@ -327,17 +326,22 @@ export default function AccountPage() {
 
   return (
     <ProductNavBar>
-      <div className="flex flex-col gap-4">
-        <div className="container flex-row gap-4">
-          <div className="flex flex-row items-center gap-8">
-            <h2 className="text-3xl leading-tight">
+      <div className="flex flex-col gap-4 min-w-[700px]">
+        <Card
+          decoration="left"
+          className="flex flex-row justify-between border-prim-blue items-end text-gray-500"
+        >
+          <div>
+            <p>Account Owner</p>
+            <h2 className="text-3xl text-sec-blue">
               {fName} {lName}
             </h2>
-            <h3 className="flex flex-row gap-2 text-lg opacity-20 leading-tight">
-              <em>{organization}</em> | <em>{role}</em>
-            </h3>
           </div>
-        </div>
+          <div className="flex flex-col items-end">
+            <p>Clinic Name: {organization}</p>
+            <p>Role: {role}</p>
+          </div>
+        </Card>
         <div
           className={`${
             errorOnAdd
@@ -380,7 +384,7 @@ export default function AccountPage() {
         <h4>Settings</h4>
         <div className="container flex-col gap-2">
           <button
-            className="w-fit hover:text-prim-blue"
+            className="w-fit text-red-500 hover:text-red-300 active:text-red-500"
             onClick={handleSignOut}
           >
             Sign Out

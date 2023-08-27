@@ -201,33 +201,31 @@ export default function DashboardPage() {
 
   return (
     <ProductNavBar>
-      <div className="flex h-full w-full">
-        <div className="flex flex-row w-full gap-4 self-stretch">
-          <SFContainer
-            label={"Missed"}
-            handleComplete={handleComplete}
-            handleDidNot={handleDidNot}
-            tickets={missedTickets}
-            sortOptions={sortOptions}
-            filterOptions={filterOptions}
-          />
-          <SFContainer
-            label={"Pending"}
-            handleComplete={handleComplete}
-            handleDidNot={handleDidNot}
-            tickets={pendingTickets}
-            sortOptions={sortOptions}
-            filterOptions={filterOptions}
-          />
-          <SFContainer
-            label={"Completed"}
-            handleComplete={handleComplete}
-            handleDidNot={handleDidNot}
-            tickets={completedTickets}
-            sortOptions={sortOptions}
-            filterOptions={filterOptions}
-          />
-        </div>
+      <div className="flex h-full w-full min-w-[724px] flex-row gap-4 self-stretch">
+        <SFContainer
+          label={"Missed"}
+          handleComplete={handleComplete}
+          handleDidNot={handleDidNot}
+          tickets={missedTickets}
+          sortOptions={sortOptions}
+          filterOptions={filterOptions}
+        />
+        <SFContainer
+          label={"Pending"}
+          handleComplete={handleComplete}
+          handleDidNot={handleDidNot}
+          tickets={pendingTickets}
+          sortOptions={sortOptions}
+          filterOptions={filterOptions}
+        />
+        <SFContainer
+          label={"Completed"}
+          handleComplete={handleComplete}
+          handleDidNot={handleDidNot}
+          tickets={completedTickets}
+          sortOptions={sortOptions}
+          filterOptions={filterOptions}
+        />
       </div>
     </ProductNavBar>
   );

@@ -1,3 +1,5 @@
+import { Card } from "@tremor/react";
+
 const FAQComponent = ({
   question,
   answer,
@@ -6,10 +8,10 @@ const FAQComponent = ({
   answer: string;
 }) => {
   return (
-    <div className="container flex-col">
+    <Card decoration="left" className="flex flex-col border-prim-blue">
       <h4>{question}</h4>
       <div>{answer}</div>
-    </div>
+    </Card>
   );
 };
 

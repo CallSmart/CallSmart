@@ -2,12 +2,21 @@ import { useEffect } from "react";
 import * as Icons from "./svgs";
 type FunctionType = (option: string[]) => void;
 
+type TicketType =
+  | "question"
+  | "book"
+  | "cancel"
+  | "reschedule"
+  | "new"
+  | "urgent"
+  | string;
+
 const TicketProp = ({
   type,
   closeable,
   onClose,
 }: {
-  type: any;
+  type: TicketType;
   closeable: boolean;
   onClose: Function;
 }) => {
@@ -33,32 +42,32 @@ const TicketProp = ({
       }
     >
       {type == "question" ? (
-        <div className="flex flex-row gap-1 items-center">
+        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
           <Icons.QuestionIcon />
-          Question for Staff
+          Question
         </div>
       ) : type == "book" ? (
-        <div className="flex flex-row gap-1 items-center">
+        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
           <Icons.AddIcon />
-          Book Appointment
+          Book
         </div>
       ) : type == "cancel" ? (
-        <div className="flex flex-row gap-1 items-center">
+        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
           <Icons.CancelIcon />
-          Cancel Appointment
+          Cancel
         </div>
       ) : type == "reschedule" ? (
-        <div className="flex flex-row gap-1 items-center">
+        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
           <Icons.CalendarIcon />
-          Reschedule Appointment
+          Reschedule
         </div>
       ) : type == "new" ? (
-        <div className="flex flex-row gap-1 items-center">
+        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
           <Icons.PersonAddIcon />
           New Client
         </div>
       ) : type == "urgent" ? (
-        <div className="flex flex-row gap-1 items-center">
+        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
           <Icons.ErrorIcon />
           URGENT
         </div>

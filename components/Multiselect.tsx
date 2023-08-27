@@ -83,7 +83,7 @@ function Multiselect({
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
               key={index}
-              className={`${"py-1"} ${
+              className={`${"py-1 pr-6"} ${
                 selectedOptions.includes(option) ? "hidden" : ""
               }`}
             >

@@ -58,6 +58,9 @@ const ManagerEmployeeTable = ({
   const [formLastName, setFormLastName] = useState("");
   const [formClinic, setFormClinic] = useState<number | null>(null);
 
+  const [deleteOverlay, setDeleteOverlay] = useState(false);
+  const [deleteKey, setDeleteKey] = useState<number | null>(null);
+
   useEffect(() => {
     resetForm();
   }, [isFormOpen, addFunction, deleteFunction]);
@@ -75,20 +78,23 @@ const ManagerEmployeeTable = ({
   };
 
   return (
-    <div className="w-full border-2 border-sec-blue rounded-lg bg-white overflow-scroll">
-      <div className="w-full table-auto border-sec-blue overflow-hidden divide-y divide-sec-blue">
-        <div className="w-full bg-sec-blue indent-2 text-white font-semibold py-1">
-          {label}
-        </div>
-        <div className="divide-y overflow-scroll">
+    <div className="w-full border-[1px] border-sec-blue rounded-lg bg-sec-blue overflow-visible">
+      <div className="w-full indent-2 text-white pt-1 font-semibold rounded-t-md">
+        {label}
+        <div
+          style={{ height: `${55 * people.length + 8}px` }}
+          className="divide-y overflow-visible bg-white rounded-md my-1 border-y-4 border-prim-blue font-normal transition-all"
+        >
           {people.map((person, key) => (
-            <div className="py-4 px-8 flex flex-row justify-between" key={key}>
+            <div
+              className="px-8 flex flex-row justify-between h-[55px] items-center"
+              key={key}
+            >
               <div className="flex flex-row gap-6">
                 <p className="text-sec-blue">
-                  {" "}
                   {person.firstName} {person.lastName}
                 </p>
-                <p className="text-black/20 flex flex-row gap-2 divide-x">
+                <p className="text-gray-300 flex flex-row gap-2 divide-x">
                   <span>Clinic ID: {person.clinicId}</span>
                   <span className="pl-2">{person.email}</span>
                 </p>
@@ -100,17 +106,37 @@ const ManagerEmployeeTable = ({
                 >
                   Recover
                 </button>
-                <button
-                  className="text-[#ff0000] hover:text-[#ff0000]/50 pl-2"
-                  onClick={() => deleteFunction(person.id)}
-                >
-                  Delete
-                </button>
+                <div>
+                  <button
+                    className="relative"
+                    onClick={() => {
+                      setDeleteOverlay((prevState) => !prevState);
+                      setDeleteKey(key);
+                    }}
+                    tabIndex={0}
+                    onBlur={() => setDeleteOverlay(false)}
+                  >
+                    <p className="text-red-500 hover:text-red-300">Delete</p>
+                    {deleteOverlay && deleteKey == key ? (
+                      <div className="absolute -top-16 right-0 border border-y-4 drop-shadow-md border-sec-blue rounded-lg px-4 py-2 bg-white">
+                        <p className="text-sec-blue w-36 cursor-default">
+                          Are you sure you want to delete?
+                        </p>
+                        <p
+                          className="text-red-500 hover:text-red-300"
+                          onClick={() => deleteFunction(person.id)}
+                        >
+                          Yes
+                        </p>
+                      </div>
+                    ) : null}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
-        <div className="bg-sec-blue w-full">
+        <div className="w-full rounded-b-md pb-1 indent-4">
           <span
             className="flex text-white hover:text-gray-500 hover:cursor-pointer font-bold w-8 items-center justify-center"
             onClick={() => setIsFormOpen((prevState) => !prevState)}
