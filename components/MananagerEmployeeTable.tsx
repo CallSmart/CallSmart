@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 
 interface Person {
   id: number;
-  firstName: string;
-  lastName: string;
-  clinicId: number;
+  first_name: string;
+  last_name: string;
+  clinic_id: number;
   email: string;
 }
 
@@ -77,6 +77,22 @@ const ManagerEmployeeTable = ({
     setFormPassword("");
   };
 
+  const toSingular = (label: string) => {
+    // Split the string by spaces, convert to lowercase, and capitalize each word
+    const words = label
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+
+    // Take the last word and convert to singular if it ends with 's'
+    const lastIndex = words.length - 1;
+    if (words[lastIndex].endsWith("s")) {
+      words[lastIndex] = words[lastIndex].slice(0, -1);
+    }
+
+    return words.join(" ");
+  };
+
   return (
     <div className="w-full border-[1px] border-sec-blue rounded-lg bg-sec-blue overflow-visible">
       <div className="w-full indent-2 text-white pt-1 font-semibold rounded-t-md">
@@ -92,10 +108,10 @@ const ManagerEmployeeTable = ({
             >
               <div className="flex flex-row gap-6">
                 <p className="text-sec-blue">
-                  {person.firstName} {person.lastName}
+                  {person.first_name} {person.last_name}
                 </p>
                 <p className="text-gray-300 flex flex-row gap-2 divide-x">
-                  <span>Clinic ID: {person.clinicId}</span>
+                  <span>Clinic ID: {person.clinic_id}</span>
                   <span className="pl-2">{person.email}</span>
                 </p>
               </div>
@@ -163,10 +179,10 @@ const ManagerEmployeeTable = ({
                 );
               }}
               className={
-                "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4"
+                "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4 text-black"
               }
             >
-              <h4>Add an Office Manager</h4>
+              <h4>Add an {toSingular(label)}</h4>
               <span>
                 <label>First Name</label>
                 <input

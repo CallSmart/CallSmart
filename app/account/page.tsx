@@ -17,17 +17,17 @@ interface Clinic {
 
 interface Employee {
   id: number;
-  firstName: string;
-  lastName: string;
-  clinicId: number;
+  first_name: string;
+  last_name: string;
+  clinic_id: number;
   email: string;
 }
 
-interface OfficeManager {
+interface Manager {
   id: number;
-  firstName: string;
-  lastName: string;
-  clinicId: number;
+  first_name: string;
+  last_name: string;
+  clinic_id: number;
   email: string;
 }
 
@@ -35,7 +35,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [clinics, setClinics] = useState<Clinic[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [officeManagers, setOfficeManagers] = useState<OfficeManager[]>([]);
+  const [managers, setManagers] = useState<Manager[]>([]);
 
   const [fName, setFName] = useState("");
   const [lName, setLName] = useState("");
@@ -53,7 +53,7 @@ export default function AccountPage() {
     getUser();
     fetchClinics();
     fetchEmployees();
-    fetchOfficeManagers();
+    fetchManagers();
   }, []);
 
   const fetchClinics = async () => {
@@ -73,7 +73,7 @@ export default function AccountPage() {
     const { data, error } = await supabase
       .from("employees")
       .select()
-      .order("lastName", { ascending: true });
+      .order("last_name", { ascending: true });
     if (error) {
       console.error("Error fetching employees:", error.message);
     } else {
@@ -81,39 +81,39 @@ export default function AccountPage() {
     }
   };
 
-  const fetchOfficeManagers = async () => {
+  const fetchManagers = async () => {
     const { data, error } = await supabase
       .from("managers")
       .select()
-      .order("lastName", { ascending: true });
+      .order("last_name", { ascending: true });
     if (error) {
       console.error("Error fetching office managers:", error.message);
     } else {
-      setOfficeManagers(data || []);
+      setManagers(data || []);
     }
   };
 
+  useEffect(() => {
+    getUser();
+  }, [fetchClinics, fetchEmployees, fetchManagers]);
+
   const getUser = async () => {
     const user = await supabase.auth.getUser();
-    const id = user?.data?.user?.id;
+    const user_id = user?.data?.user?.id;
 
-    if (id) {
-      const { data, error } = await supabase
+    if (user_id) {
+      const { data: userData, error } = await supabase
         .from("users")
-        .select("firstname, lastname, organization, role")
-        .eq("id", id);
+        .select("first_name, last_name, organization, role")
+        .eq("id", user_id);
       if (error) {
         console.error("Error fetching user:", error.message);
       } else {
-        setFName(data?.[0]?.firstname || "");
-        setLName(data?.[0]?.lastname || "");
-        setOrganization(data?.[0]?.organization || "");
-        setRole(data?.[0]?.role || "");
+        setFName(userData?.[0]?.first_name || "");
+        setLName(userData?.[0]?.last_name || "");
+        setOrganization(userData?.[0]?.organization || "");
+        setRole(userData?.[0]?.role || "");
       }
-      setFName(data?.[0]?.firstname || "");
-      setLName(data?.[0]?.lastname || "");
-      setOrganization(data?.[0]?.organization || "");
-      setRole(data?.[0]?.role || "");
     }
   };
 
@@ -129,20 +129,61 @@ export default function AccountPage() {
       handleErrorOnAdd();
       return;
     }
-    const { error } = await supabase.from("clinics").insert([
-      {
-        name: name,
-        gotoemail: email,
-        gotopassword: password,
-      },
-    ]);
+    const { data, error } = await supabase
+      .from("clinics")
+      .insert([
+        {
+          name: name,
+          gotoemail: email,
+          gotopassword: password,
+        },
+      ])
+      .select("*");
+    console.log(data);
+
     if (error) {
       console.error("Error adding clinic:", error.message);
       handleErrorOnAdd();
     } else {
-      fetchClinics();
+      const user = await supabase.auth.getUser();
+      const user_id = user?.data?.user?.id;
+      const { data: ownerClinicsData, error: ownerClinicsError } =
+        await supabase.from("owner_clinics").insert([
+          {
+            owner: user_id,
+            clinic: data[0].id,
+          },
+        ]);
+      if (ownerClinicsError) {
+        console.error(
+          "Error adding relation to owner_clinics:",
+          ownerClinicsError.message
+        );
+        handleErrorOnAdd();
+      } else {
+        fetchClinics();
+      }
     }
     return;
+  };
+
+  const addToUserTable = async (dataToInsert: any) => {
+    const { data: insertData, error: insertError } = await supabase
+      .from("users")
+      .insert([
+        {
+          first_name: dataToInsert.first_name,
+          last_name: dataToInsert.last_name,
+          id: dataToInsert.user_id,
+          email: dataToInsert.email,
+          role: dataToInsert.role,
+        },
+      ]);
+
+    if (insertError) {
+      console.log("User Table: ", insertError);
+      return insertError;
+    }
   };
 
   const addEmployee = async (
@@ -153,8 +194,9 @@ export default function AccountPage() {
     email: string,
     password: string
   ) => {
-    e.preventDefault();
+    e.preventDefault(); // Don't refresh page
 
+    // Sign user up for an account on CallSmart
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
@@ -164,19 +206,26 @@ export default function AccountPage() {
       console.error("Error creating employee:", error.message);
       handleErrorOnAdd();
     } else {
-      const { data: data2, error: insertError } = await supabase
-        .from("employees")
-        .insert([
-          {
-            firstName: firstName,
-            lastName: lastName,
-            userId: data?.user?.id,
-            clinic_id: clinic,
-            email: email,
-          },
-        ]);
+      const dataToInsert = {
+        first_name: firstName,
+        last_name: lastName,
+        user_id: data?.user?.id,
+        clinic_id: clinic,
+        email: email,
+        role: "Employee",
+      };
 
-      if (insertError) {
+      let insertError = await addToEmployeeTable(dataToInsert);
+      if (insertError !== undefined) {
+        console.error(
+          "Error adding employee to employee table:",
+          insertError.message
+        );
+        handleErrorOnAdd();
+      }
+
+      insertError = await addToUserTable(dataToInsert);
+      if (insertError !== undefined) {
         console.error("Error adding employee:", insertError.message);
         handleErrorOnAdd();
       } else {
@@ -185,7 +234,26 @@ export default function AccountPage() {
     }
   };
 
-  const addOfficeManager = async (
+  const addToEmployeeTable = async (dataToInsert: any) => {
+    const { data: insertData, error: insertError } = await supabase
+      .from("employees")
+      .insert([
+        {
+          first_name: dataToInsert.first_name,
+          last_name: dataToInsert.last_name,
+          user_id: dataToInsert.user__id,
+          clinic_id: dataToInsert.clinic_id,
+          email: dataToInsert.email,
+        },
+      ]);
+
+    if (insertError) {
+      console.log("Employee Table: ", insertError);
+      return insertError;
+    }
+  };
+
+  const addManager = async (
     e: any,
     firstName: string,
     lastName: string,
@@ -204,24 +272,50 @@ export default function AccountPage() {
       console.error("Error creating office manager:", error.message);
       handleErrorOnAdd();
     } else {
-      const { data: data2, error: insertError } = await supabase
-        .from("managers")
-        .insert([
-          {
-            firstName: firstName,
-            lastName: lastName,
-            userId: data?.user?.id,
-            clinicId: clinic,
-            email: email,
-          },
-        ]);
+      const dataToInsert = {
+        first_name: firstName,
+        last_name: lastName,
+        user_id: data?.user?.id,
+        clinic_id: clinic,
+        email: email,
+        role: "Manager",
+      };
 
-      if (insertError) {
-        console.error("Error adding office manager:", insertError.message);
+      let insertError = await addToManagerTable(dataToInsert);
+      if (insertError !== undefined) {
+        console.error(
+          "Error adding employee to employee table:",
+          insertError.message
+        );
+        handleErrorOnAdd();
+      }
+
+      insertError = await addToUserTable(dataToInsert);
+      if (insertError !== undefined) {
+        console.error("Error adding employee:", insertError.message);
         handleErrorOnAdd();
       } else {
-        fetchOfficeManagers();
+        fetchManagers();
       }
+    }
+  };
+
+  const addToManagerTable = async (dataToInsert: any) => {
+    const { data: insertData, error: insertError } = await supabase
+      .from("managers")
+      .insert([
+        {
+          first_name: dataToInsert.first_name,
+          last_name: dataToInsert.last_name,
+          user_id: dataToInsert.user__id,
+          clinic_id: dataToInsert.clinic_id,
+          email: dataToInsert.email,
+        },
+      ]);
+
+    if (insertError) {
+      console.log("Employee Table: ", insertError);
+      return insertError;
     }
   };
 
@@ -272,25 +366,55 @@ export default function AccountPage() {
   };
 
   const deleteEmployee = async (id: number) => {
-    const { error } = await supabase.from("employees").delete().eq("id", id);
-    if (error) {
-      console.error("Error deleting employee:", error.message);
-    } else {
-      setEmployees((prevEmployees) =>
-        prevEmployees.filter((employee) => employee.id !== id)
+    const { error: employeeError } = await supabase
+      .from("employees")
+      .delete()
+      .eq("id", id);
+    if (employeeError) {
+      console.error(
+        "Error deleting employee from employees:",
+        employeeError.message
       );
     }
+
+    const { error: usersError } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", id);
+
+    if (usersError) {
+      console.error("Error deleting employee from users:", usersError.message);
+    }
+
+    setEmployees((prevEmployees) =>
+      prevEmployees.filter((employee) => employee.id !== id)
+    );
   };
 
-  const deleteOfficeManager = async (id: number) => {
-    const { error } = await supabase.from("managers").delete().eq("id", id);
-    if (error) {
-      console.error("Error deleting office manager:", error.message);
-    } else {
-      setOfficeManagers((prevManagers) =>
-        prevManagers.filter((manager) => manager.id !== id)
+  const deleteManager = async (id: number) => {
+    const { error: employeeError } = await supabase
+      .from("managers")
+      .delete()
+      .eq("id", id);
+    if (employeeError) {
+      console.error(
+        "Error deleting manager from managers:",
+        employeeError.message
       );
     }
+
+    const { error: usersError } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", id);
+
+    if (usersError) {
+      console.error("Error deleting manager from users:", usersError.message);
+    }
+
+    setEmployees((prevEmployees) =>
+      prevEmployees.filter((employee) => employee.id !== id)
+    );
   };
 
   const sendPasswordRecoveryEmail = async (email: string) => {
@@ -367,11 +491,11 @@ export default function AccountPage() {
         />
         <ManagerEmployeeTable
           label={"OFFICE MANAGERS"}
-          people={officeManagers}
+          people={managers}
           clinics={clinics}
-          deleteFunction={deleteOfficeManager}
+          deleteFunction={deleteManager}
           recoverFunction={sendPasswordRecoveryEmail}
-          addFunction={addOfficeManager}
+          addFunction={addManager}
         />
         <ManagerEmployeeTable
           label={"EMPLOYEES"}

@@ -92,33 +92,51 @@ export default function DashboardPage() {
   const fetchAllTickets = async () => {
     const user = await supabase.auth.getUser();
     const id = user?.data?.user?.id;
-    let clinics: { [key: string]: any }[] | null;
 
-    const { data, error } = await supabase
-      .from("owner_clinics")
-      .select("clinic")
-      .eq("owner", id);
-    clinics = data;
+    const { data: userRoleData, error: userRoleError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", id);
 
-    if (clinics?.length == 0) {
-      const { data, error } = await supabase
-        .from("managers")
-        .select("clinicId")
-        .eq("userId", id);
-      clinics = data;
-    } else if (clinics?.length == 0) {
-      const { data, error } = await supabase
-        .from("employees")
-        .select("clinicId")
-        .eq("userId", id);
-      clinics = data;
-    } else if (clinics?.length == 0 || clinics == null) {
+    if (userRoleError) {
+      console.log("Error fetching user role");
       return;
     }
+
+    const userRole = userRoleData[0].role;
+    console.log(userRole);
+
+    let clinics: { [key: string]: any }[] | null;
+
+    if (userRole == "Owner") {
+      const { data, error } = await supabase
+        .from("owner_clinics")
+        .select("clinic")
+        .eq("owner", id);
+      clinics = data;
+    } else if (userRole == "Manager") {
+      const { data, error } = await supabase
+        .from("managers")
+        .select("clinic_id")
+        .eq("user_id", id);
+      clinics = data;
+    } else if (userRole == "Employee") {
+      const { data, error } = await supabase
+        .from("employee")
+        .select("clinic_id")
+        .eq("user_id", id);
+      clinics = data;
+    } else {
+      clinics = null;
+    }
+
+    console.log(clinics);
 
     const clinicIds = clinics?.map((clinic) => clinic.clinic);
     if (!clinicIds) {
       return;
+    } else {
+      console.log(String(clinicIds));
     }
 
     const { data: tickets, error: ticketsError } = await supabase

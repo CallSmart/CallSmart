@@ -29,10 +29,11 @@ export default function AnalyticsPage() {
     <ProductNavBar>
       <div className="flex flex-col gap-2">
         <h4>Frequently Asked Questions</h4>
-        <div className="flex flex-row border-b-2 border-[#CBCCD0] items-center gap-2 py-1">
+        <div className="flex flex-row items-center gap-2 py-1">
           <Icons.SearchIcon className="text-xl text-sec-blue" />
           <input placeholder="Search" className="w-full border-0" />
         </div>
+        <hr />
         {QnA.map((question, key) => (
           <FAQComponent
             key={key}

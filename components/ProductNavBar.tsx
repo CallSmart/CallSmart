@@ -54,30 +54,29 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   };
 
   const getUser = async () => {
-    console.log("Calling get user in Prod Nav");
     const user = await supabase.auth.getUser();
-
     if (user.error) {
       console.log("Calling redirect: ", user.error);
       router.push("/signin");
     }
 
-    const id = user?.data?.user?.id;
-    if (id) {
-      const { data, error } = await supabase
+    const user_id = user?.data?.user?.id;
+    if (user_id) {
+      const { data: userData, error } = await supabase
         .from("users")
-        .select("firstname, lastname")
-        .eq("id", id);
+        .select("first_name, last_name")
+        .eq("id", user_id);
       if (error) {
         console.error("Error fetching user:", error.message);
       }
-      localStorage.setItem("firstname", data?.[0]?.firstname || "");
-      localStorage.setItem("lastname", data?.[0]?.lastname || "");
+      localStorage.setItem("first_name", userData?.[0]?.first_name || "");
+      localStorage.setItem("last_name", userData?.[0]?.last_name || "");
       setFullName(
-        localStorage.getItem("firstname") +
+        localStorage.getItem("first_name") +
           " " +
-          localStorage.getItem("lastname")
+          localStorage.getItem("last_name")
       );
+      clearTimeout;
     }
   };
 
@@ -86,9 +85,6 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       const token = localStorage.getItem("token") as string;
       const { data, error } = await supabase.auth.getSession();
       const user = await supabase.auth.getUser(token);
-      // console.log(user);
-      // console.log("here");
-      // console.log(data?.session?.user);
       if (error) {
         router.push("/signin");
       } else {
@@ -108,7 +104,6 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
       !localStorage.getItem("lastname") ||
       !localStorage.getItem("token")
     ) {
-      console.log("Did not find full name in local storage");
       getUser();
     } else {
       setFullName(
@@ -116,7 +111,6 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           " " +
           localStorage.getItem("lastname")
       );
-      console.log("Found Name in local storage: ", fullName);
     }
   }, []);
 
