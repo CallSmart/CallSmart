@@ -37,26 +37,82 @@ export default function AnalyticsPage() {
     }
   }, []);
 
-  const chartdata = [
+  const percentageFormatter = (value1: number, value2: number | null) => {
+    if (value2 === null) {
+      const roundedPercentage = Math.trunc(Math.round(value1 * 100));
+      return `${roundedPercentage}%`;
+    } else {
+      const percentageChange = ((value1 - value2) / value2) * 100;
+
+      const roundedPercentage = Math.trunc(
+        Math.round(percentageChange * 100) / 100
+      );
+
+      return `${roundedPercentage}%`;
+    }
+  };
+
+  const ticketsCreatedData = [
     {
-      name: "Question",
-      Today: 2488,
-      Yesterday: 2345,
+      Type: "Question",
+      Today: 21,
+      Yesterday: 15,
     },
     {
-      name: "Book",
-      Today: 1445,
-      Yesterday: 1254,
+      Type: "Book",
+      Today: 13,
+      Yesterday: 14,
     },
     {
-      name: "Cancel",
-      Today: 423,
-      Yesterday: 532,
+      Type: "Cancel",
+      Today: 20,
+      Yesterday: 12,
     },
     {
-      name: "Reschedule",
+      Type: "Reschedule",
+      Today: 4,
+      Yesterday: 12,
+    },
+  ];
+
+  const ticketDetailsData = [
+    {
+      Type: "New",
+      Today: 25,
+      Yesterday: 13,
+    },
+    {
+      Type: "Urgent",
+      Today: 21,
+      Yesterday: 15,
+    },
+    {
+      Type: "Existing Client",
+      Today: 29,
+      Yesterday: 15,
+    },
+    {
+      Type: "Non Urgent",
       Today: 12,
-      Yesterday: 52,
+      Yesterday: 12,
+    },
+  ];
+
+  const callDetailsData = [
+    {
+      Type: "Calls Missed",
+      Today: 25,
+      Yesterday: 17,
+    },
+    {
+      Type: "Tickets Created",
+      Today: 21,
+      Yesterday: 15,
+    },
+    {
+      Type: "Tickets Completed",
+      Today: 29,
+      Yesterday: 15,
     },
   ];
 
@@ -114,7 +170,10 @@ export default function AnalyticsPage() {
               decoration="top"
               className="flex flex-col gap-4 w-fit min-h-1/2 border-prim-blue w-full"
             >
-              <Title>Tickets Created: Metrics</Title>
+              <div className="flex flex-row justify-between items-center">
+                <Title>Tickets Created: Metrics </Title>
+                <Text>Sum per category for the tickets created</Text>
+              </div>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -125,69 +184,72 @@ export default function AnalyticsPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <TicketProp
-                        type="question"
-                        closeable={false}
-                        onClose={() => null}
-                      />
-                    </TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <TicketProp
-                        type="book"
-                        closeable={false}
-                        onClose={() => null}
-                      />
-                    </TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <TicketProp
-                        type="cancel"
-                        closeable={false}
-                        onClose={() => null}
-                      />
-                    </TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <TicketProp
-                        type="reschedule"
-                        closeable={false}
-                        onClose={() => null}
-                      />
-                    </TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
+                  {ticketsCreatedData.map((key) => (
+                    <TableRow>
+                      <TableCell>
+                        <TicketProp
+                          type={key["Type"].toLowerCase()}
+                          closeable={false}
+                          onClose={() => null}
+                        />
+                      </TableCell>
+                      <TableCell>{key["Today"]}</TableCell>
+                      <TableCell>
+                        <BadgeDelta
+                          deltaType={
+                            key["Today"] > key["Yesterday"]
+                              ? "increase"
+                              : "decrease"
+                          }
+                          // isIncreasePositive={true}
+                        >
+                          {percentageFormatter(key["Today"], key["Yesterday"])}
+                        </BadgeDelta>
+                      </TableCell>
+                      <TableCell>{key["Yesterday"]}</TableCell>
+                    </TableRow>
+                  ))}
                   <TableRow>
                     <TableCell>Total</TableCell>
-                    <TableCell>21</TableCell>
                     <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
+                      {ticketsCreatedData.reduce(
+                        (acc, obj) => acc + obj.Today,
+                        0
+                      )}
                     </TableCell>
-                    <TableCell>15</TableCell>
+                    <TableCell>
+                      <BadgeDelta
+                        deltaType={
+                          ticketsCreatedData.reduce(
+                            (acc, obj) => acc + obj.Today,
+                            0
+                          ) >
+                          ticketsCreatedData.reduce(
+                            (acc, obj) => acc + obj.Yesterday,
+                            0
+                          )
+                            ? "increase"
+                            : "decrease"
+                        }
+                      >
+                        {percentageFormatter(
+                          ticketsCreatedData.reduce(
+                            (acc, obj) => acc + obj.Today,
+                            0
+                          ),
+                          ticketsCreatedData.reduce(
+                            (acc, obj) => acc + obj.Yesterday,
+                            0
+                          )
+                        )}
+                      </BadgeDelta>
+                    </TableCell>
+                    <TableCell>
+                      {ticketsCreatedData.reduce(
+                        (acc, obj) => acc + obj.Yesterday,
+                        0
+                      )}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -205,9 +267,9 @@ export default function AnalyticsPage() {
                 </Select>
               </div>
               <BarChart
-                data={chartdata}
+                data={ticketsCreatedData}
                 className="mt-6"
-                index="name"
+                index="Type"
                 categories={["Today", "Yesterday"]}
                 relative={chart1Format == "true"}
                 colors={["blue"]}
@@ -220,7 +282,10 @@ export default function AnalyticsPage() {
               decoration="top"
               className="flex flex-col gap-4 w-fit min-h-1/2 border-prim-blue w-full"
             >
-              <Title>Ticket Details: Metrics</Title>
+              <div className="flex flex-row justify-between items-center">
+                <Title>Tickets Details: Metrics </Title>
+                <Text>Client type for tickets created</Text>
+              </div>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -231,57 +296,72 @@ export default function AnalyticsPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <TicketProp
-                        type="new"
-                        closeable={false}
-                        onClose={() => null}
-                      />
-                    </TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <TicketProp
-                        type="urgent"
-                        closeable={false}
-                        onClose={() => null}
-                      />
-                    </TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Existing Client</TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Non-Urgent</TableCell>
-                    <TableCell>21</TableCell>
-                    <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
-                    </TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
+                  {ticketDetailsData.map((key) => (
+                    <TableRow>
+                      <TableCell>
+                        <TicketProp
+                          type={key["Type"].toLowerCase()}
+                          closeable={false}
+                          onClose={() => null}
+                        />
+                      </TableCell>
+                      <TableCell>{key["Today"]}</TableCell>
+                      <TableCell>
+                        <BadgeDelta
+                          deltaType={
+                            key["Today"] > key["Yesterday"]
+                              ? "increase"
+                              : "decrease"
+                          }
+                          // isIncreasePositive={true}
+                        >
+                          {percentageFormatter(key["Today"], key["Yesterday"])}
+                        </BadgeDelta>
+                      </TableCell>
+                      <TableCell>{key["Yesterday"]}</TableCell>
+                    </TableRow>
+                  ))}
                   <TableRow>
                     <TableCell>Total</TableCell>
-                    <TableCell>21</TableCell>
                     <TableCell>
-                      <BadgeDelta>12%</BadgeDelta>
+                      {ticketDetailsData.reduce(
+                        (acc, obj) => acc + obj.Today,
+                        0
+                      )}
                     </TableCell>
-                    <TableCell>15</TableCell>
+                    <TableCell>
+                      <BadgeDelta
+                        deltaType={
+                          ticketDetailsData.reduce(
+                            (acc, obj) => acc + obj.Today,
+                            0
+                          ) >
+                          ticketDetailsData.reduce(
+                            (acc, obj) => acc + obj.Yesterday,
+                            0
+                          )
+                            ? "increase"
+                            : "decrease"
+                        }
+                      >
+                        {percentageFormatter(
+                          ticketDetailsData.reduce(
+                            (acc, obj) => acc + obj.Today,
+                            0
+                          ),
+                          ticketDetailsData.reduce(
+                            (acc, obj) => acc + obj.Yesterday,
+                            0
+                          )
+                        )}
+                      </BadgeDelta>
+                    </TableCell>
+                    <TableCell>
+                      {ticketDetailsData.reduce(
+                        (acc, obj) => acc + obj.Yesterday,
+                        0
+                      )}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -299,9 +379,9 @@ export default function AnalyticsPage() {
                 </Select>
               </div>
               <BarChart
-                data={chartdata}
+                data={ticketDetailsData}
                 className="mt-6"
-                index="name"
+                index="Type"
                 categories={["Today", "Yesterday"]}
                 colors={["blue"]}
                 relative={chart2Format == "true"}
@@ -322,41 +402,66 @@ export default function AnalyticsPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell>Calls Missed</TableCell>
-                <TableCell>21</TableCell>
-                <TableCell>
-                  <BadgeDelta>12%</BadgeDelta>
-                </TableCell>
-                <TableCell>15</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Tickets Created</TableCell>
-                <TableCell>21</TableCell>
-                <TableCell>
-                  <BadgeDelta>12%</BadgeDelta>
-                </TableCell>
-                <TableCell>15</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Tickets Completed</TableCell>
-                <TableCell>21</TableCell>
-                <TableCell>
-                  <BadgeDelta>12%</BadgeDelta>
-                </TableCell>
-                <TableCell>15</TableCell>
-              </TableRow>
+              {callDetailsData.map((key) => (
+                <TableRow>
+                  <TableCell>
+                    <TicketProp
+                      type={key["Type"].toLowerCase()}
+                      closeable={false}
+                      onClose={() => null}
+                    />
+                  </TableCell>
+                  <TableCell>{key["Today"]}</TableCell>
+                  <TableCell>
+                    <BadgeDelta
+                      deltaType={
+                        key["Today"] > key["Yesterday"]
+                          ? "increase"
+                          : "decrease"
+                      }
+                      isIncreasePositive={
+                        key["Type"] === "Calls Missed" ? false : true
+                      }
+                    >
+                      {percentageFormatter(key["Today"], key["Yesterday"])}
+                    </BadgeDelta>
+                  </TableCell>
+                  <TableCell>{key["Yesterday"]}</TableCell>
+                </TableRow>
+              ))}
               <TableRow>
                 <TableCell>Call to Ticket Conversation</TableCell>
-                <TableCell>95%</TableCell>
+                <TableCell>
+                  {percentageFormatter(
+                    callDetailsData[1]["Today"] / callDetailsData[0]["Today"],
+                    null
+                  )}
+                </TableCell>
                 <TableCell></TableCell>
-                <TableCell>85%</TableCell>
+                <TableCell>
+                  {percentageFormatter(
+                    callDetailsData[1]["Yesterday"] /
+                      callDetailsData[0]["Yesterday"],
+                    null
+                  )}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Ticket Completion Rate</TableCell>
-                <TableCell>95%</TableCell>
+                <TableCell>
+                  {percentageFormatter(
+                    callDetailsData[1]["Today"] / callDetailsData[2]["Today"],
+                    null
+                  )}
+                </TableCell>
                 <TableCell></TableCell>
-                <TableCell>85%</TableCell>
+                <TableCell>
+                  {percentageFormatter(
+                    callDetailsData[1]["Yesterday"] /
+                      callDetailsData[2]["Yesterday"],
+                    null
+                  )}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>

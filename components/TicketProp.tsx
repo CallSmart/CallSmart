@@ -23,6 +23,14 @@ const TicketProp = ({
   const toggleClose = (type: string) => {
     onClose(type);
   };
+
+  function toCamelCase(input: string) {
+    const words = input
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    return words.join(" ");
+  }
+
   return (
     <div
       className={
@@ -72,7 +80,7 @@ const TicketProp = ({
           URGENT
         </div>
       ) : (
-        ""
+        <div>{toCamelCase(type)}</div>
       )}
       {closeable ? (
         <button
