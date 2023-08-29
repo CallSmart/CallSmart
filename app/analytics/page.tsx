@@ -26,9 +26,206 @@ import {
   TableFoot,
   TableFooterCell,
 } from "@tremor/react";
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+} from "date-fns";
 
 export default function AnalyticsPage() {
   const router = useRouter();
+
+  const chartOptions = ["relative", "non-relative"];
+  const [chart1Format, setChart1Format] = useState("false");
+  const [chart2Format, setChart2Format] = useState("false");
+
+  const [timeRange, setTimeRange] = useState("Day");
+  const [compareSelect, setCompareSelect] = useState("This");
+  const [withSelect, setWithSelect] = useState("Last");
+
+  const [todayCreatedQ, setTodayCreatedQ] = useState(1);
+  const [yesterdayCreatedQ, setYesterdayCreatedQ] = useState(2);
+  const [tWeekCreatedQ, setTWeekCreatedQ] = useState(3);
+  const [lWeekCreatedQ, setLWeekCreatedQ] = useState(4);
+  const [tMonthCreatedQ, setTMonthCreatedQ] = useState(5);
+  const [lMonthCreatedQ, setLMonthCreatedQ] = useState(6);
+
+  const [compareTickets, setCompareTickets] = useState<
+    {
+      id: number;
+      new_client: boolean;
+      urgent: boolean;
+      type: string;
+      name: string;
+      number: string;
+      time: string;
+      stage: number;
+    }[]
+  >([]);
+  const [withTickets, setWithTickets] = useState<
+    {
+      id: number;
+      new_client: boolean;
+      urgent: boolean;
+      type: string;
+      name: string;
+      number: string;
+      time: string;
+      stage: number;
+    }[]
+  >([]);
+
+  const [compareStartDate, setCompareStartDate] = useState<string>();
+  const [compareEndDate, setCompareEndDate] = useState<string>();
+  const [withStartDate, setWithStartDate] = useState<string>();
+  const [withEndDate, setWithEndDate] = useState<string>();
+
+  const timeLabels = [
+    "Today",
+    "Yesterday",
+    "This Week",
+    "Last Week",
+    "This Month",
+    "Last Month",
+    "This Year",
+    "Last Year",
+  ];
+
+  const ticketTypes = ["Question", "Book", "Cancel", "Reschedule"];
+  const clientTypes = ["New", "Urgent", "Existing Client", "Non Urgent"];
+  const detailCategories = [
+    "Missed Calls",
+    "Tickets Created",
+    "Tickets Completed",
+  ];
+
+  const [ticketsCreatedData, setTicketsCreatedData] = useState<any>();
+  const [ticketDetailData, setTicketDetailData] = useState<any>();
+  const [callDetailData, setCallDetailData] = useState<any>();
+
+  const [userId, setUserId] = useState("");
+
+  const percentageFormatter = (value1: number, value2: number | null) => {
+    if (value2 === 0 || value2 === null) {
+      const roundedPercentage = Math.trunc(Math.round(value1 * 100));
+      if (roundedPercentage == Infinity || NaN) {
+        return "0%";
+      }
+
+      return `${roundedPercentage}%`;
+    } else {
+      const percentageChange = ((value1 - value2) / value2) * 100;
+
+      const roundedPercentage = Math.trunc(
+        Math.round(percentageChange * 100) / 100
+      );
+      if (roundedPercentage == Infinity || NaN) {
+        return "0%";
+      }
+
+      return `${roundedPercentage}%`;
+    }
+  };
+
+  const dateWordFormatter = (selected: string): string => {
+    if (timeRange == "Day") {
+      if (selected == "This") {
+        return "Today";
+      } else if (selected == "Last") {
+        return "Yesterday";
+      } else {
+        return selected;
+      }
+    } else if (timeRange == "Week") {
+      if (selected == "This") {
+        return "This Week";
+      } else if (selected == "Last") {
+        return "Last Week";
+      } else {
+        return selected;
+      }
+    } else if (timeRange == "Month") {
+      if (selected == "This") {
+        return "This Month";
+      } else if (selected == "Last") {
+        return "Last Month";
+      } else {
+        return selected;
+      }
+    } else if (timeRange == "Year") {
+      if (selected == "This") {
+        return "This Year";
+      } else if (selected == "Last") {
+        return "Last Year";
+      } else {
+        return selected;
+      }
+    } else {
+      return selected;
+    }
+  };
+
+  const formattingDates = (date: string) => {
+    switch (dateWordFormatter(date)) {
+      case "Today":
+        return { start: startOfDay(new Date()), end: endOfDay(new Date()) };
+      case "Yesterday":
+        return {
+          start: startOfDay(subDays(new Date(), 1)),
+          end: endOfDay(subDays(new Date(), 1)),
+        };
+      case "This Week":
+        return { start: startOfWeek(new Date()), end: endOfWeek(new Date()) };
+      case "Last Week":
+        return {
+          start: startOfWeek(subDays(new Date(), 7)),
+          end: endOfWeek(endOfWeek(subDays(new Date(), 7))),
+        };
+      case "This Month":
+        return { start: startOfMonth(new Date()), end: endOfMonth(new Date()) };
+      case "Last Month":
+        return {
+          start: startOfMonth(subDays(new Date(), 30)),
+          end: endOfMonth(subDays(new Date(), 30)),
+        };
+      case "This Year":
+        return {
+          start: startOfYear(new Date()),
+          end: endOfYear(new Date()),
+        };
+      case "Last Year":
+        return {
+          start: startOfYear(subDays(new Date(), 365)),
+          end: endOfYear(subDays(new Date(), 365)),
+        };
+      default:
+        return { start: startOfDay(new Date()), end: endOfDay(new Date()) };
+    }
+  };
+
+  function formatDateToCustomFormat(isoDate: string) {
+    const date = new Date(isoDate);
+
+    // Extract date components
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+    const milliseconds = String(date.getUTCMilliseconds())
+      .padStart(6, "0")
+      .substr(0, 6); // taking up to 6 digits
+
+    // Concatenate into custom format
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}+00`;
+  }
 
   useEffect(() => {
     const session = supabase.auth.getSession();
@@ -37,90 +234,261 @@ export default function AnalyticsPage() {
     }
   }, []);
 
-  const percentageFormatter = (value1: number, value2: number | null) => {
-    if (value2 === null) {
-      const roundedPercentage = Math.trunc(Math.round(value1 * 100));
-      return `${roundedPercentage}%`;
+  useEffect(() => {
+    setCompareTickets([]);
+    setWithTickets([]);
+    setTicketsCreatedData(null);
+    setTicketDetailData(null);
+    setCallDetailData(null);
+    settingDateRange();
+  }, [compareSelect, withSelect, timeRange]);
+
+  useEffect(() => {
+    setCompareSelect("This");
+    setWithSelect("Last");
+  }, [timeRange]);
+
+  useEffect(() => {
+    if (compareStartDate && compareEndDate) {
+      fetchCompareTickets();
+    }
+  }, [compareStartDate, compareEndDate]);
+
+  useEffect(() => {
+    if (withStartDate && withEndDate) {
+      fetchWithTickets();
+    }
+  }, [withStartDate, withEndDate]);
+
+  useEffect(() => {
+    if (withTickets.length > 0 || compareTickets.length > 0) {
+      populateCreatedTicketsData();
+      populateTicketDetailsData();
+      populateCallDetailsData();
+    }
+  }, [withTickets, compareTickets]);
+
+  const settingDateRange = async () => {
+    const compareDates = formattingDates(compareSelect);
+    setCompareStartDate(
+      formatDateToCustomFormat(compareDates["start"].toISOString())
+    );
+    setCompareEndDate(
+      formatDateToCustomFormat(compareDates["end"].toISOString())
+    );
+
+    const withDates = formattingDates(withSelect);
+    setWithStartDate(
+      formatDateToCustomFormat(withDates["start"].toISOString())
+    );
+    setWithEndDate(formatDateToCustomFormat(withDates["end"].toISOString()));
+  };
+
+  const fetchCompareTickets = async () => {
+    console.log("fetchCompareTickets");
+
+    const user = await supabase.auth.getUser();
+    const id = user?.data?.user?.id;
+
+    const { data: userRoleData, error: userRoleError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", id);
+
+    if (userRoleError) {
+      console.log("Error fetching user role");
+      return;
+    }
+
+    const userRole = userRoleData[0].role;
+
+    let clinics: { [key: string]: any }[] | null;
+
+    if (userRole == "Owner") {
+      const { data, error } = await supabase
+        .from("owner_clinics")
+        .select("clinic_id")
+        .eq("owner", id);
+      // console.log("Tickets path for Owner");
+      clinics = data;
+    } else if (userRole == "Manager") {
+      const { data, error } = await supabase
+        .from("managers")
+        .select("clinic_id")
+        .eq("user_id", id);
+      clinics = data;
     } else {
-      const percentageChange = ((value1 - value2) / value2) * 100;
+      console.log("Tickets path for else");
+      clinics = null;
+    }
 
-      const roundedPercentage = Math.trunc(
-        Math.round(percentageChange * 100) / 100
-      );
+    const clinicIds = clinics?.map((clinic) => clinic.clinic_id);
+    if (!clinicIds) {
+      return;
+    } else {
+      // console.log(String(clinicIds));
+    }
 
-      return `${roundedPercentage}%`;
+    const { data: tickets, error: ticketsError } = await supabase
+      .from("tickets")
+      .select("*")
+      .in("clinic", clinicIds)
+      .filter("time", "gte", compareStartDate)
+      .filter("time", "lte", compareEndDate);
+
+    if (ticketsError) {
+      console.error("Error fetching tickets:", ticketsError);
+      return;
+    }
+    console.log("Got compare tickets: ", tickets);
+
+    setCompareTickets(tickets);
+  };
+
+  const fetchWithTickets = async () => {
+    console.log("fetchWithTickets");
+
+    const user = await supabase.auth.getUser();
+    const id = user?.data?.user?.id;
+
+    const { data: userRoleData, error: userRoleError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", id);
+
+    if (userRoleError) {
+      console.log("Error fetching user role");
+      return;
+    }
+
+    const userRole = userRoleData[0].role;
+
+    let clinics: { [key: string]: any }[] | null;
+
+    if (userRole == "Owner") {
+      const { data, error } = await supabase
+        .from("owner_clinics")
+        .select("clinic_id")
+        .eq("owner", id);
+      // console.log("Tickets path for Owner");
+      clinics = data;
+    } else if (userRole == "Manager") {
+      const { data, error } = await supabase
+        .from("managers")
+        .select("clinic_id")
+        .eq("user_id", id);
+      clinics = data;
+    } else {
+      console.log("Tickets path for else");
+      clinics = null;
+    }
+
+    const clinicIds = clinics?.map((clinic) => clinic.clinic_id);
+    if (!clinicIds) {
+      return;
+    } else {
+      // console.log(String(clinicIds));
+    }
+
+    const { data: tickets, error: ticketsError } = await supabase
+      .from("tickets")
+      .select("*")
+      .in("clinic", clinicIds)
+      .filter("time", "gte", withStartDate)
+      .filter("time", "lte", withEndDate);
+
+    if (ticketsError) {
+      console.error("Error fetching tickets:", ticketsError);
+      return;
+    }
+    console.log("Got with tickets: ", tickets);
+
+    setWithTickets(tickets);
+  };
+
+  const createdDictValueFinder = async (key: string, type: string) => {
+    const source =
+      dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
+    return source.filter((ticket) => ticket["type"] === type.toLowerCase())
+      .length;
+  };
+
+  const populateCreatedTicketsData = async () => {
+    console.log("populateCreatedTicketsData");
+
+    setTicketsCreatedData(
+      await Promise.all(
+        ticketTypes.map(async (type) => {
+          const obj: any = { Type: type };
+          for (const label of timeLabels) {
+            obj[label] = await createdDictValueFinder(label, type);
+          }
+          return obj;
+        })
+      )
+    );
+    return ticketsCreatedData;
+  };
+
+  const detailDictValueFinder = async (key: string, type: string) => {
+    const source =
+      dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
+    if (type === "Urgent") {
+      return source.filter((ticket) => ticket["urgent"] == true).length;
+    } else if (type === "Non Urgent") {
+      return source.filter((ticket) => ticket["urgent"] == false).length;
+    } else if (type === "New") {
+      return source.filter((ticket) => ticket["new_client"] == true).length;
+    } else {
+      return source.filter((ticket) => ticket["new_client"] == false).length;
     }
   };
 
-  const ticketsCreatedData = [
-    {
-      Type: "Question",
-      Today: 21,
-      Yesterday: 15,
-    },
-    {
-      Type: "Book",
-      Today: 13,
-      Yesterday: 14,
-    },
-    {
-      Type: "Cancel",
-      Today: 20,
-      Yesterday: 12,
-    },
-    {
-      Type: "Reschedule",
-      Today: 4,
-      Yesterday: 12,
-    },
-  ];
+  const populateTicketDetailsData = async () => {
+    console.log("populateTicketDetailsData");
 
-  const ticketDetailsData = [
-    {
-      Type: "New",
-      Today: 25,
-      Yesterday: 13,
-    },
-    {
-      Type: "Urgent",
-      Today: 21,
-      Yesterday: 15,
-    },
-    {
-      Type: "Existing Client",
-      Today: 29,
-      Yesterday: 15,
-    },
-    {
-      Type: "Non Urgent",
-      Today: 12,
-      Yesterday: 12,
-    },
-  ];
+    setTicketDetailData(
+      await Promise.all(
+        clientTypes.map(async (type) => {
+          const obj: any = { Type: type };
+          for (const label of timeLabels) {
+            obj[label] = await detailDictValueFinder(label, type);
+          }
+          return obj;
+        })
+      )
+    );
+  };
 
-  const callDetailsData = [
-    {
-      Type: "Calls Missed",
-      Today: 25,
-      Yesterday: 17,
-    },
-    {
-      Type: "Tickets Created",
-      Today: 21,
-      Yesterday: 15,
-    },
-    {
-      Type: "Tickets Completed",
-      Today: 29,
-      Yesterday: 15,
-    },
-  ];
+  const callDictValueFinder = async (key: string, type: string) => {
+    const source =
+      dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
+    if (type === "Call Missed") {
+      return 0;
+    } else if (type === "Tickets Created") {
+      return source.length;
+    } else if (type === "Tickets Completed") {
+      return source.filter((ticket) => ticket["stage"] == 3).length;
+    } else {
+      return 0;
+    }
+  };
 
-  const chartOptions = ["relative", "non-relative"];
-  const [chart1Format, setChart1Format] = useState("false");
-  const [chart2Format, setChart2Format] = useState("false");
+  const populateCallDetailsData = async () => {
+    console.log("populateCallDetailsData");
 
-  const [timeRange, setTimeRange] = useState("Day");
+    setCallDetailData(
+      await Promise.all(
+        detailCategories.map(async (type) => {
+          const obj: any = { Type: type };
+          for (const label of timeLabels) {
+            obj[label] = await callDictValueFinder(label, type);
+          }
+          return obj;
+        })
+      )
+    );
+  };
 
   return (
     <ProductNavBar>
@@ -141,27 +509,89 @@ export default function AnalyticsPage() {
           </div>
           <div>
             <Text>Compare</Text>
-            <Select
-              value={timeRange}
-              onValueChange={setTimeRange}
-              className="w-fit"
-            >
-              <SelectItem value={"This"}>This Week</SelectItem>
-              <SelectItem value={"Last"}>Last Week</SelectItem>
-              <SelectItem value={"Pick"}>Pick Date</SelectItem>
-            </Select>
+            {timeRange === "Day" ? (
+              <Select
+                value={compareSelect}
+                onValueChange={setCompareSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>Today</SelectItem>
+                <SelectItem value={"Last"}>Yesterday</SelectItem>
+                {/* <SelectItem value={"Pick"}>Pick Date</SelectItem> */}
+              </Select>
+            ) : timeRange === "Week" ? (
+              <Select
+                value={compareSelect}
+                onValueChange={setCompareSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>This Week</SelectItem>
+                <SelectItem value={"Last"}>Last Week</SelectItem>
+                {/* <SelectItem value={"Pick"}>Pick Date</SelectItem> */}
+              </Select>
+            ) : timeRange === "Month" ? (
+              <Select
+                value={compareSelect}
+                onValueChange={setCompareSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>This Month</SelectItem>
+                <SelectItem value={"Last"}>Last Month</SelectItem>
+                {/* <SelectItem value={"Pick"}>Pick Date</SelectItem> */}
+              </Select>
+            ) : (
+              <Select
+                value={compareSelect}
+                onValueChange={setCompareSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>This Year</SelectItem>
+                <SelectItem value={"Last"}>Last Year</SelectItem>
+              </Select>
+            )}
           </div>
           <div>
             <Text>With</Text>
-            <Select
-              value={timeRange}
-              onValueChange={setTimeRange}
-              className="w-fit"
-            >
-              <SelectItem value={"This"}>This Week</SelectItem>
-              <SelectItem value={"Last"}>Last Week</SelectItem>
-              <SelectItem value={"Pick"}>Pick Date</SelectItem>
-            </Select>
+            {timeRange === "Day" ? (
+              <Select
+                value={withSelect}
+                onValueChange={setWithSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>Today</SelectItem>
+                <SelectItem value={"Last"}>Yesterday</SelectItem>
+                {/* <SelectItem value={"3 Days Ago"}>3 Days Ago</SelectItem> */}
+              </Select>
+            ) : timeRange === "Week" ? (
+              <Select
+                value={withSelect}
+                onValueChange={setWithSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>This Week</SelectItem>
+                <SelectItem value={"Last"}>Last Week</SelectItem>
+                {/* <SelectItem value={"Pick"}>Pick Date</SelectItem> */}
+              </Select>
+            ) : timeRange === "Month" ? (
+              <Select
+                value={withSelect}
+                onValueChange={setWithSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>This Month</SelectItem>
+                <SelectItem value={"Last"}>Last Month</SelectItem>
+                {/* <SelectItem value={"Pick"}>Pick Date</SelectItem> */}
+              </Select>
+            ) : (
+              <Select
+                value={withSelect}
+                onValueChange={setWithSelect}
+                className="w-fit"
+              >
+                <SelectItem value={"This"}>This Year</SelectItem>
+                <SelectItem value={"Last"}>Last Year</SelectItem>
+              </Select>
+            )}
           </div>
         </div>
         <div className="flex flex-row xl:flex-nowrap flex-wrap gap-4">
@@ -178,14 +608,18 @@ export default function AnalyticsPage() {
                 <TableHead>
                   <TableRow>
                     <TableHeaderCell>Call Type</TableHeaderCell>
-                    <TableHeaderCell>Today</TableHeaderCell>
+                    <TableHeaderCell>
+                      {dateWordFormatter(compareSelect)}
+                    </TableHeaderCell>
                     <TableHeaderCell />
-                    <TableHeaderCell>Yesterday</TableHeaderCell>
+                    <TableHeaderCell>
+                      {dateWordFormatter(withSelect)}
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {ticketsCreatedData.map((key) => (
-                    <TableRow>
+                  {ticketsCreatedData?.map((key: any, index: number) => (
+                    <TableRow key={index}>
                       <TableCell>
                         <TicketProp
                           type={key["Type"].toLowerCase()}
@@ -193,64 +627,29 @@ export default function AnalyticsPage() {
                           onClose={() => null}
                         />
                       </TableCell>
-                      <TableCell>{key["Today"]}</TableCell>
+                      <TableCell>
+                        {key[dateWordFormatter(compareSelect)]}
+                      </TableCell>
                       <TableCell>
                         <BadgeDelta
                           deltaType={
-                            key["Today"] > key["Yesterday"]
+                            key[dateWordFormatter(compareSelect)] >
+                            key[dateWordFormatter(withSelect)]
                               ? "increase"
                               : "decrease"
                           }
-                          // isIncreasePositive={true}
                         >
-                          {percentageFormatter(key["Today"], key["Yesterday"])}
+                          {percentageFormatter(
+                            key[dateWordFormatter(compareSelect)],
+                            key[dateWordFormatter(withSelect)]
+                          )}
                         </BadgeDelta>
                       </TableCell>
-                      <TableCell>{key["Yesterday"]}</TableCell>
+                      <TableCell>
+                        {key[dateWordFormatter(withSelect)]}
+                      </TableCell>
                     </TableRow>
                   ))}
-                  <TableRow>
-                    <TableCell>Total</TableCell>
-                    <TableCell>
-                      {ticketsCreatedData.reduce(
-                        (acc, obj) => acc + obj.Today,
-                        0
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <BadgeDelta
-                        deltaType={
-                          ticketsCreatedData.reduce(
-                            (acc, obj) => acc + obj.Today,
-                            0
-                          ) >
-                          ticketsCreatedData.reduce(
-                            (acc, obj) => acc + obj.Yesterday,
-                            0
-                          )
-                            ? "increase"
-                            : "decrease"
-                        }
-                      >
-                        {percentageFormatter(
-                          ticketsCreatedData.reduce(
-                            (acc, obj) => acc + obj.Today,
-                            0
-                          ),
-                          ticketsCreatedData.reduce(
-                            (acc, obj) => acc + obj.Yesterday,
-                            0
-                          )
-                        )}
-                      </BadgeDelta>
-                    </TableCell>
-                    <TableCell>
-                      {ticketsCreatedData.reduce(
-                        (acc, obj) => acc + obj.Yesterday,
-                        0
-                      )}
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </Card>
@@ -270,7 +669,10 @@ export default function AnalyticsPage() {
                 data={ticketsCreatedData}
                 className="mt-6"
                 index="Type"
-                categories={["Today", "Yesterday"]}
+                categories={[
+                  dateWordFormatter(compareSelect),
+                  dateWordFormatter(withSelect),
+                ]}
                 relative={chart1Format == "true"}
                 colors={["blue"]}
                 yAxisWidth={48}
@@ -290,14 +692,18 @@ export default function AnalyticsPage() {
                 <TableHead>
                   <TableRow>
                     <TableHeaderCell>Call Detail</TableHeaderCell>
-                    <TableHeaderCell>Today</TableHeaderCell>
+                    <TableHeaderCell>
+                      {dateWordFormatter(compareSelect)}
+                    </TableHeaderCell>
                     <TableHeaderCell />
-                    <TableHeaderCell>Yesterday</TableHeaderCell>
+                    <TableHeaderCell>
+                      {dateWordFormatter(withSelect)}
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {ticketDetailsData.map((key) => (
-                    <TableRow>
+                  {ticketDetailData?.map((key: any, index: number) => (
+                    <TableRow key={index}>
                       <TableCell>
                         <TicketProp
                           type={key["Type"].toLowerCase()}
@@ -305,64 +711,30 @@ export default function AnalyticsPage() {
                           onClose={() => null}
                         />
                       </TableCell>
-                      <TableCell>{key["Today"]}</TableCell>
+                      <TableCell>
+                        {key[dateWordFormatter(compareSelect)]}
+                      </TableCell>
                       <TableCell>
                         <BadgeDelta
                           deltaType={
-                            key["Today"] > key["Yesterday"]
+                            key[dateWordFormatter(compareSelect)] >
+                            key[dateWordFormatter(withSelect)]
                               ? "increase"
                               : "decrease"
                           }
                           // isIncreasePositive={true}
                         >
-                          {percentageFormatter(key["Today"], key["Yesterday"])}
+                          {percentageFormatter(
+                            key[dateWordFormatter(compareSelect)],
+                            key[dateWordFormatter(withSelect)]
+                          )}
                         </BadgeDelta>
                       </TableCell>
-                      <TableCell>{key["Yesterday"]}</TableCell>
+                      <TableCell>
+                        {key[dateWordFormatter(withSelect)]}
+                      </TableCell>
                     </TableRow>
                   ))}
-                  <TableRow>
-                    <TableCell>Total</TableCell>
-                    <TableCell>
-                      {ticketDetailsData.reduce(
-                        (acc, obj) => acc + obj.Today,
-                        0
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <BadgeDelta
-                        deltaType={
-                          ticketDetailsData.reduce(
-                            (acc, obj) => acc + obj.Today,
-                            0
-                          ) >
-                          ticketDetailsData.reduce(
-                            (acc, obj) => acc + obj.Yesterday,
-                            0
-                          )
-                            ? "increase"
-                            : "decrease"
-                        }
-                      >
-                        {percentageFormatter(
-                          ticketDetailsData.reduce(
-                            (acc, obj) => acc + obj.Today,
-                            0
-                          ),
-                          ticketDetailsData.reduce(
-                            (acc, obj) => acc + obj.Yesterday,
-                            0
-                          )
-                        )}
-                      </BadgeDelta>
-                    </TableCell>
-                    <TableCell>
-                      {ticketDetailsData.reduce(
-                        (acc, obj) => acc + obj.Yesterday,
-                        0
-                      )}
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </Card>
@@ -379,10 +751,13 @@ export default function AnalyticsPage() {
                 </Select>
               </div>
               <BarChart
-                data={ticketDetailsData}
+                data={ticketDetailData}
                 className="mt-6"
                 index="Type"
-                categories={["Today", "Yesterday"]}
+                categories={[
+                  dateWordFormatter(compareSelect),
+                  dateWordFormatter(withSelect),
+                ]}
                 colors={["blue"]}
                 relative={chart2Format == "true"}
                 yAxisWidth={48}
@@ -402,67 +777,79 @@ export default function AnalyticsPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {callDetailsData.map((key) => (
-                <TableRow>
+              {callDetailData?.map((key: any, index: number) => (
+                <TableRow key={index}>
                   <TableCell>
                     <TicketProp
-                      type={key["Type"].toLowerCase()}
+                      type={key["Type"]}
                       closeable={false}
                       onClose={() => null}
                     />
                   </TableCell>
-                  <TableCell>{key["Today"]}</TableCell>
+                  <TableCell>{key[dateWordFormatter(compareSelect)]}</TableCell>
                   <TableCell>
                     <BadgeDelta
                       deltaType={
-                        key["Today"] > key["Yesterday"]
+                        key[dateWordFormatter(compareSelect)] >
+                        key[dateWordFormatter(withSelect)]
                           ? "increase"
                           : "decrease"
                       }
                       isIncreasePositive={
-                        key["Type"] === "Calls Missed" ? false : true
+                        key[dateWordFormatter(compareSelect)] === "Calls Missed"
+                          ? false
+                          : true
                       }
                     >
-                      {percentageFormatter(key["Today"], key["Yesterday"])}
+                      {percentageFormatter(
+                        key[dateWordFormatter(compareSelect)],
+                        key[dateWordFormatter(withSelect)]
+                      )}
                     </BadgeDelta>
                   </TableCell>
-                  <TableCell>{key["Yesterday"]}</TableCell>
+                  <TableCell>{key[dateWordFormatter(withSelect)]}</TableCell>
                 </TableRow>
               ))}
-              <TableRow>
-                <TableCell>Call to Ticket Conversation</TableCell>
-                <TableCell>
-                  {percentageFormatter(
-                    callDetailsData[1]["Today"] / callDetailsData[0]["Today"],
-                    null
-                  )}
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                  {percentageFormatter(
-                    callDetailsData[1]["Yesterday"] /
-                      callDetailsData[0]["Yesterday"],
-                    null
-                  )}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Ticket Completion Rate</TableCell>
-                <TableCell>
-                  {percentageFormatter(
-                    callDetailsData[1]["Today"] / callDetailsData[2]["Today"],
-                    null
-                  )}
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                  {percentageFormatter(
-                    callDetailsData[1]["Yesterday"] /
-                      callDetailsData[2]["Yesterday"],
-                    null
-                  )}
-                </TableCell>
-              </TableRow>
+              {callDetailData ? (
+                <TableRow>
+                  <TableCell>Call to Ticket Conversation</TableCell>
+                  <TableCell>
+                    {percentageFormatter(
+                      callDetailData[0][dateWordFormatter(compareSelect)] /
+                        callDetailData[1][dateWordFormatter(compareSelect)],
+                      null
+                    )}
+                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>
+                    {percentageFormatter(
+                      callDetailData[0][dateWordFormatter(withSelect)] /
+                        callDetailData[1][dateWordFormatter(withSelect)],
+                      null
+                    )}
+                  </TableCell>
+                </TableRow>
+              ) : null}
+              {callDetailData ? (
+                <TableRow>
+                  <TableCell>Ticket Completion Rate</TableCell>
+                  <TableCell>
+                    {percentageFormatter(
+                      callDetailData[1][dateWordFormatter(compareSelect)] /
+                        callDetailData[2][dateWordFormatter(compareSelect)],
+                      null
+                    )}
+                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>
+                    {percentageFormatter(
+                      callDetailData[1][dateWordFormatter(withSelect)] /
+                        callDetailData[2][dateWordFormatter(withSelect)],
+                      null
+                    )}
+                  </TableCell>
+                </TableRow>
+              ) : null}
             </TableBody>
           </Table>
         </Card>

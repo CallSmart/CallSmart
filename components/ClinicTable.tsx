@@ -190,7 +190,7 @@ const ClinicTable = ({
           </span>
           {isClinicOpen ? (
             <form
-              className="ticket-container w-1/4 flex-col p-4 z-50 absolute-center static gap-4"
+              className="ticket-container w-1/4 flex-col p-4 z-50 absolute-center static gap-4 text-black"
               onSubmit={(e) => {
                 addFunction(e, formName, formEmail, formPassword);
                 resetForm();

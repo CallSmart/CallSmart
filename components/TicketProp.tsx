@@ -24,16 +24,19 @@ const TicketProp = ({
     onClose(type);
   };
 
-  function toCamelCase(input: string) {
+  function toCamelCase(input: string | null) {
+    if (!input || !input.split) {
+      return null;
+    }
     const words = input
-      .split(" ")
+      ?.split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
-    return words.join(" ");
+    return words?.join(" ");
   }
 
   return (
     <div
-      className={
+      className={`leading-none ${
         type == "question"
           ? "ticket-prop text-[#611C9A] bg-[#EEDBFF]"
           : type == "book"
@@ -47,35 +50,35 @@ const TicketProp = ({
           : type == "urgent"
           ? "ticket-prop text-[#E44D43] bg-[#FAE3DE]"
           : ""
-      }
+      }`}
     >
       {type == "question" ? (
-        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
+        <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.QuestionIcon />
           Question
         </div>
       ) : type == "book" ? (
-        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
+        <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.AddIcon />
           Book
         </div>
       ) : type == "cancel" ? (
-        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
+        <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.CancelIcon />
           Cancel
         </div>
       ) : type == "reschedule" ? (
-        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
+        <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.CalendarIcon />
           Reschedule
         </div>
       ) : type == "new" ? (
-        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
+        <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.PersonAddIcon />
           New Client
         </div>
       ) : type == "urgent" ? (
-        <div className="flex flex-row gap-1 items-center whitespace-nowrap">
+        <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.ErrorIcon />
           URGENT
         </div>
