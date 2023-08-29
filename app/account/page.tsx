@@ -40,7 +40,7 @@ export default function AccountPage() {
   const [fName, setFName] = useState("");
   const [lName, setLName] = useState("");
   const [organization, setOrganization] = useState("");
-  const [role, setRole] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   const [errorOnAdd, setErrorOnAdd] = useState(false);
   const [userId, setUserId] = useState("");
@@ -112,7 +112,7 @@ export default function AccountPage() {
         setFName(userData?.[0]?.first_name || "");
         setLName(userData?.[0]?.last_name || "");
         setOrganization(userData?.[0]?.organization || "");
-        setRole(userData?.[0]?.role || "");
+        setUserRole(userData?.[0]?.role || "");
       }
     }
   };
@@ -200,6 +200,9 @@ export default function AccountPage() {
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        emailRedirectTo: "/dashboard",
+      },
     });
 
     if (error) {
@@ -215,18 +218,20 @@ export default function AccountPage() {
         role: "Employee",
       };
 
-      let insertError = await addToEmployeeTable(dataToInsert);
+      console.log(dataToInsert);
+
+      let insertError = await addToUserTable(dataToInsert);
+      if (insertError !== undefined) {
+        console.error("Error adding employee:", insertError.message);
+        handleErrorOnAdd();
+      }
+
+      insertError = await addToEmployeeTable(dataToInsert);
       if (insertError !== undefined) {
         console.error(
           "Error adding employee to employee table:",
           insertError.message
         );
-        handleErrorOnAdd();
-      }
-
-      insertError = await addToUserTable(dataToInsert);
-      if (insertError !== undefined) {
-        console.error("Error adding employee:", insertError.message);
         handleErrorOnAdd();
       } else {
         fetchEmployees();
@@ -241,7 +246,7 @@ export default function AccountPage() {
         {
           first_name: dataToInsert.first_name,
           last_name: dataToInsert.last_name,
-          user_id: dataToInsert.user__id,
+          user_id: dataToInsert.user_id,
           clinic_id: dataToInsert.clinic_id,
           email: dataToInsert.email,
         },
@@ -281,18 +286,20 @@ export default function AccountPage() {
         role: "Manager",
       };
 
-      let insertError = await addToManagerTable(dataToInsert);
+      console.log(dataToInsert);
+
+      let insertError = await addToUserTable(dataToInsert);
       if (insertError !== undefined) {
-        console.error(
-          "Error adding employee to employee table:",
-          insertError.message
-        );
+        console.error("Error adding manager to users:", insertError.message);
         handleErrorOnAdd();
       }
 
-      insertError = await addToUserTable(dataToInsert);
+      insertError = await addToManagerTable(dataToInsert);
       if (insertError !== undefined) {
-        console.error("Error adding employee:", insertError.message);
+        console.error(
+          "Error adding manager to managers table:",
+          insertError.message
+        );
         handleErrorOnAdd();
       } else {
         fetchManagers();
@@ -307,7 +314,7 @@ export default function AccountPage() {
         {
           first_name: dataToInsert.first_name,
           last_name: dataToInsert.last_name,
-          user_id: dataToInsert.user__id,
+          user_id: dataToInsert.user_id,
           clinic_id: dataToInsert.clinic_id,
           email: dataToInsert.email,
         },
@@ -448,12 +455,25 @@ export default function AccountPage() {
     }, 2000);
   };
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    // Simulate a delay before expanding the div
+    const timer = setTimeout(() => {
+      setIsExpanded(true);
+    }, 100); // delay of 1 second before expanding
+
+    return () => clearTimeout(timer); // Clear timer on component unmount
+  }, [fName]);
+
   return (
     <ProductNavBar>
       <div className="flex flex-col gap-4 min-w-[700px]">
         <Card
           decoration="left"
-          className="flex flex-row justify-between border-prim-blue items-end text-gray-500"
+          className={`flex flex-row justify-between border-prim-blue items-end text-gray-500 overflow-hidden transition-width duration-300 ease-out ${
+            isExpanded ? "w-full" : "w-0"
+          }`}
         >
           <div>
             <p>Account Owner</p>
@@ -462,8 +482,7 @@ export default function AccountPage() {
             </h2>
           </div>
           <div className="flex flex-col items-end">
-            <p>Clinic Name: {organization}</p>
-            <p>Role: {role}</p>
+            <p>{userRole}</p>
           </div>
         </Card>
         <div
@@ -483,28 +502,34 @@ export default function AccountPage() {
             Error on Form Submission
           </div>
         </div>
-        <ClinicTable
-          clinics={clinics}
-          deleteFunction={deleteClinic}
-          editFunction={editGoToInfo}
-          addFunction={addClinic}
-        />
-        <ManagerEmployeeTable
-          label={"OFFICE MANAGERS"}
-          people={managers}
-          clinics={clinics}
-          deleteFunction={deleteManager}
-          recoverFunction={sendPasswordRecoveryEmail}
-          addFunction={addManager}
-        />
-        <ManagerEmployeeTable
-          label={"EMPLOYEES"}
-          people={employees}
-          clinics={clinics}
-          deleteFunction={deleteEmployee}
-          recoverFunction={sendPasswordRecoveryEmail}
-          addFunction={addEmployee}
-        />
+        {userRole !== "Employee" && userRole !== "Manager" ? (
+          <ClinicTable
+            clinics={userRole ? clinics : []}
+            deleteFunction={deleteClinic}
+            editFunction={editGoToInfo}
+            addFunction={addClinic}
+          />
+        ) : null}
+        {userRole !== "Employee" && userRole !== "Manager" ? (
+          <ManagerEmployeeTable
+            label={"OFFICE MANAGERS"}
+            people={userRole ? managers : []}
+            clinics={clinics}
+            deleteFunction={deleteManager}
+            recoverFunction={sendPasswordRecoveryEmail}
+            addFunction={addManager}
+          />
+        ) : null}
+        {userRole !== "Employee" ? (
+          <ManagerEmployeeTable
+            label={"EMPLOYEES"}
+            people={userRole ? employees : []}
+            clinics={clinics}
+            deleteFunction={deleteEmployee}
+            recoverFunction={sendPasswordRecoveryEmail}
+            addFunction={addEmployee}
+          />
+        ) : null}
         <h4>Settings</h4>
         <div className="container flex-col gap-2">
           <button

@@ -111,8 +111,9 @@ export default function DashboardPage() {
     if (userRole == "Owner") {
       const { data, error } = await supabase
         .from("owner_clinics")
-        .select("clinic")
+        .select("clinic_id")
         .eq("owner", id);
+      console.log("Tickets path for Owner");
       clinics = data;
     } else if (userRole == "Manager") {
       const { data, error } = await supabase
@@ -122,17 +123,18 @@ export default function DashboardPage() {
       clinics = data;
     } else if (userRole == "Employee") {
       const { data, error } = await supabase
-        .from("employee")
+        .from("employees")
         .select("clinic_id")
         .eq("user_id", id);
       clinics = data;
     } else {
+      console.log("Tickets path for else");
       clinics = null;
     }
 
     console.log(clinics);
 
-    const clinicIds = clinics?.map((clinic) => clinic.clinic);
+    const clinicIds = clinics?.map((clinic) => clinic.clinic_id);
     if (!clinicIds) {
       return;
     } else {

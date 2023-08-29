@@ -32,6 +32,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [hasSession, setHasSession] = useState(false);
+  const [userRole, setUserRole] = useState("");
   const [fullName, setFullName] = useState("");
   const router = useRouter();
 
@@ -64,11 +65,12 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     if (user_id) {
       const { data: userData, error } = await supabase
         .from("users")
-        .select("first_name, last_name")
+        .select("first_name, last_name, role")
         .eq("id", user_id);
       if (error) {
         console.error("Error fetching user:", error.message);
       }
+      setUserRole(userData?.[0]?.role || "");
       localStorage.setItem("first_name", userData?.[0]?.first_name || "");
       localStorage.setItem("last_name", userData?.[0]?.last_name || "");
       setFullName(
@@ -186,11 +188,15 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
             <hr className="border-prim-blue" />
             <span className="lg:hidden">
               <NavButton to="/dashboard">Tickets</NavButton>
-              <NavButton to="/analytics">Analytics</NavButton>
+              {userRole == "Manager" || userRole == "Owner" ? (
+                <NavButton to="/analytics">Analytics</NavButton>
+              ) : null}
             </span>
             <span className="hidden lg:block">
               <NavButton to="/dashboard">Tickets Dashboard</NavButton>
-              <NavButton to="/analytics">Analytics Dashboard</NavButton>
+              {userRole == "Manager" || userRole == "Owner" ? (
+                <NavButton to="/analytics">Analytics Dashboard</NavButton>
+              ) : null}
             </span>
           </div>
         </div>
