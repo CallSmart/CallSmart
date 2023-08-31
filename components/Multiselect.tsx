@@ -45,6 +45,8 @@ function Multiselect({
             <span onClick={() => setIsOpen((prevState) => !prevState)}>
               <TicketProp
                 type={option}
+                urgent={option == "urgent"}
+                new_client={option == "new"}
                 closeable={true}
                 onClose={toggleOption}
               />
@@ -89,6 +91,8 @@ function Multiselect({
             >
               <TicketProp
                 type={option}
+                urgent={option == "urgent"}
+                new_client={option == "new"}
                 closeable={false}
                 onClose={() => null}
               />

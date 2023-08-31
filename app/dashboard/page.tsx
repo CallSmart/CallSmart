@@ -13,8 +13,8 @@ export default function DashboardPage() {
   const [allTickets, setAllTickets] = useState<
     {
       id: number;
-      isNew: string;
-      urgent: string;
+      new_client: boolean;
+      urgent: boolean;
       type: string;
       name: string;
       number: string;
@@ -25,8 +25,8 @@ export default function DashboardPage() {
   const [missedTickets, setMissedTickets] = useState<
     {
       id: number;
-      isNew: string;
-      urgent: string;
+      new_client: boolean;
+      urgent: boolean;
       type: string;
       name: string;
       number: string;
@@ -37,8 +37,8 @@ export default function DashboardPage() {
   const [pendingTickets, setPendingTickets] = useState<
     {
       id: number;
-      isNew: string;
-      urgent: string;
+      new_client: boolean;
+      urgent: boolean;
       type: string;
       name: string;
       number: string;
@@ -49,8 +49,8 @@ export default function DashboardPage() {
   const [completedTickets, setCompletedTickets] = useState<
     {
       id: number;
-      isNew: string;
-      urgent: string;
+      new_client: boolean;
+      urgent: boolean;
       type: string;
       name: string;
       number: string;

@@ -44,6 +44,8 @@ import {
   startOfYear,
   endOfYear,
   addDays,
+  subMonths,
+  subYears,
 } from "date-fns";
 
 export default function AnalyticsPage() {
@@ -116,7 +118,7 @@ export default function AnalyticsPage() {
   const percentageFormatter = (value1: number, value2: number | null) => {
     if (value2 === 0 || value2 === null) {
       const roundedPercentage = Math.trunc(Math.round(value1 * 100));
-      if (roundedPercentage == Infinity || NaN) {
+      if (roundedPercentage == Infinity || NaN || "NaN") {
         return "0%";
       }
 
@@ -193,8 +195,8 @@ export default function AnalyticsPage() {
         return { start: startOfMonth(new Date()), end: endOfMonth(new Date()) };
       case "Last Month":
         return {
-          start: startOfMonth(subDays(new Date(), 30)),
-          end: endOfMonth(subDays(new Date(), 30)),
+          start: startOfMonth(subMonths(new Date(), 1)),
+          end: endOfMonth(subMonths(new Date(), 1)),
         };
       case "This Year":
         return {
@@ -203,8 +205,8 @@ export default function AnalyticsPage() {
         };
       case "Last Year":
         return {
-          start: startOfYear(subDays(new Date(), 365)),
-          end: endOfYear(subDays(new Date(), 365)),
+          start: startOfYear(subYears(new Date(), 1)),
+          end: endOfYear(subYears(new Date(), 1)),
         };
       default:
         return { start: startOfDay(new Date()), end: endOfDay(new Date()) };
@@ -231,6 +233,49 @@ export default function AnalyticsPage() {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}+00`;
   }
 
+  function displayCustomDateFormatter(customDate: any): string {
+    function formatDate(date: Date): string {
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      const day = date.getDate();
+      const monthIndex = date.getMonth();
+
+      let suffix = "th";
+      if (day === 1 || day === 21 || day === 31) {
+        suffix = "st";
+      } else if (day === 2 || day === 22) {
+        suffix = "nd";
+      } else if (day === 3 || day === 23) {
+        suffix = "rd";
+      }
+
+      return `${monthNames[monthIndex]} ${day}${suffix}`;
+    }
+
+    if (customDate?.to) {
+      return (
+        formatDate(new Date(customDate?.from)) +
+        " - " +
+        formatDate(new Date(customDate?.to))
+      );
+    } else {
+      return formatDate(new Date(customDate?.from));
+    }
+  }
+
   useEffect(() => {
     const session = supabase.auth.getSession();
     if (!session) {
@@ -254,6 +299,8 @@ export default function AnalyticsPage() {
   useEffect(() => {
     setCompareTickets([]);
     setWithTickets([]);
+    setTicketsCreatedData([]);
+    setTicketDetailData([]);
   }, [compareSelect, withSelect, timeRange]);
 
   useEffect(() => {
@@ -270,6 +317,7 @@ export default function AnalyticsPage() {
   }, [compareStartDate, compareEndDate]);
 
   useEffect(() => {
+    setWithTickets([]);
     if (withStartDate && withEndDate) {
       fetchWithTickets();
     }
@@ -297,7 +345,9 @@ export default function AnalyticsPage() {
       );
       if (compareCustomSelect?.to) {
         setCompareEndDate(
-          formatDateToCustomFormat(compareCustomSelect?.to?.toISOString())
+          formatDateToCustomFormat(
+            new Date(endOfDay(compareCustomSelect?.to))?.toISOString()
+          )
         );
       } else {
         setCompareEndDate(
@@ -311,9 +361,7 @@ export default function AnalyticsPage() {
         formatDateToCustomFormat(withCustomSelect?.from?.toISOString())
       );
       if (withCustomSelect?.to) {
-        setWithEndDate(
-          formatDateToCustomFormat(withCustomSelect?.to?.toISOString())
-        );
+        setWithEndDate(new Date(endOfDay(withCustomSelect?.to))?.toISOString());
       } else {
         setWithEndDate(
           formatDateToCustomFormat(
@@ -461,12 +509,12 @@ export default function AnalyticsPage() {
   };
 
   const createdDictValueFinder = async (key: string, type: string) => {
-    if (key == "Compare") {
+    if (key == displayCustomDateFormatter(compareCustomSelect)) {
       return compareTickets.filter(
         (ticket) => ticket["type"] === type.toLowerCase()
       ).length;
     }
-    if (key == "With") {
+    if (key == displayCustomDateFormatter(withCustomSelect)) {
       return withTickets.filter(
         (ticket) => ticket["type"] === type.toLowerCase()
       ).length;
@@ -500,8 +548,16 @@ export default function AnalyticsPage() {
           ticketTypes.map(async (type) => {
             const obj: any = { Type: type };
 
-            obj["Compare"] = await createdDictValueFinder("Compare", type);
-            obj["With"] = await createdDictValueFinder("With", type);
+            obj[displayCustomDateFormatter(compareCustomSelect)] =
+              await createdDictValueFinder(
+                displayCustomDateFormatter(compareCustomSelect),
+                type
+              );
+            obj[displayCustomDateFormatter(withCustomSelect)] =
+              await createdDictValueFinder(
+                displayCustomDateFormatter(withCustomSelect),
+                type
+              );
 
             return obj;
           })
@@ -512,8 +568,14 @@ export default function AnalyticsPage() {
   };
 
   const detailDictValueFinder = async (key: string, type: string) => {
-    if (key == "Compare" || key == "With") {
-      const source = "Compare" == key ? compareTickets : withTickets;
+    if (
+      key == displayCustomDateFormatter(compareCustomSelect) ||
+      key == displayCustomDateFormatter(withCustomSelect)
+    ) {
+      const source =
+        displayCustomDateFormatter(compareCustomSelect) == key
+          ? compareTickets
+          : withTickets;
       if (type === "Urgent") {
         return source.filter((ticket) => ticket["urgent"] == true).length;
       } else if (type === "Non Urgent") {
@@ -557,8 +619,16 @@ export default function AnalyticsPage() {
           clientTypes.map(async (type) => {
             const obj: any = { Type: type };
 
-            obj["Compare"] = await detailDictValueFinder("Compare", type);
-            obj["With"] = await detailDictValueFinder("With", type);
+            obj[displayCustomDateFormatter(compareCustomSelect)] =
+              await detailDictValueFinder(
+                displayCustomDateFormatter(compareCustomSelect),
+                type
+              );
+            obj[displayCustomDateFormatter(withCustomSelect)] =
+              await detailDictValueFinder(
+                displayCustomDateFormatter(withCustomSelect),
+                type
+              );
 
             return obj;
           })
@@ -568,8 +638,14 @@ export default function AnalyticsPage() {
   };
 
   const callDictValueFinder = async (key: string, type: string) => {
-    if (key == "Compare" || key == "With") {
-      const source = "Compare" == key ? compareTickets : withTickets;
+    if (
+      key == displayCustomDateFormatter(compareCustomSelect) ||
+      key == displayCustomDateFormatter(withCustomSelect)
+    ) {
+      const source =
+        displayCustomDateFormatter(compareCustomSelect) == key
+          ? compareTickets
+          : withTickets;
       if (type === "Call Missed") {
         return 0;
       } else if (type === "Tickets Created") {
@@ -614,8 +690,16 @@ export default function AnalyticsPage() {
           detailCategories.map(async (type) => {
             const obj: any = { Type: type };
 
-            obj["Compare"] = await callDictValueFinder("Compare", type);
-            obj["With"] = await callDictValueFinder("With", type);
+            obj[displayCustomDateFormatter(compareCustomSelect)] =
+              await callDictValueFinder(
+                displayCustomDateFormatter(compareCustomSelect),
+                type
+              );
+            obj[displayCustomDateFormatter(withCustomSelect)] =
+              await callDictValueFinder(
+                displayCustomDateFormatter(withCustomSelect),
+                type
+              );
             console.log("CD: ", obj);
 
             return obj;
@@ -624,6 +708,10 @@ export default function AnalyticsPage() {
       );
     }
   };
+
+  useEffect(() => {
+    console.log(ticketDetailData);
+  }, [populateTicketDetailsData]);
 
   return (
     <ProductNavBar>
@@ -653,7 +741,6 @@ export default function AnalyticsPage() {
               >
                 <SelectItem value={"This"}>Today</SelectItem>
                 <SelectItem value={"Last"}>Yesterday</SelectItem>
-                <SelectItem value={"Custom"}>Pick Day</SelectItem>
               </Select>
             ) : timeRange === "Week" ? (
               <Select
@@ -663,7 +750,6 @@ export default function AnalyticsPage() {
               >
                 <SelectItem value={"This"}>This Week</SelectItem>
                 <SelectItem value={"Last"}>Last Week</SelectItem>
-                <SelectItem value={"Custom"}>Pick Week</SelectItem>
               </Select>
             ) : timeRange === "Month" ? (
               <Select
@@ -673,7 +759,6 @@ export default function AnalyticsPage() {
               >
                 <SelectItem value={"This"}>This Month</SelectItem>
                 <SelectItem value={"Last"}>Last Month</SelectItem>
-                <SelectItem value={"Custom"}>Pick Month</SelectItem>
               </Select>
             ) : timeRange === "Year" ? (
               <Select
@@ -753,23 +838,13 @@ export default function AnalyticsPage() {
                     <TableHeaderCell>Call Type</TableHeaderCell>
                     <TableHeaderCell>
                       {compareCustomSelect
-                        ? compareCustomSelect.from
-                            ?.toLocaleDateString()
-                            .slice(0, 4) +
-                          "-" +
-                          compareCustomSelect.to
-                            ?.toLocaleDateString()
-                            .slice(0, 4)
+                        ? displayCustomDateFormatter(compareCustomSelect)
                         : dateWordFormatter(compareSelect)}
                     </TableHeaderCell>
                     <TableHeaderCell />
                     <TableHeaderCell>
                       {withCustomSelect
-                        ? withCustomSelect.from
-                            ?.toLocaleDateString()
-                            .slice(0, 4) +
-                          "-" +
-                          withCustomSelect.to?.toLocaleDateString().slice(0, 4)
+                        ? displayCustomDateFormatter(withCustomSelect)
                         : dateWordFormatter(withSelect)}
                     </TableHeaderCell>
                   </TableRow>
@@ -780,13 +855,15 @@ export default function AnalyticsPage() {
                       <TableCell>
                         <TicketProp
                           type={key["Type"].toLowerCase()}
+                          urgent={null}
+                          new_client={null}
                           closeable={false}
                           onClose={() => null}
                         />
                       </TableCell>
                       <TableCell>
                         {compareCustomSelect
-                          ? key["Compare"]
+                          ? key[displayCustomDateFormatter(compareCustomSelect)]
                           : key[dateWordFormatter(compareSelect)]}
                       </TableCell>
                       <TableCell>
@@ -807,18 +884,26 @@ export default function AnalyticsPage() {
                         ) : (
                           <BadgeDelta
                             deltaType={
-                              key["Compare"] > key["With"]
+                              key[
+                                displayCustomDateFormatter(compareCustomSelect)
+                              ] >
+                              key[displayCustomDateFormatter(withCustomSelect)]
                                 ? "increase"
                                 : "decrease"
                             }
                           >
-                            {percentageFormatter(key["Compare"], key["With"])}
+                            {percentageFormatter(
+                              key[
+                                displayCustomDateFormatter(compareCustomSelect)
+                              ],
+                              key[displayCustomDateFormatter(withCustomSelect)]
+                            )}
                           </BadgeDelta>
                         )}
                       </TableCell>
                       <TableCell>
                         {withCustomSelect
-                          ? key["With"]
+                          ? key[displayCustomDateFormatter(withCustomSelect)]
                           : key[dateWordFormatter(withSelect)]}
                       </TableCell>
                     </TableRow>
@@ -844,7 +929,10 @@ export default function AnalyticsPage() {
                 index="Type"
                 categories={
                   withCustomSelect || compareCustomSelect
-                    ? ["Compare", "With"]
+                    ? [
+                        displayCustomDateFormatter(compareCustomSelect),
+                        displayCustomDateFormatter(withCustomSelect),
+                      ]
                     : [
                         dateWordFormatter(compareSelect),
                         dateWordFormatter(withSelect),
@@ -871,23 +959,13 @@ export default function AnalyticsPage() {
                     <TableHeaderCell>Call Detail</TableHeaderCell>
                     <TableHeaderCell>
                       {compareCustomSelect
-                        ? compareCustomSelect.from
-                            ?.toLocaleDateString()
-                            .slice(0, 4) +
-                          "-" +
-                          compareCustomSelect.to
-                            ?.toLocaleDateString()
-                            .slice(0, 4)
-                        : dateWordFormatter(withSelect)}
+                        ? displayCustomDateFormatter(compareCustomSelect)
+                        : dateWordFormatter(compareSelect)}
                     </TableHeaderCell>
                     <TableHeaderCell />
                     <TableHeaderCell>
                       {withCustomSelect
-                        ? withCustomSelect.from
-                            ?.toLocaleDateString()
-                            .slice(0, 4) +
-                          "-" +
-                          withCustomSelect.to?.toLocaleDateString().slice(0, 4)
+                        ? displayCustomDateFormatter(withCustomSelect)
                         : dateWordFormatter(withSelect)}
                     </TableHeaderCell>
                   </TableRow>
@@ -898,13 +976,15 @@ export default function AnalyticsPage() {
                       <TableCell>
                         <TicketProp
                           type={key["Type"].toLowerCase()}
+                          urgent={key["Type"] == "Urgent"}
+                          new_client={key["Type"] == "New"}
                           closeable={false}
                           onClose={() => null}
                         />
                       </TableCell>
                       <TableCell>
                         {compareCustomSelect
-                          ? key["Compare"]
+                          ? key[displayCustomDateFormatter(compareCustomSelect)]
                           : key[dateWordFormatter(compareSelect)]}
                       </TableCell>
                       <TableCell>
@@ -925,18 +1005,26 @@ export default function AnalyticsPage() {
                         ) : (
                           <BadgeDelta
                             deltaType={
-                              key["Compare"] > key["With"]
+                              key[
+                                displayCustomDateFormatter(compareCustomSelect)
+                              ] >
+                              key[displayCustomDateFormatter(withCustomSelect)]
                                 ? "increase"
                                 : "decrease"
                             }
                           >
-                            {percentageFormatter(key["Compare"], key["With"])}
+                            {percentageFormatter(
+                              key[
+                                displayCustomDateFormatter(compareCustomSelect)
+                              ],
+                              key[displayCustomDateFormatter(withCustomSelect)]
+                            )}
                           </BadgeDelta>
                         )}
                       </TableCell>
                       <TableCell>
                         {withCustomSelect
-                          ? key["With"]
+                          ? key[displayCustomDateFormatter(withCustomSelect)]
                           : key[dateWordFormatter(withSelect)]}
                       </TableCell>
                     </TableRow>
@@ -962,7 +1050,10 @@ export default function AnalyticsPage() {
                 index="Type"
                 categories={
                   withCustomSelect || compareCustomSelect
-                    ? ["Compare", "With"]
+                    ? [
+                        displayCustomDateFormatter(compareCustomSelect),
+                        displayCustomDateFormatter(withCustomSelect),
+                      ]
                     : [
                         dateWordFormatter(compareSelect),
                         dateWordFormatter(withSelect),
@@ -983,19 +1074,13 @@ export default function AnalyticsPage() {
                 <TableHeaderCell>Category</TableHeaderCell>
                 <TableHeaderCell>
                   {compareCustomSelect
-                    ? compareCustomSelect.from
-                        ?.toLocaleDateString()
-                        .slice(0, 4) +
-                      "-" +
-                      compareCustomSelect.to?.toLocaleDateString().slice(0, 4)
-                    : dateWordFormatter(withSelect)}
+                    ? displayCustomDateFormatter(compareCustomSelect)
+                    : dateWordFormatter(compareSelect)}
                 </TableHeaderCell>
                 <TableHeaderCell />
                 <TableHeaderCell>
                   {withCustomSelect
-                    ? withCustomSelect.from?.toLocaleDateString().slice(0, 4) +
-                      "-" +
-                      withCustomSelect.to?.toLocaleDateString().slice(0, 4)
+                    ? displayCustomDateFormatter(withCustomSelect)
                     : dateWordFormatter(withSelect)}
                 </TableHeaderCell>
               </TableRow>
@@ -1012,7 +1097,7 @@ export default function AnalyticsPage() {
                   </TableCell>
                   <TableCell>
                     {compareCustomSelect
-                      ? key["Compare"]
+                      ? key[displayCustomDateFormatter(compareCustomSelect)]
                       : key[dateWordFormatter(compareSelect)]}
                   </TableCell>
                   <TableCell>
@@ -1039,19 +1124,29 @@ export default function AnalyticsPage() {
                     ) : (
                       <BadgeDelta
                         deltaType={
-                          key["Compare"] > key["With"] ? "increase" : "decrease"
+                          key[displayCustomDateFormatter(compareCustomSelect)] >
+                          key[displayCustomDateFormatter(withCustomSelect)]
+                            ? "increase"
+                            : "decrease"
                         }
                         isIncreasePositive={
-                          key["Compare"] === "Calls Missed" ? false : true
+                          key[
+                            displayCustomDateFormatter(compareCustomSelect)
+                          ] === "Calls Missed"
+                            ? false
+                            : true
                         }
                       >
-                        {percentageFormatter(key["Compare"], key["With"])}
+                        {percentageFormatter(
+                          key[displayCustomDateFormatter(compareCustomSelect)],
+                          key[displayCustomDateFormatter(withCustomSelect)]
+                        )}
                       </BadgeDelta>
                     )}
                   </TableCell>
                   <TableCell>
                     {withCustomSelect
-                      ? key["With"]
+                      ? key[displayCustomDateFormatter(withCustomSelect)]
                       : key[dateWordFormatter(withSelect)]}
                   </TableCell>
                 </TableRow>
@@ -1062,8 +1157,12 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? percentageFormatter(
-                          callDetailData[0]["Compare"] /
-                            callDetailData[1]["Compare"],
+                          callDetailData[0][
+                            displayCustomDateFormatter(compareCustomSelect)
+                          ] /
+                            callDetailData[1][
+                              displayCustomDateFormatter(compareCustomSelect)
+                            ],
                           null
                         )
                       : percentageFormatter(
@@ -1076,7 +1175,12 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? percentageFormatter(
-                          callDetailData[0]["With"] / callDetailData[1]["With"],
+                          callDetailData[0][
+                            displayCustomDateFormatter(withCustomSelect)
+                          ] /
+                            callDetailData[1][
+                              displayCustomDateFormatter(withCustomSelect)
+                            ],
                           null
                         )
                       : percentageFormatter(
@@ -1093,8 +1197,12 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? percentageFormatter(
-                          callDetailData[2]["Compare"] /
-                            callDetailData[1]["Compare"],
+                          callDetailData[2][
+                            displayCustomDateFormatter(compareCustomSelect)
+                          ] /
+                            callDetailData[1][
+                              displayCustomDateFormatter(compareCustomSelect)
+                            ],
                           null
                         )
                       : percentageFormatter(
@@ -1107,7 +1215,12 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? percentageFormatter(
-                          callDetailData[2]["With"] / callDetailData[1]["With"],
+                          callDetailData[2][
+                            displayCustomDateFormatter(withCustomSelect)
+                          ] /
+                            callDetailData[1][
+                              displayCustomDateFormatter(withCustomSelect)
+                            ],
                           null
                         )
                       : percentageFormatter(

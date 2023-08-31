@@ -13,14 +13,21 @@ type TicketType =
 
 const TicketProp = ({
   type,
+  urgent,
+  new_client,
   closeable,
   onClose,
 }: {
-  type: TicketType;
+  type: TicketType | null;
+  urgent: boolean | null;
+  new_client: boolean | null;
   closeable: boolean;
   onClose: Function;
 }) => {
-  const toggleClose = (type: string) => {
+  const toggleClose = (type: string | null) => {
+    if (null) {
+      return;
+    }
     onClose(type);
   };
 
@@ -45,9 +52,9 @@ const TicketProp = ({
           ? "ticket-prop text-[#E44D43] bg-[#FAE3DE]"
           : type == "reschedule"
           ? "ticket-prop text-[#CA7C32] bg-[#FAEDCC]"
-          : type == "new"
+          : new_client === true
           ? "ticket-prop text-[#53A5E9] bg-[#DDEFFC]"
-          : type == "urgent"
+          : urgent === true
           ? "ticket-prop text-[#E44D43] bg-[#FAE3DE]"
           : ""
       }`}
@@ -72,12 +79,12 @@ const TicketProp = ({
           <Icons.CalendarIcon />
           Reschedule
         </div>
-      ) : type == "new" ? (
+      ) : new_client === true ? (
         <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.PersonAddIcon />
           New Client
         </div>
-      ) : type == "urgent" ? (
+      ) : urgent === true ? (
         <div className="flex flex-row gap-1 items-center justify-center whitespace-nowrap">
           <Icons.ErrorIcon />
           URGENT

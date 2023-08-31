@@ -18,8 +18,8 @@ const SFContainer = ({
   handleDidNot: FunctionType;
   tickets: {
     id: number;
-    isNew: string;
-    urgent: string;
+    new_client: boolean;
+    urgent: boolean;
     type: string;
     name: string;
     number: string;
@@ -57,9 +57,9 @@ const SFContainer = ({
         ) {
           return ticket.type === filter; // Match type property for "cancel" and "book" filters
         } else if (filter === "new") {
-          return ticket.isNew === "new"; // Match isNew property for "new" filter
+          return ticket.new_client === true; // Match isNew property for "new" filter
         } else if (filter === "urgent") {
-          return ticket.urgent === "urgent"; // Match isNew property for "new" filter
+          return ticket.urgent === true; // Match isNew property for "new" filter
         }
         return false; // Return false for unknown filters
       });
@@ -114,7 +114,7 @@ const SFContainer = ({
           {sfTickets.map((ticket, key) => (
             <Ticket
               key={key}
-              isNew={ticket?.isNew}
+              new_client={ticket?.new_client}
               id={ticket?.id}
               onComplete={handleComplete}
               onDidNot={handleDidNot}

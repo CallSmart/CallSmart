@@ -7,7 +7,7 @@ const Ticket = ({
   id,
   onDidNot,
   onComplete,
-  isNew,
+  new_client,
   urgent,
   type,
   name,
@@ -18,8 +18,8 @@ const Ticket = ({
   id: number;
   onDidNot: FunctionType;
   onComplete: FunctionType;
-  isNew: string;
-  urgent: string;
+  new_client: boolean;
+  urgent: boolean;
   type: string;
   name: string;
   number: string;
@@ -92,7 +92,11 @@ const Ticket = ({
       tabIndex={0}
       onBlur={() => handleBlur()}
       className={`ticket-container leading-tight static transition-height duration-300 ease-out ${
-        isExpanded ? "h-[108.75px]" : "h-0"
+        isExpanded
+          ? new_client || urgent
+            ? "h-[142.5px]"
+            : "h-[108.75px]"
+          : "h-0"
       }`}
     >
       <span
@@ -102,15 +106,23 @@ const Ticket = ({
         <div className="flex flex-col px-3 py-3 gap-2">
           <div
             className={`${
-              isNew == "new" || urgent == "urgent" ? "w-fit h-fit" : "hidden"
+              new_client == true || urgent == true ? "w-fit h-fit" : "hidden"
             } ${"flex flex-row gap-2"}`}
           >
-            <div className={isNew !== "new" ? "hidden" : ""}>
-              <TicketProp type={isNew} closeable={false} onClose={() => null} />
-            </div>
-            <div className={urgent !== "urgent" ? "hidden" : ""}>
+            <div className={new_client !== true ? "hidden" : ""}>
               <TicketProp
-                type={urgent}
+                type={""}
+                urgent={null}
+                new_client={true}
+                closeable={false}
+                onClose={() => null}
+              />
+            </div>
+            <div className={urgent !== true ? "hidden" : ""}>
+              <TicketProp
+                type={""}
+                urgent={true}
+                new_client={null}
                 closeable={false}
                 onClose={() => null}
               />
@@ -123,7 +135,13 @@ const Ticket = ({
             <div className="text-sm opacity-50 pl-2">{number}</div>
           </div>
           <div className="flex flex-row gap-4 items-center w-full justify-between">
-            <TicketProp type={type} closeable={false} onClose={() => null} />
+            <TicketProp
+              type={type}
+              urgent={null}
+              new_client={null}
+              closeable={false}
+              onClose={() => null}
+            />
             <div className="opacity-50 text-sm whitespace-nowrap overflow-hidden truncate">
               {customDateFormat(time)}
             </div>
@@ -145,19 +163,23 @@ const Ticket = ({
           <div className="flex flex-col gap-2 px-3 pt-3 pb-14">
             <div
               className={`${
-                isNew == "new" || urgent == "urgent" ? "w-fit h-fit" : "hidden"
+                new_client == true || urgent == true ? "w-fit h-fit" : "hidden"
               } ${"flex flex-row gap-2"}`}
             >
-              <div className={isNew !== "new" ? "hidden" : ""}>
+              <div className={new_client !== true ? "hidden" : ""}>
                 <TicketProp
-                  type={isNew}
+                  type={""}
+                  new_client={true}
+                  urgent={null}
                   closeable={false}
                   onClose={() => null}
                 />
               </div>
-              <div className={urgent !== "urgent" ? "hidden" : ""}>
+              <div className={urgent !== true ? "hidden" : ""}>
                 <TicketProp
-                  type={urgent}
+                  type={""}
+                  urgent={true}
+                  new_client={null}
                   closeable={false}
                   onClose={() => null}
                 />
@@ -168,7 +190,13 @@ const Ticket = ({
               <div className="text-sm opacity-50 pl-2">{number}</div>
             </div>
             <div className="flex flex-row items-center w-full justify-between">
-              <TicketProp type={type} closeable={false} onClose={() => null} />
+              <TicketProp
+                type={type}
+                urgent={null}
+                new_client={null}
+                closeable={false}
+                onClose={() => null}
+              />
             </div>
             <div className="ticket-container">
               <div className="flex flex-row justify-center text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit">
