@@ -22,12 +22,14 @@ export default async function RootLayout({
     <html lang="en">
       <body
         className={
-          "flex flex-col h-[100dvh] bg-gradient-to-b from-white to-prim-blue/25 bg-white"
+          "h-[100dvh] bg-gradient-to-b from-white to-prim-blue/10 bg-white overflow-hidden"
         }
       >
-        <SupabaseProvider>
-          <UserProvider>{children}</UserProvider>
-        </SupabaseProvider>
+        <div className="flex flex-col h-[100dvh] pb-16 overflow-scroll">
+          <SupabaseProvider>
+            <UserProvider>{children}</UserProvider>
+          </SupabaseProvider>
+        </div>
       </body>
     </html>
   );

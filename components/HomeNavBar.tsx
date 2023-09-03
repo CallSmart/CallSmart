@@ -8,6 +8,8 @@ import Box from "./Box";
 import { supabase } from "../supabase";
 import { redirect } from "next/navigation";
 import { Session } from "@supabase/auth-helpers-nextjs";
+import Image from "next/image";
+import * as Img from "../app/images";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -84,33 +86,35 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
     <div>
       <div className="flex flex-col md:flex-row w-[100dvw] py-8 px-48 justify-center md:justify-between ">
         <a className="h-fit w-fit self-center font-bold text-2xl" href="/">
-          CallSmart
+          <Image src={Img.LogoFull} alt="CallSmart" className="h-8 w-auto" />
         </a>
         <div className="flex gap-8 text-lg items-center">
-          <a className="hover:opacity-50" href="">
-            Pricing
-          </a>
-          <a className="hover:opacity-50" href="">
-            FAQ
-          </a>
-          <a className="hover:opacity-50" href="">
-            Contact
+          <a
+            className="px-4 py-2 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-xl text-white transition-all duration-200"
+            href="/signup"
+          >
+            Get Started
           </a>
           <a
-            className="px-4 py-2 bg-sec-blue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white"
+            className="px-4 py-2 ring-2 ring-inset rounded-xl ring-prim-blue hover:bg-prim-blue/50 hover:ring-0 active:bg-prim-blue/75 rounded-lg text-prim-blue hover:text-white transition-all duration-200"
             href="/signin"
           >
             Sign In
           </a>
-          <a
-            className="px-4 py-2 ring-2 ring-inset rounded-xl ring-[#2E3541] hover:bg-sec-blue active:bg-transparent rounded-lg text-sec-blue hover:text-white"
-            href="/signup"
-          >
-            Sign Up
+          <a className="hover:opacity-50" href="/pricing">
+            Pricing
+          </a>
+          <a className="hover:opacity-50" href="/revenue-strategy">
+            Revenue Strategy
+          </a>
+          <a className="hover:opacity-50" href="/FAQ">
+            FAQ
           </a>
         </div>
       </div>
-      <div className="flex flex-col pt-12 items-center gap-8">{children}</div>
+      <div className="flex flex-col items-center gap-24 pt-12 md:pt-16 lg:pt-24">
+        {children}
+      </div>
     </div>
   );
 };

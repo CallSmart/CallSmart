@@ -65,7 +65,7 @@ h3 {
 }
 
 h1 {
-  @apply flex text-8xl font-bold text-prim-blue;
+  @apply flex text-8xl font-bold text-prim-blue text-center;
 }
 
 .absolute-center {
@@ -74,4 +74,8 @@ h1 {
 
 form span {
   @apply flex flex-col indent-0;
+}
+
+.landing-card {
+  @apply w-[36rem] flex flex-col items-center gap-3 text-center border-prim-blue;
 }
