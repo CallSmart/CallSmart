@@ -25,7 +25,7 @@ export default async function RootLayout({
           "h-[100dvh] bg-gradient-to-b from-white to-prim-blue/10 bg-white overflow-hidden"
         }
       >
-        <div className="flex flex-col h-[100dvh] pb-16 overflow-scroll">
+        <div className="flex flex-col h-[100dvh] overflow-scroll">
           <SupabaseProvider>
             <UserProvider>{children}</UserProvider>
           </SupabaseProvider>

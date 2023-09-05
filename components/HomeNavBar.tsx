@@ -112,7 +112,7 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           </a>
         </div>
       </div>
-      <div className="flex flex-col items-center gap-24 pt-12 md:pt-16 lg:pt-24">
+      <div className="flex flex-col items-center gap-24 py-12 md:pt-16 lg:pt-24">
         {children}
       </div>
     </div>

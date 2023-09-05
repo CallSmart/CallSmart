@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
   const percentageFormatter = (value1: number, value2: number | null) => {
     if (value2 === 0 || value2 === null) {
       const roundedPercentage = Math.trunc(Math.round(value1 * 100));
-      if (roundedPercentage == Infinity || NaN || "NaN") {
+      if (roundedPercentage == Infinity || Number.isNaN(roundedPercentage)) {
         return "0%";
       }
 
@@ -1091,6 +1091,8 @@ export default function AnalyticsPage() {
                   <TableCell>
                     <TicketProp
                       type={key["Type"]}
+                      urgent={null}
+                      new_client={null}
                       closeable={false}
                       onClose={() => null}
                     />

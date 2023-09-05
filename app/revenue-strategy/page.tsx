@@ -4,7 +4,7 @@ import { Card } from "@tremor/react";
 export default function Home() {
   return (
     <HomeNavBar>
-      <div className="flex flex-col items-center gap-16 w-[90%] md:w-4/5 max-w-[1280px]">
+      <div className="flex flex-col items-center gap-16 w-[90%] text-[16px] md:w-4/5 max-w-[1280px]">
         <div className="flex flex-col items-center gap-4 w-full">
           <h1 className="text-center">
             Supercharge Your Dental Clinic Revenue
@@ -23,27 +23,33 @@ export default function Home() {
               <li>Percentage of Missed Calls: 20%</li>
               <li>Average Monthly Missed Calls: 100</li>
             </ul>
-            <h3 className="text-center text-2xl font-semibold">
-              Here's where the revenue magic happens...
-            </h3>
           </Card>
         </div>
         <div className="flex flex-col items-center gap-4 w-full">
           <h1 className="text-center text-3xl font-semibold">
             📈 How CallSmart Drives Revenue:
           </h1>
-          <Card decoration="top" className="landing-card">
+          <Card
+            decoration="top"
+            className="lg:w-4/5 flex flex-col gap-3 text-center items-center "
+          >
             <h3 className="text-prim-blue text-center">Immediate Engagement</h3>
             All 100 missed calls are engaged via CallSmart. 40% of these engaged
             leads convert to appointments. Additional Revenue from Appointments:
             40 appointments x $500 = $20,000
           </Card>
-          <Card decoration="top" className="landing-card">
+          <Card
+            decoration="top"
+            className="lg:w-4/5 flex flex-col gap-3 text-center items-center "
+          >
             <h3 className="text-prim-blue text-center">Upsells and Services</h3>
             25% of appointments lead to additional services. Additional Revenue
             from Upsells: 40 appointments x 25% x $250 = $2,500
           </Card>
-          <Card decoration="top" className="landing-card">
+          <Card
+            decoration="top"
+            className="lg:w-4/5 flex flex-col gap-3 text-center items-center "
+          >
             <h3 className="text-prim-blue text-center">
               Increased Patient Retention
             </h3>
@@ -51,7 +57,10 @@ export default function Home() {
             Increased Revenue from Retention: 10% x Average Monthly Revenue = $X
             (Your clinic's average monthly revenue increase)
           </Card>
-          <Card decoration="top" className="landing-card">
+          <Card
+            decoration="top"
+            className="lg:w-4/5 flex flex-col gap-3 text-center items-center "
+          >
             <h3 className="text-prim-blue text-center">
               Total Extra Revenue Potential
             </h3>

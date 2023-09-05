@@ -4,7 +4,7 @@ import { Card } from "@tremor/react";
 export default function Home() {
   return (
     <HomeNavBar>
-      <div className="flex flex-col items-center gap-4 w-[90%] md:w-4/5 max-w-[1280px]">
+      <div className="flex flex-col items-center gap-4 w-[90%] md:w-4/5 text-[16px] max-w-[1280px]">
         <h1 className="text-center">CallSmart</h1>
         <h3 className="text-center text-4xl font-semibold w-2/3">
           Your Dental Clinics Missed Call Solution
@@ -128,7 +128,10 @@ export default function Home() {
           See Details on Pricing Page
         </a>
         <div className="flex flex-row flex-wrap justify-center gap-4 w-full">
-          <Card decoration="top" className="landing-card">
+          <Card
+            decoration="top"
+            className="lg:w-4/5 flex flex-col gap-3 text-center items-center "
+          >
             <h3 className="text-prim-blue text-center">
               Still curious about how CallSmart generates revenue?
             </h3>
