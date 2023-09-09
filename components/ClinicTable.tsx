@@ -1,3 +1,4 @@
+import { Card } from "@tremor/react";
 import React from "react";
 import { useEffect, useState } from "react";
 
@@ -37,6 +38,7 @@ const ClinicTable = ({
   addFunction: addFunction;
 }) => {
   const [isGoToOpen, setIsGoToOpen] = useState(false);
+  const [goToOpenKey, setGoToOpenKey] = useState(0);
   const [isClinicOpen, setIsClinicOpen] = useState(false);
   const [editedClinicId, setEditedClinicId] = useState<number | null>(null);
   const [deleteOverlay, setDeleteOverlay] = useState(false);
@@ -87,11 +89,12 @@ const ClinicTable = ({
                   className="text-sec-blue hover:text-sec-blue/50"
                   onClick={() => {
                     setIsGoToOpen((prevState) => !prevState);
+                    setGoToOpenKey(key);
                     setEditedClinicId(clinic.id);
                   }}
                 >
                   Edit Info
-                  {key == 1 ? (
+                  {goToOpenKey == key ? (
                     <div
                       className={`${
                         isGoToOpen
@@ -105,7 +108,7 @@ const ClinicTable = ({
                 </button>
                 <div className="w-fit">
                   <button
-                    className="relative z-0"
+                    className="relative z-0 w-fit"
                     onClick={() => {
                       setDeleteOverlay((prevState) => !prevState);
                       setDeleteKey(key);
@@ -115,12 +118,12 @@ const ClinicTable = ({
                   >
                     <p className="text-red-500 hover:text-red-300">Delete</p>
                     {deleteOverlay && deleteKey == key ? (
-                      <div className="absolute -top-16 right-0 border border-y-4 drop-shadow-md border-sec-blue rounded-lg px-4 py-2 bg-white">
+                      <div className="absolute -top-16 right-0 border border-y-4 drop-shadow-md border-sec-blue rounded-lg px-4 py-2 bg-white flex flex-col items-center">
                         <p className="text-sec-blue w-36 cursor-default">
                           Are you sure you want to delete?
                         </p>
                         <p
-                          className="text-red-500 hover:text-red-300"
+                          className="text-red-500 hover:text-red-300 w-fit"
                           onClick={() => deleteFunction(clinic.id)}
                         >
                           Yes
@@ -129,43 +132,49 @@ const ClinicTable = ({
                     ) : null}
                   </button>
                   {isGoToOpen && clinic.id === editedClinicId ? (
-                    <form
-                      onSubmit={(e) =>
-                        editFunction(
-                          e,
-                          editedClinicId,
-                          clinic.name,
-                          formEmail,
-                          formPassword
-                        )
-                      }
-                      className={
-                        "ticket-container w-1/4 flex-col p-4 z-50 absolute-center text-left static gap-4 text-sec-blue indent-0"
-                      }
+                    <Card
+                      decoration="left"
+                      className="w-1/3 min-w-[400px] flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
                     >
-                      <h4>Edit GoTo Info</h4>
-                      <span>
-                        <label>GoTo Email</label>
-                        <input
-                          type="text"
-                          value={formEmail}
-                          placeholder="Email"
-                          onChange={(e) => setFormEmail(e.target.value)}
-                        />
-                      </span>
-                      <span>
-                        <label>GoTo Password</label>
-                        <input
-                          type="password"
-                          value={formPassword}
-                          placeholder="Password (Case sensitive)"
-                          onChange={(e) => setFormPassword(e.target.value)}
-                        />
-                      </span>
-                      <button type="submit" className="btn-action">
-                        Save GoTo Info
-                      </button>
-                    </form>
+                      <form
+                        onSubmit={(e) =>
+                          editFunction(
+                            e,
+                            editedClinicId,
+                            clinic.name,
+                            formEmail,
+                            formPassword
+                          )
+                        }
+                        className="flex flex-col gap-2"
+                      >
+                        <div className="form-section">
+                          <h4>Edit GoTo Info</h4>
+                          <button type="submit" className="btn-submit">
+                            Save
+                          </button>
+                        </div>
+                        <hr className="my-2" />
+                        <div className="form-section">
+                          <label>GoTo Email</label>
+                          <input
+                            type="text"
+                            value={formEmail}
+                            placeholder="Email"
+                            onChange={(e) => setFormEmail(e.target.value)}
+                          />
+                        </div>
+                        <div className="form-section">
+                          <label>GoTo Password</label>
+                          <input
+                            type="password"
+                            value={formPassword}
+                            placeholder="Password (Case sensitive)"
+                            onChange={(e) => setFormPassword(e.target.value)}
+                          />
+                        </div>
+                      </form>
+                    </Card>
                   ) : (
                     ""
                   )}
@@ -189,45 +198,63 @@ const ClinicTable = ({
             />
           </span>
           {isClinicOpen ? (
-            <form
-              className="ticket-container w-1/4 flex-col p-4 z-50 absolute-center static gap-4 text-black"
-              onSubmit={(e) => {
-                addFunction(e, formName, formEmail, formPassword);
-                resetForm();
-              }}
+            <Card
+              decoration="left"
+              className="w-1/3 min-w-[400px] font-normal flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
             >
-              <h4>Add a Clinic</h4>
-              <span>
-                <label>Clinic Name</label>
-                <input
-                  type="text"
-                  value={formName}
-                  placeholder="Clinic Name"
-                  onChange={(e) => setFormName(e.target.value)}
-                ></input>
-              </span>
-              <span>
-                <label>GoTo Email</label>
-                <input
-                  type="text"
-                  value={formEmail}
-                  placeholder="Email"
-                  onChange={(e) => setFormEmail(e.target.value)}
-                />
-              </span>
-              <span>
-                <label>GoTo Password</label>
-                <input
-                  type="password"
-                  value={formPassword}
-                  placeholder="Password (Case sensitive)"
-                  onChange={(e) => setFormPassword(e.target.value)}
-                />
-              </span>
-              <button className="btn-action" type="submit">
-                Add Clinic
-              </button>
-            </form>
+              <form
+                onSubmit={(e) => {
+                  addFunction(e, formName, formEmail, formPassword);
+                  resetForm();
+                }}
+                className="flex flex-col gap-2"
+              >
+                <div className="form-section">
+                  <h4>Add a Clinic</h4>
+                  <button type="submit" className="btn-submit">
+                    Add
+                  </button>
+                </div>
+                <hr className="my-2" />
+                <div className="form-section">
+                  <label>Clinic Name</label>
+                  <input
+                    type="text"
+                    value={formName}
+                    placeholder="Clinic Name"
+                    onChange={(e) => setFormName(e.target.value)}
+                  ></input>
+                </div>
+                <div className="form-section">
+                  <label>VoIP Provider</label>
+                  <select
+                    value={formEmail}
+                    onChange={(e) => setFormEmail(e.target.value)}
+                  >
+                    <option selected>GoTo</option>
+                  </select>
+                  <div className="translate-x-1/4 border-4 border-transparent border-t-sec-blue translate-y-1/4 absolute right-8" />
+                </div>
+                <div className="form-section">
+                  <label>VoIP Email</label>
+                  <input
+                    type="text"
+                    value={formEmail}
+                    placeholder="Email"
+                    onChange={(e) => setFormEmail(e.target.value)}
+                  />
+                </div>
+                <div className="form-section">
+                  <label>VoIP Password</label>
+                  <input
+                    type="password"
+                    value={formPassword}
+                    placeholder="Password (Case sensitive)"
+                    onChange={(e) => setFormPassword(e.target.value)}
+                  />
+                </div>
+              </form>
+            </Card>
           ) : (
             ""
           )}

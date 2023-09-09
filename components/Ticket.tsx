@@ -109,8 +109,6 @@ const Ticket = ({
 
   return (
     <div
-      tabIndex={0}
-      onBlur={() => handleBlur()}
       className={`ticket-container leading-tight static transition-height duration-300 ease-out ${
         isExpanded
           ? new_client || urgent
@@ -240,7 +238,7 @@ const Ticket = ({
               </div>
               <div
                 className={`w-full transition-all duration-300 ease-in px-8 flex flex-col overflow-scroll ${
-                  textOpen ? "h-0" : "h-80 py-4 "
+                  !textOpen ? "h-0" : "h-80 py-4 "
                 }`}
               >
                 {conversation?.map((message: any, index: number) => (

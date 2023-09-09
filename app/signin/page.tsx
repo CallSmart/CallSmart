@@ -7,6 +7,7 @@ import { supabase } from "../../supabase";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/sidebar";
 import HomeNavBar from "@/components/HomeNavBar";
+import { Card } from "@tremor/react";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -51,52 +52,59 @@ const LoginPage = () => {
   return (
     <HomeNavBar>
       <h1 className="text-center w-1/3">Welcome Back!</h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const target = e.target as typeof e.target & {
-            email: { value: string };
-            password: { value: string };
-          };
-          handleLogin({
-            email: target.email.value,
-            password: target.password.value,
-          });
-        }}
-        className="flex flex-col p-8 gap-6 w-1/3 bg-white border-2 border-[#CBCCD0] rounded-xl"
+      <Card
+        decoration="top"
+        className="w-1/2 min-w-[400px] flex flex-col p-4 gap-2 z-50 static text-sec-blue"
       >
-        <h3 className="text-center text-4xl font-semibold">Log In</h3>
-        <span className="flex flex-col">
-          <label>Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="callsmart@support.ca"
-            required
-          />{" "}
-        </span>
-        <span className="flex flex-col">
-          <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="SuperSecure123"
-            required
-          />{" "}
-        </span>
-        <div className="flex w-full gap-4 items-center">
-          <button type="submit" className="btn-action">
-            Sign In
-          </button>
-          <em>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const target = e.target as typeof e.target & {
+              email: { value: string };
+              password: { value: string };
+            };
+            handleLogin({
+              email: target.email.value,
+              password: target.password.value,
+            });
+          }}
+          className="flex flex-col gap-2 indent-4"
+        >
+          <h3 className="text-center text-4xl font-semibold indent-0">
+            Log In
+          </h3>
+          <hr className="my-2" />
+          <div className="form-section">
+            <label className="flex gap-1">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="callsmart@support.ca"
+              required
+            />
+          </div>
+          <div className="form-section">
+            <label className="flex gap-1">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="SuperSecure123"
+              required
+            />
+          </div>
+          <hr className="my-2" />
+          <div className="form-section">
             <a href="mailto:callsmart@support.ca" className="hover:opacity-50">
-              Forgot username or password?
+              <em>Forgot username or password? </em>
             </a>
-          </em>
-        </div>
-      </form>
+            <button type="submit" className="btn-submit">
+              Sign In
+            </button>
+          </div>
+        </form>
+      </Card>
       <span className="flex">
         <p>
           <em className="opacity-50">Don't have an account? </em>

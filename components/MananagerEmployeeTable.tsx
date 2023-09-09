@@ -1,3 +1,4 @@
+import { Card } from "@tremor/react";
 import React from "react";
 import { useEffect, useState } from "react";
 
@@ -167,77 +168,85 @@ const ManagerEmployeeTable = ({
             />
           </span>
           {isFormOpen ? (
-            <form
-              onSubmit={(e) => {
-                addFunction(
-                  e,
-                  formFirstName,
-                  formLastName,
-                  formClinic,
-                  formEmail,
-                  formPassword
-                );
-              }}
-              className={
-                "ticket-container w-1/4 flex-col p-4 z-40 absolute-center static gap-4 text-black"
-              }
+            <Card
+              decoration="left"
+              className="w-1/3 min-w-[400px] font-normal flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
             >
-              <h4>Add an {toSingular(label)}</h4>
-              <span>
-                <label>First Name</label>
-                <input
-                  type="text"
-                  value={formFirstName}
-                  placeholder="Clinic Name"
-                  onChange={(e) => setFormFirstName(e.target.value)}
-                />
-              </span>
-              <span>
-                <label>Last Name</label>
-                <input
-                  type="text"
-                  value={formLastName}
-                  placeholder="Last Name"
-                  onChange={(e) => setFormLastName(e.target.value)}
-                />
-              </span>
-              <span>
-                <label>Email</label>
-                <input
-                  type="text"
-                  value={formEmail}
-                  placeholder="Email"
-                  onChange={(e) => setFormEmail(e.target.value)}
-                />
-              </span>
-              <span>
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={formPassword}
-                  placeholder="password"
-                  onChange={(e) => setFormPassword(e.target.value)}
-                />
-              </span>
-              <span>
-                <label>Assign Clinic</label>
-                <select
-                  value={formClinic !== null ? String(formClinic) : ""}
-                  onChange={(e) => setFormClinic(Number(e.target.value))}
-                  className="border-b-2 border-[#CBCCD0] w-full"
-                >
-                  <option value="">Clinic Name</option>
-                  {clinics.map((clinic) => (
-                    <option key={clinic.id} value={clinic.id}>
-                      {clinic.name}
+              <form
+                onSubmit={(e) => {
+                  addFunction(
+                    e,
+                    formFirstName,
+                    formLastName,
+                    formClinic,
+                    formEmail,
+                    formPassword
+                  );
+                }}
+                className="flex flex-col gap-2"
+              >
+                <div className="form-section">
+                  <h4>Add a {toSingular(label)}</h4>
+                  <button type="submit" className="btn-submit">
+                    Add {toSingular(label)}
+                  </button>
+                </div>
+                <hr className="my-2" />
+                <div className="form-section">
+                  <label>First Name</label>
+                  <input
+                    type="text"
+                    value={formFirstName}
+                    placeholder="Clinic Name"
+                    onChange={(e) => setFormFirstName(e.target.value)}
+                  />
+                </div>
+                <div className="form-section">
+                  <label>Last Name</label>
+                  <input
+                    type="text"
+                    value={formLastName}
+                    placeholder="Last Name"
+                    onChange={(e) => setFormLastName(e.target.value)}
+                  />
+                </div>
+                <div className="form-section">
+                  <label>Email</label>
+                  <input
+                    type="text"
+                    value={formEmail}
+                    placeholder="Email"
+                    onChange={(e) => setFormEmail(e.target.value)}
+                  />
+                </div>
+                <div className="form-section">
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    value={formPassword}
+                    placeholder="password"
+                    onChange={(e) => setFormPassword(e.target.value)}
+                  />
+                </div>
+                <div className="form-section">
+                  <label>Assign Clinic</label>
+                  <select
+                    value={formClinic !== null ? String(formClinic) : ""}
+                    onChange={(e) => setFormClinic(Number(e.target.value))}
+                  >
+                    <option value="" disabled>
+                      Select Clinic
                     </option>
-                  ))}
-                </select>
-              </span>
-              <button className="btn-action" type="submit">
-                Add Manager
-              </button>
-            </form>
+                    {clinics.map((clinic) => (
+                      <option key={clinic.id} value={clinic.id}>
+                        {clinic.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="translate-x-1/4 border-4 border-transparent border-t-sec-blue translate-y-1/4 absolute right-8" />
+                </div>
+              </form>
+            </Card>
           ) : null}
         </div>
       </div>

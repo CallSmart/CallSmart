@@ -101,7 +101,7 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           >
             Sign In
           </a>
-          <a className="hover:opacity-50" href="/pricing">
+          <a className="hover:opacity-50" href="/signup">
             Pricing
           </a>
           <a className="hover:opacity-50" href="/revenue-strategy">

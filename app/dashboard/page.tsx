@@ -37,7 +37,7 @@ export default function DashboardPage() {
     "urgent",
     "new",
   ];
-  const sortOptions = ["Most Recent", "Oldest"];
+  const sortOptions = ["Oldest", "Most Recent"];
 
   useEffect(() => {
     const session = supabase.auth.getSession();

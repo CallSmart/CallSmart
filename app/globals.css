@@ -24,8 +24,17 @@ body,
   @apply px-2 py-1 active:bg-sec-blue hover:bg-[#585A66] bg-[#454855] rounded-lg text-white w-fit;
 }
 
-input {
-  @apply outline-none caret-prim-blue border-b-2 border-[#CBCCD0] bg-transparent;
+.btn-submit {
+  @apply px-4 py-1 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-lg text-white transition-all duration-200 w-fit;
+}
+
+.form-section {
+  @apply flex justify-between items-center h-fit;
+}
+
+input,
+select {
+  @apply bg-gray-100 ml-4 pl-2 rounded-md w-1/2 outline-none caret-prim-blue py-2 appearance-none;
 }
 
 .product-nav-button {
