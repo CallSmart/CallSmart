@@ -79,3 +79,23 @@ form span {
 .landing-card {
   @apply w-[36rem] flex flex-col items-center gap-3 text-center border-prim-blue;
 }
+
+.message {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  width: fit-content;
+  max-width: 75%;
+}
+
+.assistant,
+.system {
+  align-self: flex-end;
+  background-color: #a6bddf;
+}
+
+.user {
+  align-self: flex-start;
+  background-color: #69727a;
+  color: white;
+}

@@ -7,57 +7,28 @@ import ProductNavBar from "@/components/ProductNavBar";
 import SFContainer from "@/components/SFContainer";
 
 export default function DashboardPage() {
+  interface TicketType {
+    id: number;
+    new_client: boolean;
+    urgent: boolean;
+    type: string;
+    name: string;
+    number: string;
+    time: string;
+    stage: number;
+    conversation: JSON;
+    conversation_active: boolean;
+    summary: string;
+    times_pending: number;
+  }
+
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [allTickets, setAllTickets] = useState<
-    {
-      id: number;
-      new_client: boolean;
-      urgent: boolean;
-      type: string;
-      name: string;
-      number: string;
-      time: string;
-      stage: number;
-    }[]
-  >([]);
-  const [missedTickets, setMissedTickets] = useState<
-    {
-      id: number;
-      new_client: boolean;
-      urgent: boolean;
-      type: string;
-      name: string;
-      number: string;
-      time: string;
-      stage: number;
-    }[]
-  >([]);
-  const [pendingTickets, setPendingTickets] = useState<
-    {
-      id: number;
-      new_client: boolean;
-      urgent: boolean;
-      type: string;
-      name: string;
-      number: string;
-      time: string;
-      stage: number;
-    }[]
-  >([]);
-  const [completedTickets, setCompletedTickets] = useState<
-    {
-      id: number;
-      new_client: boolean;
-      urgent: boolean;
-      type: string;
-      name: string;
-      number: string;
-      time: string;
-      stage: number;
-    }[]
-  >([]);
+  const [allTickets, setAllTickets] = useState<TicketType[]>([]);
+  const [missedTickets, setMissedTickets] = useState<TicketType[]>([]);
+  const [pendingTickets, setPendingTickets] = useState<TicketType[]>([]);
+  const [completedTickets, setCompletedTickets] = useState<TicketType[]>([]);
   const filterOptions = [
     "cancel",
     "question",
@@ -144,13 +115,16 @@ export default function DashboardPage() {
     const { data: tickets, error: ticketsError } = await supabase
       .from("tickets")
       .select("*")
-      .in("clinic", clinicIds);
+      .in("clinic", clinicIds)
+      .eq("conversation_active", false);
 
     if (ticketsError) {
       console.error("Error fetching tickets:", ticketsError);
       return;
     }
     console.log("Got tickets: ", tickets);
+
+    tickets.map((ticket) => console.log(typeof ticket.summary));
 
     setAllTickets(tickets);
   };
@@ -189,17 +163,44 @@ export default function DashboardPage() {
   };
 
   const handleDidNot = async (id: number) => {
-    const { data, error } = await supabase
+    let { data: timesPendingArray, error: error1 } = await supabase
       .from("tickets")
-      .update({ stage: 2 })
-      .eq("id", id)
-      .select();
-    if (error) {
-      console.log("Error updating ticket stage: ", error);
-    } else {
-      console.log("Updated ticket stage: ", data);
+      .select("times_pending")
+      .eq("id", id);
+
+    if (error1) {
+      console.log("Error fetching times_pending: ", error1);
     }
 
+    // Ensure there's data and extract the times_pending value.
+    if (timesPendingArray && timesPendingArray.length > 0) {
+      let times_pending_incremented = timesPendingArray[0].times_pending;
+      times_pending_incremented += 1;
+
+      if (times_pending_incremented > 3) {
+        const { data, error } = await supabase
+          .from("tickets")
+          .update({ stage: 4, times_pending: times_pending_incremented })
+          .eq("id", id)
+          .select();
+        if (error) {
+          console.log("Error updating ticket stage: ", error);
+        } else {
+          console.log("Updated ticket stage: ", data);
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("tickets")
+          .update({ stage: 2, times_pending: times_pending_incremented })
+          .eq("id", id)
+          .select();
+        if (error) {
+          console.log("Error updating ticket stage: ", error);
+        } else {
+          console.log("Updated ticket stage: ", data);
+        }
+      }
+    }
     await fetchAllTickets();
 
     console.log("I STILL DID NOT!!!: ", id);

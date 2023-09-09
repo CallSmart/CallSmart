@@ -3,6 +3,20 @@ import TicketProp from "./TicketProp";
 import { useEffect, useState } from "react";
 type FunctionType = (id: number) => void;
 
+interface TicketType {
+  id: number;
+  new_client: boolean;
+  urgent: boolean;
+  type: string;
+  name: string;
+  number: string;
+  time: string;
+  stage: number;
+  conversation: JSON;
+  conversation_active: boolean;
+  summary: string;
+}
+
 const Ticket = ({
   id,
   onDidNot,
@@ -14,6 +28,9 @@ const Ticket = ({
   number,
   time,
   stage,
+  conversation,
+  summary,
+  times_pending,
 }: {
   id: number;
   onDidNot: FunctionType;
@@ -25,6 +42,9 @@ const Ticket = ({
   number: string;
   time: string;
   stage: number;
+  conversation: JSON;
+  summary: string;
+  times_pending: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [textOpen, setTextOpen] = useState(false);
@@ -159,7 +179,7 @@ const Ticket = ({
         />
       </span>
       {isOpen ? (
-        <div className="ticket-container flex-col gap-2 absolute-center static w-1/2 h-fit z-50">
+        <div className="ticket-container flex-col gap-2 absolute-center static w-1/2 min-w-[600px] h-fit z-50">
           <div className="flex flex-col gap-2 px-3 pt-3 pb-14">
             <div
               className={`${
@@ -202,13 +222,13 @@ const Ticket = ({
               <div className="flex flex-row justify-center text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit">
                 <p className="text-center">SUMMARY</p>
               </div>
-              <div className="w-full h-24"></div>
+              <div className="w-full h-fit py-4 px-8">{summary}</div>
             </div>
-            <div
-              onClick={() => setTextOpen((prevState) => !prevState)}
-              className="ticket-container"
-            >
-              <div className="flex flex-row justify-center items-center gap-2 text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit">
+            <div className="ticket-container text-sm transition-all duration-300 ease-in ">
+              <div
+                onClick={() => setTextOpen((prevState) => !prevState)}
+                className="flex flex-row justify-center items-center gap-2 text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit"
+              >
                 <p className="text-center">TEXT CONVERSATION</p>
                 <div
                   className={`${"translate-x-1/4 border-4 border-transparent"} ${
@@ -218,7 +238,17 @@ const Ticket = ({
                   }`}
                 />
               </div>
-              {textOpen ? <div className="w-full h-10" /> : ""}
+              <div
+                className={`w-full transition-all duration-300 ease-in px-8 flex flex-col overflow-scroll ${
+                  textOpen ? "h-0" : "h-80 py-4 "
+                }`}
+              >
+                {conversation?.map((message: any, index: number) => (
+                  <div key={index} className={`message ${message.sender}`}>
+                    {message.content}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div className="flex flex-row justify-between items-center text-white bg-sec-blue px-3 py-2 text-sm font-semibold absolute bottom-0 w-full h-fit">

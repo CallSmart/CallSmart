@@ -49,6 +49,17 @@ import {
 } from "date-fns";
 
 export default function AnalyticsPage() {
+  interface TicketType {
+    id: number;
+    new_client: boolean;
+    urgent: boolean;
+    type: string;
+    name: string;
+    number: string;
+    time: string;
+    stage: number;
+  }
+
   const router = useRouter();
   const [chart1Format, setChart1Format] = useState("false");
   const [chart2Format, setChart2Format] = useState("false");
@@ -62,30 +73,8 @@ export default function AnalyticsPage() {
   const [withCustomSelect, setWithCustomSelect] =
     useState<DateRangePickerValue>();
 
-  const [compareTickets, setCompareTickets] = useState<
-    {
-      id: number;
-      new_client: boolean;
-      urgent: boolean;
-      type: string;
-      name: string;
-      number: string;
-      time: string;
-      stage: number;
-    }[]
-  >([]);
-  const [withTickets, setWithTickets] = useState<
-    {
-      id: number;
-      new_client: boolean;
-      urgent: boolean;
-      type: string;
-      name: string;
-      number: string;
-      time: string;
-      stage: number;
-    }[]
-  >([]);
+  const [compareTickets, setCompareTickets] = useState<TicketType[]>([]);
+  const [withTickets, setWithTickets] = useState<TicketType[]>([]);
 
   const [compareStartDate, setCompareStartDate] = useState<string>();
   const [compareEndDate, setCompareEndDate] = useState<string>();

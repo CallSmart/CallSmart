@@ -5,6 +5,21 @@ import Ticket from "@/components/Ticket";
 
 type FunctionType = (option: any) => void;
 
+interface TicketType {
+  id: number;
+  new_client: boolean;
+  urgent: boolean;
+  type: string;
+  name: string;
+  number: string;
+  time: string;
+  stage: number;
+  conversation: JSON;
+  conversation_active: boolean;
+  summary: string;
+  times_pending: number;
+}
+
 const SFContainer = ({
   label,
   handleComplete,
@@ -16,16 +31,7 @@ const SFContainer = ({
   label: string;
   handleComplete: FunctionType;
   handleDidNot: FunctionType;
-  tickets: {
-    id: number;
-    new_client: boolean;
-    urgent: boolean;
-    type: string;
-    name: string;
-    number: string;
-    time: string;
-    stage: number;
-  }[];
+  tickets: TicketType[];
   sortOptions: string[];
   filterOptions: string[];
 }) => {
@@ -124,6 +130,9 @@ const SFContainer = ({
               number={ticket?.number}
               time={ticket?.time}
               stage={ticket?.stage}
+              summary={ticket?.summary}
+              conversation={ticket?.conversation}
+              times_pending={ticket?.times_pending}
             />
           ))}
         </div>
