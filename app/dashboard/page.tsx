@@ -201,9 +201,8 @@ export default function DashboardPage() {
         }
       }
     }
-    await fetchAllTickets();
 
-    console.log("I STILL DID NOT!!!: ", id);
+    await fetchAllTickets();
   };
 
   const handleComplete = async (id: number) => {
