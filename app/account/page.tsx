@@ -60,33 +60,31 @@ export default function AccountPage() {
       router.push("/"); // Redirect to login if not signed in
     }
     getUser();
-    
-  }, []);
+  }, [router]);
 
   const fetchClinics = async (clinics: Clinics[] | null) => {
-    console.log("THESE ARE THE CLINICS IN THE FETCH CLINICS FUNCTION")
-    console.log(clinics)
+    console.log("THESE ARE THE CLINICS IN THE FETCH CLINICS FUNCTION");
+    console.log(clinics);
     if (!clinics) {
       console.log("No clinics provided.");
       return;
     }
-  
+
     try {
-      const fetchPromises = clinics.map(clinic => 
+      const fetchPromises = clinics.map((clinic) =>
         supabase
           .from("clinics")
           .select()
           .eq("id", clinic.clinic_id)
           .order("name", { ascending: true })
       );
-  
+
       const results = await Promise.all(fetchPromises);
-  
+
       // Combine the results into a single array
-      const allClinicsData = results.flatMap(result => result.data || []);
+      const allClinicsData = results.flatMap((result) => result.data || []);
       console.log("All clinics data:", allClinicsData);
       setClinics(allClinicsData);
-  
     } catch (error) {
       console.error("Error fetching clinics:", error);
     }
@@ -96,21 +94,20 @@ export default function AccountPage() {
       console.log("No clinics provided.");
       return;
     }
-  
+
     try {
-      const fetchPromises = clinics.map(clinic => 
+      const fetchPromises = clinics.map((clinic) =>
         supabase
           .from("employees")
           .select()
           .eq("clinic_id", clinic.clinic_id)
           .order("last_name", { ascending: true })
       );
-  
+
       const results = await Promise.all(fetchPromises);
-      const allEmployeesData = results.flatMap(result => result.data || []);
+      const allEmployeesData = results.flatMap((result) => result.data || []);
       console.log("All employees data:", allEmployeesData);
       setEmployees(allEmployeesData);
-  
     } catch (error) {
       console.error("Error fetching employees:", error);
     }
@@ -120,23 +117,22 @@ export default function AccountPage() {
       console.log("No clinics provided.");
       return;
     }
-  
+
     try {
-      const fetchPromises = clinics.map(clinic => 
+      const fetchPromises = clinics.map((clinic) =>
         supabase
           .from("managers")
           .select()
           .eq("clinic_id", clinic.clinic_id)
           .order("last_name", { ascending: true })
       );
-  
+
       const results = await Promise.all(fetchPromises);
-  
+
       // Combine the results into a single array
-      const allManagersData = results.flatMap(result => result.data || []);
+      const allManagersData = results.flatMap((result) => result.data || []);
       console.log("All managers data:", allManagersData);
       setManagers(allManagersData);
-  
     } catch (error) {
       console.error("Error fetching managers:", error);
     }
@@ -145,8 +141,8 @@ export default function AccountPage() {
   const getUser = async () => {
     const user = await supabase.auth.getUser();
     const user_id = user?.data?.user?.id;
-    
-    setUserId(userId)
+
+    setUserId(userId);
 
     // need to change logic to checking whether the person is an owner, and linking stuff better
 
@@ -188,7 +184,7 @@ export default function AccountPage() {
           console.log("Tickets path for else");
           clinics = null;
         }
-    
+
         console.log(clinics);
 
         fetchClinics(clinics);
@@ -196,7 +192,6 @@ export default function AccountPage() {
         fetchManagers(clinics);
       }
     }
-    
   };
 
   const addClinic = async (
@@ -384,7 +379,7 @@ export default function AccountPage() {
         );
         handleErrorOnAdd();
       } else {
-        getUser()
+        getUser();
       }
     }
   };
