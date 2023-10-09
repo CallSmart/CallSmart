@@ -84,7 +84,7 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
 
   return (
     <div>
-      <div className="flex md:hidden pt-8 pb-2 px-8 justify-between items-center">
+      <div className="flex lg:hidden pt-8 pb-2 px-8 justify-between items-center">
         <Image src={Img.LogoFull} alt="CallSmart" className="h-6 w-auto" />
         <a
           className="px-4 py-2 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-xl text-white transition-all duration-200"
@@ -93,7 +93,7 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           Get Started
         </a>
       </div>
-      <div className="hidden md:flex flex-col md:flex-row w-[100dvw] py-8 px-48 justify-center md:justify-between ">
+      <div className="hidden lg:flex flex-col md:flex-row w-[100dvw] py-8 px-48 justify-center md:justify-between ">
         <a className="h-fit w-fit self-center font-bold text-2xl" href="/">
           <Image src={Img.LogoFull} alt="CallSmart" className="h-8 w-auto" />
         </a>
