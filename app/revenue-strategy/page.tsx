@@ -9,12 +9,15 @@ export default function Home() {
           <h1 className="text-center">
             Supercharge Your Dental Clinic Revenue
           </h1>
-          <h3 className="text-center text-2xl font-semibold w-2/3 ">
+          <h3 className="text-center text-lg md:text-2xl font-semibold w-full md:w-2/3 ">
             At CallSmart, we're all about turning missed opportunities into real
             revenue for your dental clinic. Let's break down exactly how our
             solution can boost your earnings!
           </h3>
-          <Card decoration="top" className="landing-card">
+          <Card
+            decoration="top"
+            className="lg:w-4/5 flex flex-col gap-3 text-center items-center md:!w-[36rem] "
+          >
             <h3 className="text-prim-blue text-center">
               🔍 Understanding the Missed Revenue Impact:{" "}
             </h3>
@@ -74,7 +77,7 @@ export default function Home() {
             Ready to Transform Missed Calls into Revenue?
           </h1>
           <a
-            className="w-fit px-4 py-2 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-xl text-white transition-all duration-200"
+            className="w-fit px-4 py-2 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-xl text-white text-center transition-all duration-200"
             href="/signup"
           >
             Get Started with CallSmart

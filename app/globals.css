@@ -65,16 +65,32 @@ select {
   @apply flex w-fit flex-row font-medium rounded-md gap-1 px-2 py-1 items-center leading-tight;
 }
 
-h4 {
-  @apply font-semibold text-xl text-sec-blue;
+@media screen and (max-width: 449px) {
+  h4 {
+    @apply font-semibold text-xl text-sec-blue;
+  }
+
+  h3 {
+    @apply font-medium text-sec-blue text-2xl;
+  }
+
+  h1 {
+    @apply flex text-4xl font-bold text-prim-blue text-center;
+  }
 }
 
-h3 {
-  @apply font-medium text-sec-blue text-2xl;
-}
+@media screen and (min-width: 450px) {
+  h4 {
+    @apply font-semibold text-xl text-sec-blue;
+  }
 
-h1 {
-  @apply flex text-8xl font-bold text-prim-blue text-center;
+  h3 {
+    @apply font-medium text-sec-blue text-2xl;
+  }
+
+  h1 {
+    @apply flex text-8xl font-bold text-prim-blue text-center;
+  }
 }
 
 .absolute-center {
