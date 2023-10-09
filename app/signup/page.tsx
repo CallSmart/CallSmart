@@ -2,10 +2,9 @@
 import HomeNavBar from "@/components/HomeNavBar";
 import { Card } from "@tremor/react";
 import { useRouter } from "next/navigation";
-// import { useRouter } from 'next/router';
 import React from "react";
 
-const choosePlan = () => {
+const ChoosePlan = () => {
   const router = useRouter();
 
   const option = () => {
@@ -42,4 +41,4 @@ const choosePlan = () => {
   );
 };
 
-export default choosePlan;
+export default ChoosePlan;

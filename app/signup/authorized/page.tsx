@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 // import { useRouter } from 'next/router';
 import React from "react";
 
-const authorized = () => {
+const Authorized = () => {
   const router = useRouter();
 
   const option = (option: string) => {
@@ -42,4 +42,4 @@ const authorized = () => {
   );
 };
 
-export default authorized;
+export default Authorized;
