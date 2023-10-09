@@ -241,11 +241,12 @@ const Ticket = ({
                   !textOpen ? "h-0" : "h-80 py-4 "
                 }`}
               >
-                {conversation?.map((message: any, index: number) => (
-                  <div key={index} className={`message ${message.sender}`}>
-                    {message.content}
-                  </div>
-                ))}
+                {Array.isArray(conversation) &&
+                  conversation.map((message: any, index: number) => (
+                    <div key={index} className={`message ${message.sender}`}>
+                      {message.content}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
