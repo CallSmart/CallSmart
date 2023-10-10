@@ -219,12 +219,27 @@ export default function DashboardPage() {
     await fetchAllTickets();
   };
 
+  const handleDelete = async (id: number) => {
+    const { data, error } = await supabase
+    .from("tickets")
+    .delete()
+    .eq("id", id)
+    .select();
+  if (error) {
+    console.log("Error updating ticket stage: ", error);
+  } else {
+    console.log("Updated ticket stage: ", data);
+  }
+  await fetchAllTickets();
+  }
+
   return (
     <ProductNavBar>
       <div className="flex h-full w-full min-w-[724px] flex-row gap-4 self-stretch">
         <SFContainer
           label={"Missed"}
           handleComplete={handleComplete}
+          handleDelete={handleDelete}
           handleDidNot={handleDidNot}
           tickets={missedTickets}
           sortOptions={sortOptions}
@@ -233,6 +248,7 @@ export default function DashboardPage() {
         <SFContainer
           label={"Pending"}
           handleComplete={handleComplete}
+          handleDelete={handleDelete}
           handleDidNot={handleDidNot}
           tickets={pendingTickets}
           sortOptions={sortOptions}
@@ -241,6 +257,7 @@ export default function DashboardPage() {
         <SFContainer
           label={"Completed"}
           handleComplete={handleComplete}
+          handleDelete={handleDelete}
           handleDidNot={handleDidNot}
           tickets={completedTickets}
           sortOptions={sortOptions}

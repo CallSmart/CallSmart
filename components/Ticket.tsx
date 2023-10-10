@@ -21,6 +21,7 @@ const Ticket = ({
   id,
   onDidNot,
   onComplete,
+  onDelete,
   new_client,
   urgent,
   type,
@@ -34,6 +35,7 @@ const Ticket = ({
 }: {
   id: number;
   onDidNot: FunctionType;
+  onDelete: FunctionType;
   onComplete: FunctionType;
   new_client: boolean;
   urgent: boolean;
@@ -53,6 +55,11 @@ const Ticket = ({
     console.log("I DID NOT!!!");
     onDidNot(id);
   };
+
+  const handleDelete = (id: number) => {
+    console.log('deleting ticket');
+    onDelete(id);
+  }
 
   const handleComplete = (id: number) => {
     console.log("I DID!!!");
@@ -181,7 +188,7 @@ const Ticket = ({
           <div className="flex flex-col gap-2 px-3 pt-3 pb-14">
             <div
               className={`${
-                new_client == true || urgent == true ? "w-fit h-fit" : "hidden"
+                new_client === true || urgent === true ? "w-fit h-fit" : "hidden"
               } ${"flex flex-row gap-2"}`}
             >
               <div className={new_client !== true ? "hidden" : ""}>
@@ -206,50 +213,51 @@ const Ticket = ({
             <div className="flex flex-row gap-2 items-center divide-x divide-gray-500">
               <div className="text-xl font-medium">{name}</div>
               <div className="text-sm opacity-50 pl-2">{number}</div>
+              <button className="text-red-500 pl-2" onClick={(e) => handleDelete(id)}> Delete</button>
             </div>
-            <div className="flex flex-row items-center w-full justify-between">
-              <TicketProp
-                type={type}
-                urgent={null}
-                new_client={null}
-                closeable={false}
-                onClose={() => null}
-              />
-            </div>
-            <div className="ticket-container">
-              <div className="flex flex-row justify-center text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit">
-                <p className="text-center">SUMMARY</p>
-              </div>
-              <div className="w-full h-fit py-4 px-8">{summary}</div>
-            </div>
-            <div className="ticket-container text-sm transition-all duration-300 ease-in ">
-              <div
-                onClick={() => setTextOpen((prevState) => !prevState)}
-                className="flex flex-row justify-center items-center gap-2 text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit"
-              >
-                <p className="text-center">TEXT CONVERSATION</p>
-                <div
-                  className={`${"translate-x-1/4 border-4 border-transparent"} ${
-                    textOpen
-                      ? "border-b-white -translate-y-1/4"
-                      : "border-t-white translate-y-1/4"
-                  }`}
+              <div className="flex flex-row items-center w-full justify-between">
+                <TicketProp
+                  type={type}
+                  urgent={null}
+                  new_client={null}
+                  closeable={false}
+                  onClose={() => null}
                 />
               </div>
-              <div
-                className={`w-full transition-all duration-300 ease-in px-8 flex flex-col overflow-scroll ${
-                  !textOpen ? "h-0" : "h-80 py-4 "
-                }`}
-              >
-                {Array.isArray(conversation) &&
-                  conversation.map((message: any, index: number) => (
-                    <div key={index} className={`message ${message.sender}`}>
-                      {message.content}
-                    </div>
-                  ))}
+              <div className="ticket-container">
+                <div className="flex flex-row justify-center text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit">
+                  <p className="text-center">SUMMARY</p>
+                </div>
+                <div className="w-full h-fit py-4 px-8">{summary}</div>
+              </div>
+              <div className="ticket-container text-sm transition-all duration-300 ease-in ">
+                <div
+                  onClick={() => setTextOpen((prevState) => !prevState)}
+                  className="flex flex-row justify-center items-center gap-2 text-white bg-sec-blue px-3 py-1 text-sm font-semibold w-full h-fit"
+                >
+                  <p className="text-center">TEXT CONVERSATION</p>
+                  <div
+                    className={`${"translate-x-1/4 border-4 border-transparent"} ${
+                      textOpen
+                        ? "border-b-white -translate-y-1/4"
+                        : "border-t-white translate-y-1/4"
+                    }`}
+                  />
+                </div>
+                <div
+                  className={`w-full transition-all duration-300 ease-in px-8 flex flex-col overflow-scroll ${
+                    !textOpen ? "h-0" : "h-80 py-4 "
+                  }`}
+                >
+                  {Array.isArray(conversation) &&
+                    conversation.map((message: any, index: number) => (
+                      <div key={index} className={`message ${message.sender}`}>
+                        {message.content}
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
-          </div>
           <div className="flex flex-row justify-between items-center text-white bg-sec-blue px-3 py-2 text-sm font-semibold absolute bottom-0 w-full h-fit">
             <em className="opacity-50 text-sm font-normal">
               Ticket ID: {id} - {customDateFormat(time)}
