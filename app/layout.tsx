@@ -7,7 +7,8 @@ import UserProvider from "@/providers/UserProvider";
 import ModalProvider from "@/providers/ModalProvider";
 
 // const font = Figtree({ subsets: ['latin'] })
-
+export const dynamic = 'force-dynamic';
+// export const revalidate = 0;
 export const metadata = {
   title: "CallSmart",
   description: "Your all in one solution for handling missed calls",

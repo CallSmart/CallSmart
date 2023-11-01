@@ -32,6 +32,7 @@ interface TicketType {
 const SFContainer = ({
   label,
   handleComplete,
+  handleDelete,
   handleDidNot,
   tickets,
   sortOptions,
@@ -39,6 +40,7 @@ const SFContainer = ({
 }: {
   label: string;
   handleComplete: FunctionType;
+  handleDelete: FunctionType;
   handleDidNot: FunctionType;
   tickets: TicketType[];
   sortOptions: string[];
@@ -198,6 +200,7 @@ const SFContainer = ({
               id={ticket?.id}
               onComplete={handleComplete}
               onDidNot={handleDidNot}
+              onDelete={handleDelete}
               urgent={ticket?.urgent}
               type={ticket?.type}
               name={ticket?.name}

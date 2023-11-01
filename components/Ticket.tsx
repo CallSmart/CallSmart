@@ -21,6 +21,7 @@ const Ticket = ({
   id,
   onDidNot,
   onComplete,
+  onDelete,
   new_client,
   urgent,
   type,
@@ -34,6 +35,7 @@ const Ticket = ({
 }: {
   id: number;
   onDidNot: FunctionType;
+  onDelete: FunctionType;
   onComplete: FunctionType;
   new_client: boolean;
   urgent: boolean;
@@ -52,6 +54,11 @@ const Ticket = ({
   const handleDidNot = (id: number) => {
     console.log("I DID NOT!!!");
     onDidNot(id);
+  };
+
+  const handleDelete = (id: number) => {
+    console.log("deleting ticket");
+    onDelete(id);
   };
 
   const handleComplete = (id: number) => {
@@ -200,7 +207,9 @@ const Ticket = ({
           <div className="flex flex-col gap-2 px-3 pt-3 pb-14">
             <div
               className={`${
-                new_client == true || urgent == true ? "w-fit h-fit" : "hidden"
+                new_client === true || urgent === true
+                  ? "w-fit h-fit"
+                  : "hidden"
               } ${"flex flex-row gap-2"}`}
             >
               <div className={new_client !== true ? "hidden" : ""}>
@@ -227,6 +236,13 @@ const Ticket = ({
               <div className="text-sm opacity-50 pl-2">
                 {customPhoneNumberFormat(number)}
               </div>
+              <button
+                className="text-red-500 pl-2"
+                onClick={(e) => handleDelete(id)}
+              >
+                {" "}
+                Delete
+              </button>
             </div>
             <div className="flex flex-row items-center w-full justify-between">
               <TicketProp
