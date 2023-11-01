@@ -96,6 +96,23 @@ const Ticket = ({
     return `${month} ${day}, ${hours}:${minutes}${amPm}`;
   };
 
+  const customPhoneNumberFormat = (phoneNumber: string) => {
+    // Ensure that the input is a string of digits
+    if (!/^\d+$/.test(phoneNumber)) {
+      throw new Error("Invalid phone number format.");
+    }
+
+    const countryCode = phoneNumber.slice(0, -10);
+    const areaCode = phoneNumber.slice(-10, -7);
+    const firstPart = phoneNumber.slice(-7, -4);
+    const lastPart = phoneNumber.slice(-4);
+
+    // If there's a country code, add the "+" prefix
+    const formattedCountryCode = countryCode ? `+${countryCode} ` : "";
+
+    return `${formattedCountryCode}(${areaCode}) ${firstPart} ${lastPart}`;
+  };
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -150,7 +167,9 @@ const Ticket = ({
             <div className="text-xl font-medium whitespace-nowrap overflow-hidden truncate ">
               {name}
             </div>
-            <div className="text-sm opacity-50 pl-2">{number}</div>
+            <div className="text-sm opacity-50 pl-2">
+              {customPhoneNumberFormat(number)}
+            </div>
           </div>
           <div className="flex flex-row gap-4 items-center w-full justify-between">
             <TicketProp
@@ -205,7 +224,9 @@ const Ticket = ({
             </div>
             <div className="flex flex-row gap-2 items-center divide-x divide-gray-500">
               <div className="text-xl font-medium">{name}</div>
-              <div className="text-sm opacity-50 pl-2">{number}</div>
+              <div className="text-sm opacity-50 pl-2">
+                {customPhoneNumberFormat(number)}
+              </div>
             </div>
             <div className="flex flex-row items-center w-full justify-between">
               <TicketProp
@@ -254,26 +275,28 @@ const Ticket = ({
             <em className="opacity-50 text-sm font-normal">
               Ticket ID: {id} - {customDateFormat(time)}
             </em>
-            <div className="flex flex-row gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDidNot(id);
-                }}
-                className="btn-action2"
-              >
-                DID NOT PICK UP
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleComplete(id);
-                }}
-                className="btn-action2"
-              >
-                COMPLETED
-              </button>
-            </div>
+            {stage == 3 ? null : (
+              <div className="flex flex-row gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDidNot(id);
+                  }}
+                  className="btn-action2"
+                >
+                  DID NOT PICK UP
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleComplete(id);
+                  }}
+                  className="btn-action2"
+                >
+                  COMPLETED
+                </button>
+              </div>
+            )}
           </div>
         </div>
       ) : (

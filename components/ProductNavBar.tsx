@@ -13,7 +13,7 @@ import router from "next/navigation";
 import { useRouter } from "next/navigation";
 import * as Img from "../app/images";
 import Image from "next/image";
-import { Card } from "@tremor/react";
+import { Card, Icon, Title } from "@tremor/react";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -34,6 +34,7 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
   const [hasSession, setHasSession] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [fullName, setFullName] = useState("");
+  const [contactOpen, setContactOpen] = useState(false);
   const router = useRouter();
 
   const NavButton = ({ to, children }: { to: any; children: any }) => {
@@ -203,11 +204,45 @@ const ProductNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
         <div className="flex flex-col gap-2">
           <hr className="border-prim-blue" />
           <NavButton to="/faq">FAQ</NavButton>
-          <NavButton to="mailto:callsmartforwarder@gmail.com">
-            Contact
-          </NavButton>
+          <div
+            className={
+              "indent-6 cursor-pointer py-2 text-prim-blue hover:bg-prim-blue/10 active:bg-prim-blue/25 rounded-xl flex flex-row items-center relative"
+            }
+            onClick={() => setContactOpen(true)}
+          >
+            <p className="select-none">Contact</p>
+          </div>
         </div>
       </Card>
+      {contactOpen ? (
+        <Card className="absolute-center fixed min-w-max w-1/2 indent-0 z-50">
+          <div className="flex justify-between">
+            <h3 className="select-none mb-2 text-prim-blue">Contact Us!</h3>
+            <p
+              className="text-black opacity-50 hover:text-red-500 cursor-pointer"
+              onClick={() => setContactOpen(false)}
+            >
+              Close
+            </p>
+          </div>
+          <p>
+            <b>Email:</b> nathanmazahereh@callsmartai.com
+          </p>
+          <p>
+            <b>Phone Number:</b> 289-885-2340
+          </p>
+        </Card>
+      ) : (
+        ""
+      )}
+      <div
+        className={
+          contactOpen
+            ? `bg-black/25 fixed absolute-center w-[100dvw] h-[100dvh]`
+            : "hidden"
+        }
+      />
+
       <div className="w-[calc(100dvw-13rem)] lg:w-[calc(100dvw-256px)] h-[100dvh] bg-gray-100 px-6 py-8 overflow-scroll">
         {children}
       </div>
