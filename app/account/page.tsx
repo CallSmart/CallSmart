@@ -7,12 +7,14 @@ import ProductNavBar from "@/components/ProductNavBar";
 import ClinicTable from "@/components/ClinicTable";
 import ManagerEmployeeTable from "@/components/MananagerEmployeeTable";
 import { Card, Text } from "@tremor/react";
+import { initialize } from "next/dist/server/lib/render-server";
 
 interface Clinic {
   id: number;
   name: string;
   gotoemail: string;
   gotopassword: string;
+  initial_message: string;
 }
 
 interface Clinics {
@@ -63,10 +65,10 @@ export default function AccountPage() {
   }, [router]);
 
   const fetchClinics = async (clinics: Clinics[] | null) => {
-    console.log("THESE ARE THE CLINICS IN THE FETCH CLINICS FUNCTION");
-    console.log(clinics);
+    // console.log("THESE ARE THE CLINICS IN THE FETCH CLINICS FUNCTION");
+    // console.log(clinics);
     if (!clinics) {
-      console.log("No clinics provided.");
+      // console.log("No clinics provided.");
       return;
     }
 
@@ -83,7 +85,7 @@ export default function AccountPage() {
 
       // Combine the results into a single array
       const allClinicsData = results.flatMap((result) => result.data || []);
-      console.log("All clinics data:", allClinicsData);
+      // console.log("All clinics data:", allClinicsData);
       setClinics(allClinicsData);
     } catch (error) {
       console.error("Error fetching clinics:", error);
@@ -91,7 +93,7 @@ export default function AccountPage() {
   };
   const fetchEmployees = async (clinics: Clinics[] | null) => {
     if (!clinics) {
-      console.log("No clinics provided.");
+      // console.log("No clinics provided.");
       return;
     }
 
@@ -106,7 +108,7 @@ export default function AccountPage() {
 
       const results = await Promise.all(fetchPromises);
       const allEmployeesData = results.flatMap((result) => result.data || []);
-      console.log("All employees data:", allEmployeesData);
+      // console.log("All employees data:", allEmployeesData);
       setEmployees(allEmployeesData);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -114,7 +116,7 @@ export default function AccountPage() {
   };
   const fetchManagers = async (clinics: Clinics[] | null) => {
     if (!clinics) {
-      console.log("No clinics provided.");
+      // console.log("No clinics provided.");
       return;
     }
 
@@ -131,7 +133,7 @@ export default function AccountPage() {
 
       // Combine the results into a single array
       const allManagersData = results.flatMap((result) => result.data || []);
-      console.log("All managers data:", allManagersData);
+      // console.log("All managers data:", allManagersData);
       setManagers(allManagersData);
     } catch (error) {
       console.error("Error fetching managers:", error);
@@ -166,7 +168,7 @@ export default function AccountPage() {
             .from("owner_clinics")
             .select("clinic_id")
             .eq("owner", user_id);
-          console.log("Tickets path for Owner");
+          // console.log("Tickets path for Owner");
           clinics = data;
         } else if (userRole == "Manager") {
           const { data, error } = await supabase
@@ -181,11 +183,11 @@ export default function AccountPage() {
             .eq("user_id", user_id);
           clinics = data;
         } else {
-          console.log("Tickets path for else");
+          // console.log("Tickets path for else");
           clinics = null;
         }
 
-        console.log(clinics);
+        // console.log(clinics);
 
         fetchClinics(clinics);
         fetchEmployees(clinics);
@@ -198,7 +200,8 @@ export default function AccountPage() {
     e: any,
     name: string,
     email: string,
-    password: string
+    password: string,
+    initial_message: string
   ) => {
     e.preventDefault();
     if (!name.slice()) {
@@ -213,10 +216,11 @@ export default function AccountPage() {
           name: name,
           gotoemail: email,
           gotopassword: password,
+          initial_message: initial_message,
         },
       ])
       .select("*");
-    console.log(data);
+    // console.log(data);
 
     if (error) {
       console.error("Error adding clinic:", error.message);
@@ -258,7 +262,7 @@ export default function AccountPage() {
       ]);
 
     if (insertError) {
-      console.log("User Table: ", insertError);
+      // console.log("User Table: ", insertError);
       return insertError;
     }
   };
@@ -295,7 +299,7 @@ export default function AccountPage() {
         role: "Employee",
       };
 
-      console.log(dataToInsert);
+      // console.log(dataToInsert);
 
       let insertError = await addToUserTable(dataToInsert);
       if (insertError !== undefined) {
@@ -330,7 +334,7 @@ export default function AccountPage() {
       ]);
 
     if (insertError) {
-      console.log("Employee Table: ", insertError);
+      // console.log("Employee Table: ", insertError);
       return insertError;
     }
   };
@@ -343,7 +347,7 @@ export default function AccountPage() {
     email: string,
     password: string
   ) => {
-    console.log(firstName, lastName, clinic, email, password);
+    // console.log(firstName, lastName, clinic, email, password);
     e.preventDefault();
     const { data, error } = await supabase.auth.signUp({
       email: email,
@@ -363,7 +367,7 @@ export default function AccountPage() {
         role: "Manager",
       };
 
-      console.log(dataToInsert);
+      // console.log(dataToInsert);
 
       let insertError = await addToUserTable(dataToInsert);
       if (insertError !== undefined) {
@@ -398,7 +402,7 @@ export default function AccountPage() {
       ]);
 
     if (insertError) {
-      console.log("Employee Table: ", insertError);
+      // console.log("Employee Table: ", insertError);
       return insertError;
     }
   };
@@ -408,7 +412,8 @@ export default function AccountPage() {
     clinicId: number,
     name: string,
     email: string,
-    password: string
+    password: string,
+    initial_message: string
   ) => {
     e.preventDefault();
     if (!password.slice() || !email.slice()) {
@@ -421,9 +426,10 @@ export default function AccountPage() {
       gotopassword: password,
       id: clinicId,
       name: name,
+      initial_message: initial_message,
     };
 
-    console.log(dataToInsertOrUpdate);
+    // console.log(dataToInsertOrUpdate);
 
     const { error } = await supabase
       .from("clinics")
@@ -508,7 +514,7 @@ export default function AccountPage() {
       if (error) {
         console.error("Error sending password recovery email:", error.message);
       } else {
-        console.log("Password recovery email sent successfully!");
+        // console.log("Password recovery email sent successfully!");
         window.alert(
           "Password recovery email sent successfully! Make sure to check your spam folder."
         );

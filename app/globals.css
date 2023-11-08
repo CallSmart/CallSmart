@@ -33,6 +33,7 @@ body,
 }
 
 input,
+textarea,
 select {
   @apply bg-gray-100 ml-4 pl-2 rounded-md w-1/2 outline-none caret-prim-blue py-2 appearance-none;
 }

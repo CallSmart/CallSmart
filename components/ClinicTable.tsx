@@ -1,5 +1,6 @@
 import { Card } from "@tremor/react";
-import React from "react";
+import { set } from "date-fns";
+import React, { use } from "react";
 import { useEffect, useState } from "react";
 
 interface Clinic {
@@ -7,6 +8,7 @@ interface Clinic {
   name: string;
   gotoemail: string;
   gotopassword: string;
+  initial_message: string;
 }
 
 type IDBasedFunction = (id: number) => Promise<void>;
@@ -16,14 +18,16 @@ type editFunction = (
   clinicId: number,
   name: string,
   email: string,
-  password: string
+  password: string,
+  initial_message: string
 ) => Promise<void>;
 
 type addFunction = (
   e: React.FormEvent,
   clinicName: string,
   email: string,
-  password: string
+  password: string,
+  initial_message: string
 ) => Promise<void>;
 
 const ClinicTable = ({
@@ -47,21 +51,27 @@ const ClinicTable = ({
   // Form Values
   const [formEmail, setFormEmail] = useState("");
   const [formPassword, setFormPassword] = useState("");
+  const [formMessage, setFormMessage] = useState("");
   const [formName, setFormName] = useState("");
 
-  useEffect(() => {
-    resetForm();
-  }, [isGoToOpen, isClinicOpen, addFunction, editFunction, deleteFunction]);
+  const populateFormInformation = async (clinic: Clinic) => {
+    console.log("calling populate form information:", clinic);
+    setFormEmail(clinic.gotoemail);
+    setFormPassword(clinic.gotopassword);
+    setFormMessage(clinic.initial_message);
+  };
 
   useEffect(() => {
     setIsClinicOpen(false);
     setIsGoToOpen(false);
+    resetForm();
   }, [addFunction, editFunction, deleteFunction]);
 
   const resetForm = () => {
     setFormEmail("");
     setFormName("");
     setFormPassword("");
+    setFormMessage("");
   };
 
   return (
@@ -88,6 +98,7 @@ const ClinicTable = ({
                 <button
                   className="text-sec-blue hover:text-sec-blue/50"
                   onClick={() => {
+                    populateFormInformation(clinic);
                     setIsGoToOpen((prevState) => !prevState);
                     setGoToOpenKey(key);
                     setEditedClinicId(clinic.id);
@@ -134,22 +145,23 @@ const ClinicTable = ({
                   {isGoToOpen && clinic.id === editedClinicId ? (
                     <Card
                       decoration="left"
-                      className="w-1/3 min-w-[400px] flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
+                      className="w-1/2 min-w-[400px] flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
                     >
                       <form
-                        onSubmit={(e) =>
+                        onSubmit={(e) => {
                           editFunction(
                             e,
                             editedClinicId,
                             clinic.name,
                             formEmail,
-                            formPassword
-                          )
-                        }
+                            formPassword,
+                            formMessage
+                          );
+                        }}
                         className="flex flex-col gap-2"
                       >
                         <div className="form-section">
-                          <h4>Edit GoTo Info</h4>
+                          <h4>Edit Clinic Info</h4>
                           <button type="submit" className="btn-submit">
                             Save
                           </button>
@@ -173,6 +185,15 @@ const ClinicTable = ({
                             onChange={(e) => setFormPassword(e.target.value)}
                           />
                         </div>
+                        <div className="form-section">
+                          <label>Initial Message</label>
+                          <textarea
+                            value={formMessage}
+                            placeholder="First message to send client..."
+                            onChange={(e) => setFormMessage(e.target.value)}
+                            className="h-32 resize-none overflow-auto whitespace-normal"
+                          />
+                        </div>
                       </form>
                     </Card>
                   ) : (
@@ -186,7 +207,10 @@ const ClinicTable = ({
         <div className="w-full rounded-b-md pb-1 indent-4">
           <span
             className="flex text-white hover:text-gray-500 hover:cursor-pointer w-fit pr-4 font-bold items-center"
-            onClick={() => setIsClinicOpen((prevState) => !prevState)}
+            onClick={() => {
+              resetForm();
+              setIsClinicOpen((prevState) => !prevState);
+            }}
           >
             <p>+</p>
             <div
@@ -200,11 +224,17 @@ const ClinicTable = ({
           {isClinicOpen ? (
             <Card
               decoration="left"
-              className="w-1/3 min-w-[400px] font-normal flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
+              className="w-1/2 min-w-[400px] font-normal flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
             >
               <form
                 onSubmit={(e) => {
-                  addFunction(e, formName, formEmail, formPassword);
+                  addFunction(
+                    e,
+                    formName,
+                    formEmail,
+                    formPassword,
+                    formMessage
+                  );
                   resetForm();
                 }}
                 className="flex flex-col gap-2"
@@ -251,6 +281,15 @@ const ClinicTable = ({
                     value={formPassword}
                     placeholder="Password (Case sensitive)"
                     onChange={(e) => setFormPassword(e.target.value)}
+                  />
+                </div>
+                <div className="form-section">
+                  <label>Initial Message</label>
+                  <textarea
+                    value={formMessage}
+                    placeholder="First message to send client..."
+                    onChange={(e) => setFormMessage(e.target.value)}
+                    className="h-32 resize-none overflow-auto whitespace-normal"
                   />
                 </div>
               </form>
