@@ -13,7 +13,7 @@ const ChoosePlan = () => {
 
   return (
     <HomeNavBar>
-      <h1 className="text-center">Choose Your Plan</h1>
+      <h1 className="text-center">Your Plan</h1>
       <Card
         decoration="top"
         className="w-3/4 border-prim-blue flex flex-col gap-4 items-center"

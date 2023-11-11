@@ -116,9 +116,6 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           <a className="hover:opacity-50" href="/revenue-strategy">
             Revenue Strategy
           </a>
-          <a className="hover:opacity-50" href="/FAQ">
-            FAQ
-          </a>
         </div>
       </div>
       <div className="flex flex-col items-center gap-24 py-12 md:pt-16 lg:pt-24">
