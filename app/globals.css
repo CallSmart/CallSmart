@@ -125,3 +125,10 @@ form span {
   background-color: #69727a;
   color: white;
 }
+
+.multiselectitem input {
+  -webkit-appearance: checkbox !important;
+  appearance: checkbox !important;
+  -moz-appearance: checkbox !important;
+  width: fit-content !important;
+}

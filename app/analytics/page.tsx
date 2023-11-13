@@ -694,7 +694,7 @@ export default function AnalyticsPage() {
     <ProductNavBar>
       <div className="flex flex-col gap-4 w-full h-fit max-w-[1180px]">
         <div className="flex flex-row gap-4">
-          <div className="w-1/2">
+          <div>
             <Text>Clinics</Text>
             <MultiSelect
               defaultValue={allClinicIDs}
@@ -703,7 +703,11 @@ export default function AnalyticsPage() {
               placeholder="Select Clinics"
             >
               {allClinicIDs.map((clinic, key) => (
-                <MultiSelectItem key={key} value={clinic}>
+                <MultiSelectItem
+                  key={key}
+                  value={clinic}
+                  className="multiselectitem"
+                >
                   {clinic.name}
                 </MultiSelectItem>
               ))}
