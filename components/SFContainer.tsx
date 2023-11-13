@@ -152,10 +152,6 @@ const SFContainer = ({
     return `${formattedCountryCode}(${areaCode}) ${firstPart} ${lastPart}`;
   };
 
-  // Test
-  const phoneNumber = "19055993866";
-  console.log(customPhoneNumberFormat(phoneNumber)); // Outputs: +1 (905) 599 3866
-
   return (
     <div className="flex flex-col gap-4 w-[calc(33%-0.5rem)]">
       <div className="flex flex-row items-center gap-2">

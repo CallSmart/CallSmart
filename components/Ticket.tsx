@@ -174,7 +174,7 @@ const Ticket = ({
             <div className="text-xl font-medium whitespace-nowrap overflow-hidden truncate ">
               {name}
             </div>
-            <div className="text-sm opacity-50 pl-2">
+            <div className="text-sm opacity-50 pl-2 overflow-hidden truncate">
               {customPhoneNumberFormat(number)}
             </div>
           </div>

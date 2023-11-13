@@ -34,13 +34,13 @@ export default function AnalyticsPage() {
           <input placeholder="Search" className="w-full border-0" />
         </div>
         <hr />
-        {QnA.map((question, key) => (
+        {/* {QnA.map((question, key) => (
           <FAQComponent
             key={key}
             question={question.question}
             answer={question.answer}
           />
-        ))}
+        ))} */}
       </div>
     </ProductNavBar>
   );

@@ -8,13 +8,11 @@ import ProductNavBar from "@/components/ProductNavBar";
 import {
   Card,
   Text,
-  Metric,
   BarChart,
   Select,
   SelectItem,
   MultiSelect,
   MultiSelectItem,
-  Icon,
 } from "@tremor/react";
 import { Badge, BadgeDelta } from "@tremor/react";
 import TicketProp from "@/components/TicketProp";
@@ -26,15 +24,9 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  TableFoot,
-  TableFooterCell,
 } from "@tremor/react";
 
-import {
-  DateRangePicker,
-  DateRangePickerItem,
-  DateRangePickerValue,
-} from "@tremor/react";
+import { DateRangePicker, DateRangePickerValue } from "@tremor/react";
 
 import {
   startOfDay,
@@ -349,13 +341,13 @@ export default function AnalyticsPage() {
     let clinics: { [key: string]: any }[] | null;
 
     const getClinicData = async (IDs: any) => {
-      console.log("IDs: ", IDs);
+      // console.log("IDs: ", IDs);
       IDs = IDs.map((id: any) => id.clinic_id);
       const { data, error } = await supabase
         .from("clinics")
         .select("name, id")
         .in("id", IDs);
-      console.log("Clinic Data: ", data);
+      // console.log("Clinic Data: ", data);
       return data;
     };
 
@@ -386,14 +378,14 @@ export default function AnalyticsPage() {
     if (!clinics) {
       return;
     } else {
-      console.log("CLINIC IDs", clinics);
+      // console.log("CLINIC IDs", clinics);
       setAllClinicIDs(clinics);
       setActiveClinicIDs(clinics);
     }
   };
 
   useEffect(() => {
-    console.log("Active IDs", activeClinicIDs);
+    // console.log("Active IDs", activeClinicIDs);
     if (activeClinicIDs && activeClinicIDs.length > 0) {
       fetchCompareTickets(activeClinicIDs);
       fetchWithTickets(activeClinicIDs);
@@ -414,7 +406,7 @@ export default function AnalyticsPage() {
       return;
     }
 
-    console.log("Got compare tickets: ", tickets);
+    // console.log("Got compare tickets: ", tickets);
 
     setCompareTickets(tickets);
   };
@@ -433,7 +425,7 @@ export default function AnalyticsPage() {
       console.error("Error fetching with tickets:", ticketsError);
       return;
     }
-    console.log("Got with tickets: ", tickets);
+    // console.log("Got with tickets: ", tickets);
 
     setWithTickets(tickets);
   };
@@ -626,10 +618,14 @@ export default function AnalyticsPage() {
         displayCustomDateFormatter(compareCustomSelect) == key
           ? compareTickets
           : withTickets;
-      if (type === "Call Missed") {
-        return 0;
-      } else if (type === "Tickets Created") {
+      if (type === "Missed Calls") {
+        // console.log("Calls Missed Length:", source.length);
         return source.length;
+      } else if (type === "Tickets Created") {
+        return source.filter(
+          (ticket) =>
+            ticket["stage"] == 3 || ticket["stage"] == 2 || ticket["stage"] == 1
+        ).length;
       } else if (type === "Tickets Completed") {
         return source.filter((ticket) => ticket["stage"] == 3).length;
       } else {
@@ -639,10 +635,14 @@ export default function AnalyticsPage() {
 
     const source =
       dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
-    if (type === "Call Missed") {
-      return 0;
-    } else if (type === "Tickets Created") {
+    if (type === "Missed Calls") {
+      // console.log("here 1");
       return source.length;
+    } else if (type === "Tickets Created") {
+      return source.filter(
+        (ticket) =>
+          ticket["stage"] == 3 || ticket["stage"] == 2 || ticket["stage"] == 1
+      ).length;
     } else if (type === "Tickets Completed") {
       return source.filter((ticket) => ticket["stage"] == 3).length;
     } else {
@@ -653,6 +653,7 @@ export default function AnalyticsPage() {
   const populateCallDetailsData = async () => {
     // console.log("populateCallDetailsData");
     if (!compareCustomSelect && !withCustomSelect) {
+      // console.log("here");
       setCallDetailData(
         await Promise.all(
           detailCategories.map(async (type) => {
@@ -1079,6 +1080,7 @@ export default function AnalyticsPage() {
             <TableBody>
               {callDetailData?.map((key: any, index: number) => (
                 <TableRow key={index}>
+                  {/* Category Title */}
                   <TableCell>
                     <TicketProp
                       type={key["Type"]}
