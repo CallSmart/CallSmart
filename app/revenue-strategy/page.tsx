@@ -1,3 +1,5 @@
+"use client";
+
 import HomeNavBar from "@/components/HomeNavBar";
 import { Card } from "@tremor/react";
 
