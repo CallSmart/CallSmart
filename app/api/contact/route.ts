@@ -2,13 +2,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 
-
-
 const sendEmail = async (name: string, email: string, phone: string) => {
   console.log(process.env.GMAIL_EMAIL_ADDRESS)
   console.log(process.env.GMAIL_APP_PASSWORD)
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: 'gmail',
     auth: {
       user: process.env.GMAIL_EMAIL_ADDRESS,
       pass: process.env.GMAIL_APP_PASSWORD,
@@ -20,16 +18,10 @@ const sendEmail = async (name: string, email: string, phone: string) => {
   const content = encodeURIComponent("Do not hesitate to contact us if you have any questions!");
   const mailOptions = {
     from: process.env.GMAIL_EMAIL_ADDRESS,
-    to: process.env.GMAIL_EMAIL_ADDRESS, // Replace with your own email address
-    subject: 'New Contact Form Submission',
+    to: email, // Replace with your own email address
+    subject: 'CallSmart Confirm Email',
     text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}`,
-    html: `
-      <p>Name: ${name}</p>
-      <p>Email: ${email}</p>
-      <p>Phone: ${phone}</p>
-      <p>Reply to this email:</p>
-      <a href="mailto:${email}?subject=CallSmart%20information&body=This%20is%20the%20link%20to%20the%20pricing%20page:%0A%0A${link}%0A%0A${content}">Reply</a>
-    `,
+
   };
 
   // Send the email
