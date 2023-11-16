@@ -20,7 +20,7 @@ const sendEmail = async (name: string, email: string, phone: string) => {
     from: process.env.GMAIL_EMAIL_ADDRESS,
     to: email, // Replace with your own email address
     subject: 'CallSmart Confirm Email',
-    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}`,
+    text: `The link to access is https://callsmartai.ca/signup/authorized`,
 
   };
 
