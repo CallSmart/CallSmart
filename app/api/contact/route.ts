@@ -30,7 +30,7 @@ const sendEmail = async (name: string, email: string, phone: string) => {
     attachments: [
       {
         filename: 'SetFull.png',
-        path: 'app/images/SetFull.png',
+        path: 'public/SetFull.png',
         cid: 'unique-image-id', // use this to reference the image in the html body
       },
     ],
