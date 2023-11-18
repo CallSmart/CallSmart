@@ -14,8 +14,6 @@ const sendEmail = async (name: string, email: string, phone: string) => {
   });
 
   // Compose the email message
-  const link = encodeURIComponent('http://localhost:3000/signup/authorized');
-  const content = encodeURIComponent("Do not hesitate to contact us if you have any questions!");
   const mailOptions = {
     from: process.env.GMAIL_EMAIL_ADDRESS,
     to: email, // Replace with your own email address
@@ -25,12 +23,12 @@ const sendEmail = async (name: string, email: string, phone: string) => {
       <p>Thank you for taking the first step towards enhancing your dental clinic's communication efficiency with CallSmart's AI-based missed call text back automation. We're excited to help you optimize your patient interactions and streamline your workflow.</p>
       <p>To get started, please click on the link below and follow the quick process to get started today!</p>
       <p><a href="https://callsmartai.ca/signup/authorized">https://callsmartai.ca/signup/authorized</a></p>
-      <p><img src="cid:unique-image-id" alt="Your Image Alt Text" width="300"></p>
+      <p><img src="cid:unique-image-id" alt="Your Image Alt Text" width="300" height="200"></p>
     `,
     attachments: [
       {
         filename: 'SetFull.png',
-        path: 'app/images/SetFull.png',
+        path: 'public/images/SetFull.png',
         cid: 'unique-image-id', // use this to reference the image in the html body
       },
     ],
