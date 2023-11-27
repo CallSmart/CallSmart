@@ -2,13 +2,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 
-
-
 const sendEmail = async (name: string, email: string, phone: string) => {
   console.log(process.env.GMAIL_EMAIL_ADDRESS)
   console.log(process.env.GMAIL_APP_PASSWORD)
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: 'gmail',
     auth: {
       user: process.env.GMAIL_EMAIL_ADDRESS,
       pass: process.env.GMAIL_APP_PASSWORD,
@@ -16,19 +14,15 @@ const sendEmail = async (name: string, email: string, phone: string) => {
   });
 
   // Compose the email message
-  const link = encodeURIComponent('http://localhost:3000/signup/authorized');
-  const content = encodeURIComponent("Do not hesitate to contact us if you have any questions!");
   const mailOptions = {
     from: process.env.GMAIL_EMAIL_ADDRESS,
-    to: process.env.GMAIL_EMAIL_ADDRESS, // Replace with your own email address
-    subject: 'New Contact Form Submission',
-    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}`,
+    to: email, // Replace with your own email address
+    subject: 'CallSmart: Your Next Step to Streamlining Your Dental Clinic Communications',
     html: `
-      <p>Name: ${name}</p>
-      <p>Email: ${email}</p>
-      <p>Phone: ${phone}</p>
-      <p>Reply to this email:</p>
-      <a href="mailto:${email}?subject=CallSmart%20information&body=This%20is%20the%20link%20to%20the%20pricing%20page:%0A%0A${link}%0A%0A${content}">Reply</a>
+      <p>Dear ${name},</p>
+      <p>Thank you for taking the first step towards enhancing your dental clinic's communication efficiency with CallSmart's AI-based missed call text back automation. We're excited to help you optimize your patient interactions and streamline your workflow.</p>
+      <p>To get started, please click on the link below and follow the quick process to get started today!</p>
+      <p><a href="https://callsmartai.ca/signup/makeAccount">https://callsmartai.ca/signup/makeAccount</a></p>
     `,
   };
 

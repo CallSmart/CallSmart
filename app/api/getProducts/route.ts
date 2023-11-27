@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 
 import { ProductWithPrice } from "@/types";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic'
 
 const getActiveProductsWithPrices = async (): Promise<ProductWithPrice[]> => {
   const supabase = createServerComponentClient({
-    cookies: cookies
+    cookies: cookies,
   });
-
   const { data, error } = await supabase
     .from('products')
     .select('*, prices(*)')

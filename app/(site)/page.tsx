@@ -1,3 +1,5 @@
+"use client";
+
 import HomeNavBar from "@/components/HomeNavBar";
 import { Card } from "@tremor/react";
 import Image from "next/image";
@@ -7,11 +9,11 @@ export default function Home() {
   return (
     <HomeNavBar>
       <div className="flex flex-col items-center gap-4 w-[90%] md:w-4/5 text-[16px] max-w-[1280px]">
-        <h1 className="text-center">CallSmart</h1>
-        <h3 className="text-center text-4xl font-semibold w-2/3">
+        <h1 className="text-center text-6xl md:text-6xl">CallSmart</h1>
+        <h3 className="text-center text-4xl font-semibold w-full md:w-2/3">
           Your Dental Clinics Missed Call Solution
         </h3>
-        <Card className="w-2/3 text-center flex flex-col items-center">
+        <Card className="w-full md:w-2/3 text-center flex flex-col items-center">
           Our specialized software, designed exclusively for dental practices,
           transforms missed calls into chair-time. Seamlessly integrating with
           your Voice over IP system, CallSmart ensures that no call goes

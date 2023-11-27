@@ -41,8 +41,11 @@ function Multiselect({
     >
       {selectedOptions.length > 0 ? (
         <div className="flex flex-row flex-wrap gap-2 w-fit justify-end">
-          {selectedOptions.map((option) => (
-            <span onClick={() => setIsOpen((prevState) => !prevState)}>
+          {selectedOptions.map((option, index) => (
+            <span
+              key={index}
+              onClick={() => setIsOpen((prevState) => !prevState)}
+            >
               <TicketProp
                 type={option}
                 urgent={option == "urgent"}

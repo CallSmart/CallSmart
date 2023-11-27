@@ -84,7 +84,16 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row w-[100dvw] py-8 px-48 justify-center md:justify-between ">
+      <div className="flex lg:hidden pt-8 pb-2 px-8 justify-between items-center">
+        <Image src={Img.LogoFull} alt="CallSmart" className="h-6 w-auto" />
+        <a
+          className="px-4 py-2 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-xl text-white transition-all duration-200"
+          href="/signup"
+        >
+          Get Started
+        </a>
+      </div>
+      <div className="hidden lg:flex flex-col md:flex-row w-[100dvw] py-8 min-[1140px]:px-48 px-32 justify-center md:justify-between ">
         <a className="h-fit w-fit self-center font-bold text-2xl" href="/">
           <Image src={Img.LogoFull} alt="CallSmart" className="h-8 w-auto" />
         </a>
@@ -106,9 +115,6 @@ const HomeNavBar: React.FC<SidebarProps> = ({ children }: SidebarProps) => {
           </a>
           <a className="hover:opacity-50" href="/revenue-strategy">
             Revenue Strategy
-          </a>
-          <a className="hover:opacity-50" href="/FAQ">
-            FAQ
           </a>
         </div>
       </div>

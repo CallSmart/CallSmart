@@ -21,6 +21,7 @@ const Ticket = ({
   id,
   onDidNot,
   onComplete,
+  onDelete,
   new_client,
   urgent,
   type,
@@ -34,6 +35,7 @@ const Ticket = ({
 }: {
   id: number;
   onDidNot: FunctionType;
+  onDelete: FunctionType;
   onComplete: FunctionType;
   new_client: boolean;
   urgent: boolean;
@@ -52,6 +54,11 @@ const Ticket = ({
   const handleDidNot = (id: number) => {
     console.log("I DID NOT!!!");
     onDidNot(id);
+  };
+
+  const handleDelete = (id: number) => {
+    console.log("deleting ticket");
+    onDelete(id);
   };
 
   const handleComplete = (id: number) => {
@@ -94,6 +101,23 @@ const Ticket = ({
     hours = hours || 12; // To display "12" instead of "0" for noon and midnight
 
     return `${month} ${day}, ${hours}:${minutes}${amPm}`;
+  };
+
+  const customPhoneNumberFormat = (phoneNumber: string) => {
+    // Ensure that the input is a string of digits
+    if (!/^\d+$/.test(phoneNumber)) {
+      throw new Error("Invalid phone number format.");
+    }
+
+    const countryCode = phoneNumber.slice(0, -10);
+    const areaCode = phoneNumber.slice(-10, -7);
+    const firstPart = phoneNumber.slice(-7, -4);
+    const lastPart = phoneNumber.slice(-4);
+
+    // If there's a country code, add the "+" prefix
+    const formattedCountryCode = countryCode ? `+${countryCode} ` : "";
+
+    return `${formattedCountryCode}(${areaCode}) ${firstPart} ${lastPart}`;
   };
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -150,7 +174,9 @@ const Ticket = ({
             <div className="text-xl font-medium whitespace-nowrap overflow-hidden truncate ">
               {name}
             </div>
-            <div className="text-sm opacity-50 pl-2">{number}</div>
+            <div className="text-sm opacity-50 pl-2 overflow-hidden truncate">
+              {customPhoneNumberFormat(number)}
+            </div>
           </div>
           <div className="flex flex-row gap-4 items-center w-full justify-between">
             <TicketProp
@@ -181,7 +207,9 @@ const Ticket = ({
           <div className="flex flex-col gap-2 px-3 pt-3 pb-14">
             <div
               className={`${
-                new_client == true || urgent == true ? "w-fit h-fit" : "hidden"
+                new_client === true || urgent === true
+                  ? "w-fit h-fit"
+                  : "hidden"
               } ${"flex flex-row gap-2"}`}
             >
               <div className={new_client !== true ? "hidden" : ""}>
@@ -205,7 +233,16 @@ const Ticket = ({
             </div>
             <div className="flex flex-row gap-2 items-center divide-x divide-gray-500">
               <div className="text-xl font-medium">{name}</div>
-              <div className="text-sm opacity-50 pl-2">{number}</div>
+              <div className="text-sm opacity-50 pl-2">
+                {customPhoneNumberFormat(number)}
+              </div>
+              <button
+                className="text-red-500 pl-2"
+                onClick={(e) => handleDelete(id)}
+              >
+                {" "}
+                Delete
+              </button>
             </div>
             <div className="flex flex-row items-center w-full justify-between">
               <TicketProp
@@ -241,11 +278,12 @@ const Ticket = ({
                   !textOpen ? "h-0" : "h-80 py-4 "
                 }`}
               >
-                {conversation?.map((message: any, index: number) => (
-                  <div key={index} className={`message ${message.sender}`}>
-                    {message.content}
-                  </div>
-                ))}
+                {Array.isArray(conversation) &&
+                  conversation.map((message: any, index: number) => (
+                    <div key={index} className={`message ${message.sender}`}>
+                      {message.content}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
@@ -253,26 +291,28 @@ const Ticket = ({
             <em className="opacity-50 text-sm font-normal">
               Ticket ID: {id} - {customDateFormat(time)}
             </em>
-            <div className="flex flex-row gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDidNot(id);
-                }}
-                className="btn-action2"
-              >
-                DID NOT PICK UP
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleComplete(id);
-                }}
-                className="btn-action2"
-              >
-                COMPLETED
-              </button>
-            </div>
+            {stage == 3 ? null : (
+              <div className="flex flex-row gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDidNot(id);
+                  }}
+                  className="btn-action2"
+                >
+                  DID NOT PICK UP
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleComplete(id);
+                  }}
+                  className="btn-action2"
+                >
+                  COMPLETED
+                </button>
+              </div>
+            )}
           </div>
         </div>
       ) : (

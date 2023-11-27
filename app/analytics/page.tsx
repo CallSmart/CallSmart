@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
 import Sidebar from "@/components/sidebar";
@@ -8,10 +8,11 @@ import ProductNavBar from "@/components/ProductNavBar";
 import {
   Card,
   Text,
-  Metric,
   BarChart,
   Select,
   SelectItem,
+  MultiSelect,
+  MultiSelectItem,
 } from "@tremor/react";
 import { Badge, BadgeDelta } from "@tremor/react";
 import TicketProp from "@/components/TicketProp";
@@ -23,15 +24,9 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  TableFoot,
-  TableFooterCell,
 } from "@tremor/react";
 
-import {
-  DateRangePicker,
-  DateRangePickerItem,
-  DateRangePickerValue,
-} from "@tremor/react";
+import { DateRangePicker, DateRangePickerValue } from "@tremor/react";
 
 import {
   startOfDay,
@@ -46,6 +41,7 @@ import {
   addDays,
   subMonths,
   subYears,
+  set,
 } from "date-fns";
 
 export default function AnalyticsPage() {
@@ -103,6 +99,9 @@ export default function AnalyticsPage() {
   const [ticketsCreatedData, setTicketsCreatedData] = useState<any>();
   const [ticketDetailData, setTicketDetailData] = useState<any>();
   const [callDetailData, setCallDetailData] = useState<any>();
+
+  const [allClinicIDs, setAllClinicIDs] = useState<any[]>([]);
+  const [activeClinicIDs, setActiveClinicIDs] = useState<any[]>([]);
 
   const percentageFormatter = (value1: number, value2: number | null) => {
     if (value2 === 0 || value2 === null) {
@@ -290,7 +289,7 @@ export default function AnalyticsPage() {
     setWithTickets([]);
     setTicketsCreatedData([]);
     setTicketDetailData([]);
-  }, [compareSelect, withSelect, timeRange]);
+  }, [compareSelect, withSelect, timeRange, activeClinicIDs]);
 
   useEffect(() => {
     setCompareCustomSelect(undefined);
@@ -300,15 +299,14 @@ export default function AnalyticsPage() {
   }, [timeRange]);
 
   useEffect(() => {
-    if (compareStartDate && compareEndDate) {
-      fetchCompareTickets();
+    if (compareStartDate && compareEndDate && allClinicIDs) {
+      fetchCompareTickets(allClinicIDs);
     }
   }, [compareStartDate, compareEndDate]);
 
   useEffect(() => {
-    setWithTickets([]);
-    if (withStartDate && withEndDate) {
-      fetchWithTickets();
+    if (withStartDate && withEndDate && allClinicIDs) {
+      fetchWithTickets(allClinicIDs);
     }
   }, [withStartDate, withEndDate]);
 
@@ -321,13 +319,120 @@ export default function AnalyticsPage() {
   }, [withTickets, compareTickets]);
 
   useEffect(() => {
-    console.log("Call Detail Data: ", callDetailData);
-  }),
-    [callDetailData];
+    fetchAllClinicIDs();
+  }, []);
+
+  const fetchAllClinicIDs = async () => {
+    const user = await supabase.auth.getUser();
+    const id = user?.data?.user?.id;
+
+    const { data: userRoleData, error: userRoleError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", id);
+
+    if (userRoleError) {
+      console.log("Error fetching user role");
+      return;
+    }
+
+    const userRole = userRoleData[0].role;
+
+    let clinics: { [key: string]: any }[] | null;
+
+    const getClinicData = async (IDs: any) => {
+      // console.log("IDs: ", IDs);
+      IDs = IDs.map((id: any) => id.clinic_id);
+      const { data, error } = await supabase
+        .from("clinics")
+        .select("name, id")
+        .in("id", IDs);
+      // console.log("Clinic Data: ", data);
+      return data;
+    };
+
+    if (userRole == "Owner") {
+      const { data, error } = await supabase
+        .from("owner_clinics")
+        .select("clinic_id")
+        .eq("owner", id);
+      if (data) {
+        clinics = await getClinicData(data);
+      } else {
+        clinics = null;
+      }
+    } else if (userRole == "Manager") {
+      const { data, error } = await supabase
+        .from("managers")
+        .select("clinic_id")
+        .eq("user_id", id);
+      if (data) {
+        clinics = await getClinicData(data);
+      } else {
+        clinics = null;
+      }
+    } else {
+      clinics = null;
+    }
+
+    if (!clinics) {
+      return;
+    } else {
+      // console.log("CLINIC IDs", clinics);
+      setAllClinicIDs(clinics);
+      setActiveClinicIDs(clinics);
+    }
+  };
+
+  useEffect(() => {
+    // console.log("Active IDs", activeClinicIDs);
+    if (activeClinicIDs && activeClinicIDs.length > 0) {
+      fetchCompareTickets(activeClinicIDs);
+      fetchWithTickets(activeClinicIDs);
+    }
+  }, [activeClinicIDs]);
+
+  const fetchCompareTickets = async (clinics: any[]) => {
+    const IDs = clinics.map((clinic) => String(clinic?.id));
+
+    const { data: tickets, error: ticketsError } = await supabase
+      .from("tickets")
+      .select("*")
+      .in("clinic", IDs)
+      .filter("time", "gte", compareStartDate)
+      .filter("time", "lte", compareEndDate);
+    if (ticketsError) {
+      console.error("Error fetching compare tickets:", ticketsError);
+      return;
+    }
+
+    // console.log("Got compare tickets: ", tickets);
+
+    setCompareTickets(tickets);
+  };
+
+  const fetchWithTickets = async (clinics: any[]) => {
+    const IDs = clinics.map((clinic) => String(clinic?.id));
+
+    const { data: tickets, error: ticketsError } = await supabase
+      .from("tickets")
+      .select("*")
+      .in("clinic", IDs)
+      .filter("time", "gte", withStartDate)
+      .filter("time", "lte", withEndDate);
+
+    if (ticketsError) {
+      console.error("Error fetching with tickets:", ticketsError);
+      return;
+    }
+    // console.log("Got with tickets: ", tickets);
+
+    setWithTickets(tickets);
+  };
 
   const settingDateRange = async () => {
     if (withCustomSelect || compareCustomSelect) {
-      console.log("Custom Date Time!!");
+      // console.log("Custom Date Time!!");
 
       setCompareStartDate(
         formatDateToCustomFormat(compareCustomSelect?.from?.toISOString())
@@ -373,128 +478,6 @@ export default function AnalyticsPage() {
       );
       setWithEndDate(formatDateToCustomFormat(withDates["end"].toISOString()));
     }
-  };
-
-  const fetchCompareTickets = async () => {
-    // console.log("fetchCompareTickets");
-
-    const user = await supabase.auth.getUser();
-    const id = user?.data?.user?.id;
-
-    const { data: userRoleData, error: userRoleError } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", id);
-
-    if (userRoleError) {
-      console.log("Error fetching user role");
-      return;
-    }
-
-    const userRole = userRoleData[0].role;
-
-    let clinics: { [key: string]: any }[] | null;
-
-    if (userRole == "Owner") {
-      const { data, error } = await supabase
-        .from("owner_clinics")
-        .select("clinic_id")
-        .eq("owner", id);
-      // console.log("Tickets path for Owner");
-      clinics = data;
-    } else if (userRole == "Manager") {
-      const { data, error } = await supabase
-        .from("managers")
-        .select("clinic_id")
-        .eq("user_id", id);
-      clinics = data;
-    } else {
-      console.log("Tickets path for else");
-      clinics = null;
-    }
-
-    const clinicIds = clinics?.map((clinic) => clinic.clinic_id);
-    if (!clinicIds) {
-      return;
-    } else {
-      // console.log(String(clinicIds));
-    }
-
-    const { data: tickets, error: ticketsError } = await supabase
-      .from("tickets")
-      .select("*")
-      .in("clinic", clinicIds)
-      .filter("time", "gte", compareStartDate)
-      .filter("time", "lte", compareEndDate);
-    if (ticketsError) {
-      console.error("Error fetching tickets:", ticketsError);
-      return;
-    }
-
-    console.log("Got compare tickets: ", tickets);
-
-    setCompareTickets(tickets);
-  };
-
-  const fetchWithTickets = async () => {
-    // console.log("fetchWithTickets");
-
-    const user = await supabase.auth.getUser();
-    const id = user?.data?.user?.id;
-
-    const { data: userRoleData, error: userRoleError } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", id);
-
-    if (userRoleError) {
-      console.log("Error fetching user role");
-      return;
-    }
-
-    const userRole = userRoleData[0].role;
-
-    let clinics: { [key: string]: any }[] | null;
-
-    if (userRole == "Owner") {
-      const { data, error } = await supabase
-        .from("owner_clinics")
-        .select("clinic_id")
-        .eq("owner", id);
-      // console.log("Tickets path for Owner");
-      clinics = data;
-    } else if (userRole == "Manager") {
-      const { data, error } = await supabase
-        .from("managers")
-        .select("clinic_id")
-        .eq("user_id", id);
-      clinics = data;
-    } else {
-      console.log("Tickets path for else");
-      clinics = null;
-    }
-
-    const clinicIds = clinics?.map((clinic) => clinic.clinic_id);
-    if (!clinicIds) {
-      return;
-    } else {
-      // console.log(String(clinicIds));
-    }
-
-    const { data: tickets, error: ticketsError } = await supabase
-      .from("tickets")
-      .select("*")
-      .in("clinic", clinicIds)
-      .filter("time", "gte", withStartDate)
-      .filter("time", "lte", withEndDate);
-
-    if (ticketsError) {
-      console.error("Error fetching tickets:", ticketsError);
-      return;
-    }
-    console.log("Got with tickets: ", tickets);
-
-    setWithTickets(tickets);
   };
 
   const createdDictValueFinder = async (key: string, type: string) => {
@@ -635,10 +618,14 @@ export default function AnalyticsPage() {
         displayCustomDateFormatter(compareCustomSelect) == key
           ? compareTickets
           : withTickets;
-      if (type === "Call Missed") {
-        return 0;
-      } else if (type === "Tickets Created") {
+      if (type === "Missed Calls") {
+        // console.log("Calls Missed Length:", source.length);
         return source.length;
+      } else if (type === "Tickets Created") {
+        return source.filter(
+          (ticket) =>
+            ticket["stage"] == 3 || ticket["stage"] == 2 || ticket["stage"] == 1
+        ).length;
       } else if (type === "Tickets Completed") {
         return source.filter((ticket) => ticket["stage"] == 3).length;
       } else {
@@ -648,10 +635,14 @@ export default function AnalyticsPage() {
 
     const source =
       dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
-    if (type === "Call Missed") {
-      return 0;
-    } else if (type === "Tickets Created") {
+    if (type === "Missed Calls") {
+      // console.log("here 1");
       return source.length;
+    } else if (type === "Tickets Created") {
+      return source.filter(
+        (ticket) =>
+          ticket["stage"] == 3 || ticket["stage"] == 2 || ticket["stage"] == 1
+      ).length;
     } else if (type === "Tickets Completed") {
       return source.filter((ticket) => ticket["stage"] == 3).length;
     } else {
@@ -660,8 +651,9 @@ export default function AnalyticsPage() {
   };
 
   const populateCallDetailsData = async () => {
-    console.log("populateCallDetailsData");
+    // console.log("populateCallDetailsData");
     if (!compareCustomSelect && !withCustomSelect) {
+      // console.log("here");
       setCallDetailData(
         await Promise.all(
           detailCategories.map(async (type) => {
@@ -689,7 +681,7 @@ export default function AnalyticsPage() {
                 displayCustomDateFormatter(withCustomSelect),
                 type
               );
-            console.log("CD: ", obj);
+            // console.log("CD: ", obj);
 
             return obj;
           })
@@ -698,14 +690,29 @@ export default function AnalyticsPage() {
     }
   };
 
-  useEffect(() => {
-    console.log(ticketDetailData);
-  }, [populateTicketDetailsData]);
-
   return (
     <ProductNavBar>
       <div className="flex flex-col gap-4 w-full h-fit max-w-[1180px]">
         <div className="flex flex-row gap-4">
+          <div>
+            <Text>Clinics</Text>
+            <MultiSelect
+              defaultValue={allClinicIDs}
+              value={activeClinicIDs}
+              onValueChange={setActiveClinicIDs}
+              placeholder="Select Clinics"
+            >
+              {allClinicIDs.map((clinic, key) => (
+                <MultiSelectItem
+                  key={key}
+                  value={clinic}
+                  className="multiselectitem"
+                >
+                  {clinic.name}
+                </MultiSelectItem>
+              ))}
+            </MultiSelect>
+          </div>
           <div>
             <Text>Time Range</Text>
             <Select
@@ -1077,6 +1084,7 @@ export default function AnalyticsPage() {
             <TableBody>
               {callDetailData?.map((key: any, index: number) => (
                 <TableRow key={index}>
+                  {/* Category Title */}
                   <TableCell>
                     <TicketProp
                       type={key["Type"]}

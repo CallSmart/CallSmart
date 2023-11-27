@@ -6,7 +6,7 @@ import { supabase } from "../../supabase";
 import ProductNavBar from "@/components/ProductNavBar";
 import * as Icons from "@/components/svgs";
 import FAQComponent from "@/components/FAQComponent";
-import { Card } from "@tremor/react";
+import { Card, MultiSelect, MultiSelectItem } from "@tremor/react";
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -34,13 +34,13 @@ export default function AnalyticsPage() {
           <input placeholder="Search" className="w-full border-0" />
         </div>
         <hr />
-        {QnA.map((question, key) => (
+        {/* {QnA.map((question, key) => (
           <FAQComponent
             key={key}
             question={question.question}
             answer={question.answer}
           />
-        ))}
+        ))} */}
       </div>
     </ProductNavBar>
   );
