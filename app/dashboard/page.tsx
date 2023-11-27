@@ -116,7 +116,7 @@ export default function DashboardPage() {
       .from("tickets")
       .select("*")
       .in("clinic", clinicIds)
-      .eq("conversation_active", false);
+      .eq("information_recieved", true);
 
     if (ticketsError) {
       console.error("Error fetching tickets:", ticketsError);
