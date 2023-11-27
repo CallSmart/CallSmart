@@ -125,7 +125,7 @@ const ManagerEmployeeTable = ({
                 </button>
                 <div>
                   <button
-                    className="relative"
+                    className="static"
                     onClick={() => {
                       setDeleteOverlay((prevState) => !prevState);
                       setDeleteKey(key);
@@ -135,7 +135,10 @@ const ManagerEmployeeTable = ({
                   >
                     <p className="text-red-500 hover:text-red-300">Delete</p>
                     {deleteOverlay && deleteKey == key ? (
-                      <div className="absolute -top-16 right-0 border border-y-4 drop-shadow-md border-sec-blue rounded-lg px-4 py-2 bg-white">
+                      <Card
+                        decoration="left"
+                        className="w-1/3 min-w-[400px] font-normal flex flex-col p-4 gap-2 z-50 absolute-center static text-sec-blue"
+                      >
                         <p className="text-sec-blue w-36 cursor-default">
                           Are you sure you want to delete?
                         </p>
@@ -145,7 +148,7 @@ const ManagerEmployeeTable = ({
                         >
                           Yes
                         </p>
-                      </div>
+                      </Card>
                     ) : null}
                   </button>
                 </div>
@@ -197,7 +200,7 @@ const ManagerEmployeeTable = ({
                   <input
                     type="text"
                     value={formFirstName}
-                    placeholder="Clinic Name"
+                    placeholder="First Name"
                     onChange={(e) => setFormFirstName(e.target.value)}
                   />
                 </div>
