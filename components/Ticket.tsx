@@ -289,7 +289,8 @@ const Ticket = ({
           </div>
           <div className="flex flex-row justify-between items-center text-white bg-sec-blue px-3 py-2 text-sm font-semibold absolute bottom-0 w-full h-fit">
             <em className="opacity-50 text-sm font-normal">
-              Ticket ID: {id} - {customDateFormat(time)}
+              Ticket ID: {id} - {customDateFormat(time)}{" "}
+              {times_pending > 0 ? `- ${times_pending} Times Pending` : ""}
             </em>
             {stage == 3 ? null : (
               <div className="flex flex-row gap-2">

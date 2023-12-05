@@ -116,8 +116,12 @@ export default function DashboardPage() {
       .from("tickets")
       .select("*")
       .in("clinic", clinicIds)
-      .eq("information_recieved", true);
-
+      .eq("information_recieved", true)
+      .filter(
+        "time",
+        "gte",
+        new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString()
+      );
     if (ticketsError) {
       console.error("Error fetching tickets:", ticketsError);
       return;

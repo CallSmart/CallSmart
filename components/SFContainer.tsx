@@ -180,13 +180,12 @@ const SFContainer = ({
         </div>
       </div>
       <div
-        className={`bg-white overflow-hidden rounded-xl transition-height duration-100 ease-out ${
+        className={`bg-white bg-prim-blue/10 border-[1px] border-prim-blue overflow-y-scroll rounded-xl transition-height duration-100 ease-out ${
           isExpanded ? "h-full" : "h-0"
         }`}
       >
         <div
-          className={`backlog-container flex-col transition-height duration-500 ease-in ${
-            isExpanded ? "h-full gap-4" : "h-0 -gap-4"
+          className={`flex p-4 bg-prim-blue/10 flex-col gap-4 transition-height duration-500 ease-in  min-h-[100%] h-fit "
           }`}
         >
           {sfTickets.map((ticket, key) => (
