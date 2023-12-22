@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../supabase";
+import { supabaseAdmin } from "@/supabaseAdmin";
 import Sidebar from "@/components/sidebar";
 import ProductNavBar from "@/components/ProductNavBar";
 import ClinicTable from "@/components/ClinicTable";
@@ -456,6 +457,15 @@ export default function AccountPage() {
   };
 
   const deleteEmployee = async (id: number) => {
+    const { data: employeeUserIDData, error: employeeUserIDError } =
+      await supabase.from("employees").select("user_id").eq("id", id).single();
+
+    if (employeeUserIDError) {
+      console.error("Error getting manager user ID:", employeeUserIDError);
+    }
+
+    let deletedUserID = await employeeUserIDData?.user_id;
+
     const { error: employeeError } = await supabase
       .from("employees")
       .delete()
@@ -470,18 +480,40 @@ export default function AccountPage() {
     const { error: usersError } = await supabase
       .from("users")
       .delete()
-      .eq("id", id);
+      .eq("id", deletedUserID);
 
     if (usersError) {
       console.error("Error deleting employee from users:", usersError.message);
     }
 
-    setEmployees((prevEmployees) =>
-      prevEmployees.filter((employee) => employee.id !== id)
-    );
+    const response = await fetch("/api/deleteUserFromAuth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reqData: { deletedUserID } }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    } else {
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((employee) => employee.id !== id)
+      );
+    }
   };
 
   const deleteManager = async (id: number) => {
+    const { data: managerUserIDData, error: managerUserIDError } =
+      await supabase.from("managers").select("user_id").eq("id", id).single();
+
+    if (managerUserIDError) {
+      console.error("Error getting manager user ID:", managerUserIDError);
+    }
+
+    let deletedUserID = await managerUserIDData?.user_id;
+    // console.log(deletedUserID);
+
     const { error: employeeError } = await supabase
       .from("managers")
       .delete()
@@ -496,15 +528,28 @@ export default function AccountPage() {
     const { error: usersError } = await supabase
       .from("users")
       .delete()
-      .eq("id", id);
+      .eq("id", deletedUserID);
 
     if (usersError) {
       console.error("Error deleting manager from users:", usersError.message);
     }
 
-    setEmployees((prevEmployees) =>
-      prevEmployees.filter((employee) => employee.id !== id)
-    );
+    const response = await fetch("/api/deleteUserFromAuth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reqData: { deletedUserID } }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    } else {
+      console.log("Deleted from auth!");
+      setManagers((prevManagers) =>
+        prevManagers.filter((manager) => manager.id !== id)
+      );
+    }
   };
 
   const sendPasswordRecoveryEmail = async (email: string) => {
