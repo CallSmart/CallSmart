@@ -126,10 +126,11 @@ export default function DashboardPage() {
       console.error("Error fetching tickets:", ticketsError);
       return;
     }
-    // console.log("Got tickets: ", tickets);
+    // const response = await fetch('/api/getTickets', { method: "POST" });
+    // const data = await response.json(); // Parsing the response as JSON
 
-    // tickets.map((ticket) => console.log(typeof ticket.summary));
-
+    // Assuming the JSON structure has a 'tickets' property
+    // setAllTickets(data.tickets);
     setAllTickets(tickets);
   };
 
