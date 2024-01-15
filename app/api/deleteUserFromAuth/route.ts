@@ -16,10 +16,10 @@ export async function POST(req: Request) {
     const { data, error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
     if (error) {
-      console.error("Error deleting manager from auth:", error.message);
+      console.error("Error deleting user from auth:", error.message);
     } else {
-      console.log("Successfully deleted manager from auth");
-      return new NextResponse("Successfully deleted manager from auth", {
+      console.log("Successfully deleted User from auth");
+      return new NextResponse("Successfully deleted user from auth", {
         status: 200,
       });
     }

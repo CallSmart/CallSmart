@@ -250,6 +250,7 @@ export default function AccountPage() {
   };
 
   const addToUserTable = async (dataToInsert: any) => {
+    console.log(await supabase.auth.getUser())
     const { data: insertData, error: insertError } = await supabase
       .from("users")
       .insert([
@@ -259,6 +260,7 @@ export default function AccountPage() {
           id: dataToInsert.user_id,
           email: dataToInsert.email,
           role: dataToInsert.role,
+          clinic: dataToInsert.clinic_id
         },
       ]);
 
@@ -267,6 +269,27 @@ export default function AccountPage() {
       return insertError;
     }
   };
+
+  const addEmployeeClinicRelation = async (
+    user: any,
+    clinic: any
+  ) => {
+    console.log(clinic)
+    console.log(user)
+    
+    const { data: insertData, error: insertError } = await supabase
+      .from("employee_clinics")
+      .insert([
+        {
+          user: user,
+          clinic: clinic
+        },
+      ]);
+    if (insertError) {
+      console.log("Employee_clinics Table: ", insertError);
+      return insertError;
+    }
+  }
 
   const addEmployee = async (
     e: any,
@@ -279,32 +302,45 @@ export default function AccountPage() {
     e.preventDefault(); // Don't refresh page
 
     // Sign user up for an account on CallSmart
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        emailRedirectTo: "/dashboard",
+    const response = await fetch('/api/signUpUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
     });
+
+    const { data, error } = await response.json();
 
     if (error) {
       console.error("Error creating employee:", error.message);
       handleErrorOnAdd();
     } else {
+      const userId = data.user?.id;
       const dataToInsert = {
         first_name: firstName,
         last_name: lastName,
-        user_id: data?.user?.id,
+        user_id: userId,
         clinic_id: clinic,
         email: email,
-        role: "Employee",
+        role: "Manager",
       };
 
-      // console.log(dataToInsert);
+
 
       let insertError = await addToUserTable(dataToInsert);
       if (insertError !== undefined) {
         console.error("Error adding employee:", insertError.message);
+        handleErrorOnAdd();
+      }
+
+      
+      let insertRelationError = await addEmployeeClinicRelation(dataToInsert.user_id, dataToInsert.clinic_id)
+
+      if(insertRelationError){
         handleErrorOnAdd();
       }
 
@@ -322,6 +358,7 @@ export default function AccountPage() {
   };
 
   const addToEmployeeTable = async (dataToInsert: any) => {
+    console.log(await supabase.auth.getUser())
     const { data: insertData, error: insertError } = await supabase
       .from("employees")
       .insert([
@@ -340,6 +377,27 @@ export default function AccountPage() {
     }
   };
 
+  const addManagerClinicRelation = async (
+    user: any,
+    clinic: any
+  ) => {
+    console.log(clinic)
+    console.log(user)
+    
+    const { data: insertData, error: insertError } = await supabase
+      .from("manager_clinics")
+      .insert([
+        {
+          user: user,
+          clinic: clinic
+        },
+      ]);
+    if (insertError) {
+      console.log("Manager_clinics Table: ", insertError);
+      return insertError;
+    }
+  }
+
   const addManager = async (
     e: any,
     firstName: string,
@@ -350,29 +408,44 @@ export default function AccountPage() {
   ) => {
     // console.log(firstName, lastName, clinic, email, password);
     e.preventDefault();
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
+    
+    const response = await fetch('/api/signUpUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
     });
 
+    const { data, error } = await response.json();
+    // console.log(data)
+    
     if (error) {
       console.error("Error creating office manager:", error.message);
       handleErrorOnAdd();
     } else {
+      const userId = data.user?.id;
       const dataToInsert = {
         first_name: firstName,
         last_name: lastName,
-        user_id: data?.user?.id,
+        user_id: userId,
         clinic_id: clinic,
         email: email,
         role: "Manager",
       };
 
-      // console.log(dataToInsert);
-
       let insertError = await addToUserTable(dataToInsert);
       if (insertError !== undefined) {
         console.error("Error adding manager to users:", insertError.message);
+        handleErrorOnAdd();
+      }
+
+      let insertRelationError = await addManagerClinicRelation(dataToInsert.user_id, dataToInsert.clinic_id)
+
+      if(insertRelationError){
         handleErrorOnAdd();
       }
 
@@ -477,6 +550,17 @@ export default function AccountPage() {
       );
     }
 
+    const { error: employeeError2 } = await supabase
+    .from("employee_clinics")
+    .delete()
+    .eq("user", deletedUserID);
+    if (employeeError2) {
+      console.error(
+        "Error deleting manager from employee:",
+        employeeError2.message
+      );
+    }
+
     const { error: usersError } = await supabase
       .from("users")
       .delete()
@@ -512,8 +596,16 @@ export default function AccountPage() {
     }
 
     let deletedUserID = await managerUserIDData?.user_id;
-    // console.log(deletedUserID);
+    console.log('here')
+    console.log(deletedUserID);
 
+    const { data: managerUser, error: managerUserError } =
+      await supabase.from("users").select("*").eq("id", deletedUserID).single();
+
+    if(managerUserError){
+      console.error(managerUserError)
+    }
+    console.log(managerUser)
     const { error: employeeError } = await supabase
       .from("managers")
       .delete()
@@ -525,11 +617,25 @@ export default function AccountPage() {
       );
     }
 
+    const { error: managerError } = await supabase
+    .from("manager_clinics")
+    .delete()
+    .eq("user", deletedUserID);
+    if (managerError) {
+      console.error(
+        "Error deleting manager from managers:",
+        managerError.message
+      );
+    }
+
+    // console.log(deletedUserID)
+    // console.log('there')
+
     const { error: usersError } = await supabase
       .from("users")
       .delete()
       .eq("id", deletedUserID);
-
+    console.log('between')
     if (usersError) {
       console.error("Error deleting manager from users:", usersError.message);
     }
@@ -554,7 +660,10 @@ export default function AccountPage() {
 
   const sendPasswordRecoveryEmail = async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        // redirectTo: 'https://callsmartai.ca/account/updatePassword',
+        redirectTo: 'https://http://localhost:3000/account/updatePassword',
+      });
 
       if (error) {
         console.error("Error sending password recovery email:", error.message);
