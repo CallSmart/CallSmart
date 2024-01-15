@@ -281,7 +281,7 @@ export default function AccountPage() {
       .from("employee_clinics")
       .insert([
         {
-          user: user,
+          employee: user,
           clinic: clinic
         },
       ]);
@@ -354,6 +354,8 @@ export default function AccountPage() {
       } else {
         getUser();
       }
+
+      sendPasswordRecoveryEmail(email)
     }
   };
 
@@ -388,7 +390,7 @@ export default function AccountPage() {
       .from("manager_clinics")
       .insert([
         {
-          user: user,
+          manager: user,
           clinic: clinic
         },
       ]);
@@ -459,6 +461,7 @@ export default function AccountPage() {
       } else {
         getUser();
       }
+      sendPasswordRecoveryEmail(email)
     }
   };
 
