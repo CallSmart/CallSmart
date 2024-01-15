@@ -42,6 +42,7 @@ const SignupPage = () => {
           num_clinics: numClinics,
           referral: referral,
           referral_name: referralName,
+          role: "Owner"
         },
       ]);
       if (!error) {
@@ -50,7 +51,7 @@ const SignupPage = () => {
           localStorage.setItem("token", data.session.access_token as string);
         }
 
-        router.push(`/signup/tier${option}`);
+        router.push(`/signup/tier${1}`);
       } else {
         console.log(error);
       }

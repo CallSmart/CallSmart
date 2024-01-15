@@ -101,6 +101,8 @@ export default function DashboardPage() {
         .select("clinic")
         .eq("employee", id);
       clinics = data;
+      console.log('clinics: ')
+      console.log(data)
     } else {
       // console.log("Tickets path for else");
       clinics = null;
