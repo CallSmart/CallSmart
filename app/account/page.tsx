@@ -330,7 +330,7 @@ export default function AccountPage() {
         user_id: userId,
         clinic: clinic,
         email: email,
-        role: "Manager",
+        role: "Employee",
       };
 
 
