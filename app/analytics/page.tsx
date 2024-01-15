@@ -341,8 +341,9 @@ export default function AnalyticsPage() {
     let clinics: { [key: string]: any }[] | null;
 
     const getClinicData = async (IDs: any) => {
+      console.log(IDs)
       // console.log("IDs: ", IDs);
-      IDs = IDs.map((id: any) => id.clinic_id);
+      IDs = IDs.map((id: any) => id.clinic);
       const { data, error } = await supabase
         .from("clinics")
         .select("name, id")
@@ -363,9 +364,9 @@ export default function AnalyticsPage() {
       }
     } else if (userRole == "Manager") {
       const { data, error } = await supabase
-        .from("managers")
-        .select("clinic_id")
-        .eq("user_id", id);
+        .from("manager_clinics")
+        .select("clinic")
+        .eq("manager", id);
       if (data) {
         clinics = await getClinicData(data);
       } else {
