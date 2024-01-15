@@ -661,8 +661,8 @@ export default function AccountPage() {
   const sendPasswordRecoveryEmail = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        // redirectTo: 'https://callsmartai.ca/account/updatePassword',
-        redirectTo: 'https://http://localhost:3000/account/updatePassword',
+        redirectTo: 'https://callsmartai.ca/account/updatePassword',
+        // redirectTo: 'https://http://localhost:3000/account/updatePassword',
       });
 
       if (error) {

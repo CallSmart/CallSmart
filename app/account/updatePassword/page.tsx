@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ProductNavBar from "@/components/ProductNavBar";
 import { supabase } from "../../../supabase"; // Uncomment if supabase is used
+import { redirect } from 'next/dist/server/api-utils';
 
 function Page() {
     const [pswd, setPswd] = useState("");
@@ -14,6 +15,7 @@ function Page() {
         console.log(pswd); // For demonstration, replace with your function
         // Add your logic to handle password submission
         await supabase.auth.updateUser({ password: pswd })
+        alert('You may now log in')
     }
 
     return (
