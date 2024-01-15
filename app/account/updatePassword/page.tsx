@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import ProductNavBar from "@/components/ProductNavBar";
 import { supabase } from "../../../supabase"; // Uncomment if supabase is used
