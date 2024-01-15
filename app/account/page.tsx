@@ -65,6 +65,13 @@ export default function AccountPage() {
     getUser();
   }, [router]);
 
+  const handleErrorOnAdd = () => {
+    setErrorOnAdd(true);
+    setTimeout(() => {
+      setErrorOnAdd(false);
+    }, 2000);
+  };
+
   const fetchClinics = async (clinics: Clinics[] | null) => {
     // console.log("THESE ARE THE CLINICS IN THE FETCH CLINICS FUNCTION");
     // console.log(clinics);
@@ -214,40 +221,59 @@ export default function AccountPage() {
       handleErrorOnAdd();
       return;
     }
-    const { data, error } = await supabase
-      .from("clinics")
-      .insert([
-        {
-          name: name,
-          gotoemail: email,
-          gotopassword: password,
-          initial_message: initial_message,
-        },
-      ])
-      .select("*");
-    // console.log(data);
 
-    if (error) {
-      console.error("Error adding clinic:", error.message);
-      handleErrorOnAdd();
-    } else {
-      const user = await supabase.auth.getUser();
-      const user_id = user?.data?.user?.id;
-      const { data: ownerClinicsData, error: ownerClinicsError } =
-        await supabase.from("owner_clinics").insert([
-          {
-            owner: user_id,
-            clinic: data[0].id,
-          },
-        ]);
-      if (ownerClinicsError) {
-        console.error(
-          "Error adding relation to owner_clinics:",
-          ownerClinicsError.message
-        );
-        handleErrorOnAdd();
-      } else {
-        getUser();
+    const user = await supabase.auth.getUser();
+    const user_id = user?.data?.user?.id;
+
+    const { data: userData, error } = await supabase
+      .from("users")
+      .select("num_clinics")
+      .eq("id", user_id);
+
+    if(userData){
+      const numCurrNumClinics = clinics.length
+      const maxLength = userData[0].num_clinics
+      if(numCurrNumClinics < maxLength){
+        const { data, error: error2 } = await supabase
+          .from("clinics")
+          .insert([
+            {
+              name: name,
+              gotoemail: email,
+              gotopassword: password,
+              initial_message: initial_message,
+              number: ''
+            },
+          ])
+          .select("*");
+        console.log(data);
+
+        if (error2) {
+          console.error("Error adding clinic:", error2.message);
+          handleErrorOnAdd();
+        } else {
+
+          const { data: ownerClinicsData, error: ownerClinicsError } =
+            await supabase.from("owner_clinics").insert([
+              {
+                owner: user_id,
+                clinic: data[0].id,
+              },
+            ])
+            .select("*");
+          if (ownerClinicsError) {
+            console.error(
+              "Error adding relation to owner_clinics:",
+              ownerClinicsError.message
+            );
+            handleErrorOnAdd();
+          } else {
+            getUser();
+          }
+        }
+      }
+      else{
+        alert('You do not have any clinics remaining. Please Contact Support.')
       }
     }
     return;
@@ -692,12 +718,7 @@ export default function AccountPage() {
     }
   };
 
-  const handleErrorOnAdd = () => {
-    setErrorOnAdd(true);
-    setTimeout(() => {
-      setErrorOnAdd(false);
-    }, 2000);
-  };
+
 
   const [isExpanded, setIsExpanded] = useState(false);
 
