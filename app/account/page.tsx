@@ -72,7 +72,8 @@ export default function AccountPage() {
       // console.log("No clinics provided.");
       return;
     }
-
+    console.log('here')
+    console.log(clinics)
     try {
       const fetchPromises = clinics.map((clinicItem) =>
         supabase
@@ -168,7 +169,7 @@ export default function AccountPage() {
         if (userRole == "Owner") {
           const { data, error } = await supabase
             .from("owner_clinics")
-            .select("clinic_id")
+            .select("clinic")
             .eq("owner", user_id);
           // console.log("Tickets path for Owner");
           clinics = data;
@@ -236,7 +237,7 @@ export default function AccountPage() {
         await supabase.from("owner_clinics").insert([
           {
             owner: user_id,
-            clinic_id: data[0].id,
+            clinic: data[0].id,
           },
         ]);
       if (ownerClinicsError) {
@@ -263,7 +264,7 @@ export default function AccountPage() {
           id: dataToInsert.user_id,
           email: dataToInsert.email,
           role: dataToInsert.role,
-          clinic: dataToInsert.clinic_id
+          clinic: dataToInsert.clinic
         },
       ]);
 
@@ -327,7 +328,7 @@ export default function AccountPage() {
         first_name: firstName,
         last_name: lastName,
         user_id: userId,
-        clinic_id: clinic,
+        clinic: clinic,
         email: email,
         role: "Manager",
       };
@@ -341,7 +342,7 @@ export default function AccountPage() {
       }
 
       
-      let insertRelationError = await addEmployeeClinicRelation(dataToInsert.user_id, dataToInsert.clinic_id)
+      let insertRelationError = await addEmployeeClinicRelation(dataToInsert.user_id, dataToInsert.clinic)
 
       if(insertRelationError){
         handleErrorOnAdd();
