@@ -76,6 +76,7 @@ export default function DashboardPage() {
 
     const userRole = userRoleData[0].role;
     // console.log(userRole);
+    // console.log(id)
 
     let clinics: { [key: string]: any }[] | null;
 
@@ -87,29 +88,30 @@ export default function DashboardPage() {
       // console.log("Tickets path for Owner");
       clinics = data;
     } else if (userRole == "Manager") {
+      console.log(id)
       const { data, error } = await supabase
-        .from("managers")
-        .select("clinic_id")
-        .eq("user_id", id);
+        .from("manager_clinics")
+        .select("clinic")
+        .eq("manager", id);
+      console.log(data)
       clinics = data;
     } else if (userRole == "Employee") {
       const { data, error } = await supabase
-        .from("employees")
-        .select("clinic_id")
-        .eq("user_id", id);
+        .from("employee_clinics")
+        .select("clinic")
+        .eq("employee", id);
       clinics = data;
     } else {
       // console.log("Tickets path for else");
       clinics = null;
     }
 
-    // console.log(clinics);
 
-    const clinicIds = clinics?.map((clinic) => clinic.clinic_id);
+    const clinicIds = clinics?.map((clinicItem) => clinicItem.clinic);
     if (!clinicIds) {
       return;
     } else {
-      // console.log(String(clinicIds));
+      console.log(String(clinicIds));
     }
 
     const { data: tickets, error: ticketsError } = await supabase
@@ -126,11 +128,6 @@ export default function DashboardPage() {
       console.error("Error fetching tickets:", ticketsError);
       return;
     }
-    // const response = await fetch('/api/getTickets', { method: "POST" });
-    // const data = await response.json(); // Parsing the response as JSON
-
-    // Assuming the JSON structure has a 'tickets' property
-    // setAllTickets(data.tickets);
     setAllTickets(tickets);
   };
 

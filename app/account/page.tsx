@@ -74,15 +74,16 @@ export default function AccountPage() {
     }
 
     try {
-      const fetchPromises = clinics.map((clinic) =>
+      const fetchPromises = clinics.map((clinicItem) =>
         supabase
           .from("clinics")
           .select()
-          .eq("id", clinic.clinic_id)
+          .eq("id", clinicItem.clinic)
           .order("name", { ascending: true })
       );
 
       const results = await Promise.all(fetchPromises);
+      console.log(results)
 
       // Combine the results into a single array
       const allClinicsData = results.flatMap((result) => result.data || []);
@@ -99,11 +100,11 @@ export default function AccountPage() {
     }
 
     try {
-      const fetchPromises = clinics.map((clinic) =>
+      const fetchPromises = clinics.map((clinicItem) =>
         supabase
           .from("employees")
           .select()
-          .eq("clinic_id", clinic.clinic_id)
+          .eq("clinic_id", clinicItem.clinic)
           .order("last_name", { ascending: true })
       );
 
@@ -122,11 +123,11 @@ export default function AccountPage() {
     }
 
     try {
-      const fetchPromises = clinics.map((clinic) =>
+      const fetchPromises = clinics.map((clinicItem) =>
         supabase
           .from("managers")
           .select()
-          .eq("clinic_id", clinic.clinic_id)
+          .eq("clinic_id", clinicItem.clinic)
           .order("last_name", { ascending: true })
       );
 
@@ -172,23 +173,25 @@ export default function AccountPage() {
           // console.log("Tickets path for Owner");
           clinics = data;
         } else if (userRole == "Manager") {
+          // console.log(id)
           const { data, error } = await supabase
-            .from("managers")
-            .select("clinic_id")
-            .eq("user_id", user_id);
+            .from("manager_clinics")
+            .select("clinic")
+            .eq("manager", user_id);
+          // console.log(data)
           clinics = data;
         } else if (userRole == "Employee") {
           const { data, error } = await supabase
-            .from("employees")
-            .select("clinic_id")
-            .eq("user_id", user_id);
+            .from("employee_clinics")
+            .select("clinic")
+            .eq("employee", user_id);
           clinics = data;
         } else {
           // console.log("Tickets path for else");
           clinics = null;
         }
 
-        // console.log(clinics);
+        console.log(clinics);
 
         fetchClinics(clinics);
         fetchEmployees(clinics);
