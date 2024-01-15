@@ -255,6 +255,7 @@ export default function AccountPage() {
 
   const addToUserTable = async (dataToInsert: any) => {
     console.log(await supabase.auth.getUser())
+    console.log(dataToInsert)
     const { data: insertData, error: insertError } = await supabase
       .from("users")
       .insert([
@@ -264,7 +265,7 @@ export default function AccountPage() {
           id: dataToInsert.user_id,
           email: dataToInsert.email,
           role: dataToInsert.role,
-          clinic: dataToInsert.clinic
+          clinic: dataToInsert.clinic_id
         },
       ]);
 
@@ -328,12 +329,11 @@ export default function AccountPage() {
         first_name: firstName,
         last_name: lastName,
         user_id: userId,
-        clinic: clinic,
+        clinic_id: clinic,
         email: email,
         role: "Employee",
       };
-
-
+      
 
       let insertError = await addToUserTable(dataToInsert);
       if (insertError !== undefined) {
@@ -342,7 +342,7 @@ export default function AccountPage() {
       }
 
       
-      let insertRelationError = await addEmployeeClinicRelation(dataToInsert.user_id, dataToInsert.clinic)
+      let insertRelationError = await addEmployeeClinicRelation(dataToInsert.user_id, dataToInsert.clinic_id)
 
       if(insertRelationError){
         handleErrorOnAdd();
@@ -560,10 +560,10 @@ export default function AccountPage() {
     const { error: employeeError2 } = await supabase
     .from("employee_clinics")
     .delete()
-    .eq("user", deletedUserID);
+    .eq("employee", deletedUserID);
     if (employeeError2) {
       console.error(
-        "Error deleting manager from employee:",
+        "Error deleting employee from employee_clinics:",
         employeeError2.message
       );
     }
@@ -627,7 +627,7 @@ export default function AccountPage() {
     const { error: managerError } = await supabase
     .from("manager_clinics")
     .delete()
-    .eq("user", deletedUserID);
+    .eq("manager", deletedUserID);
     if (managerError) {
       console.error(
         "Error deleting manager from managers:",
