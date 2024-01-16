@@ -355,7 +355,7 @@ export default function AnalyticsPage() {
     if (userRole == "Owner") {
       const { data, error } = await supabase
         .from("owner_clinics")
-        .select("clinic_id")
+        .select("clinic")
         .eq("owner", id);
       if (data) {
         clinics = await getClinicData(data);

@@ -11,6 +11,7 @@ const Tier1Page = async () => {
   const [priceIdLoading, setPriceIdLoading] = useState<string>();
   const [products, setProducts] = useState<any>([]);
   const { user, isLoading, subscription } = useUser();
+  
   console.log(user);
   console.log(isLoading);
   console.log(subscription);
