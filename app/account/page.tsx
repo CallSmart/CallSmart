@@ -16,6 +16,8 @@ interface Clinic {
   gotoemail: string;
   gotopassword: string;
   initial_message: string;
+  notification_email: string,
+  send_notifications: Boolean
 }
 
 interface Clinics {
@@ -213,7 +215,9 @@ export default function AccountPage() {
     name: string,
     email: string,
     password: string,
-    initial_message: string
+    initial_message: string,
+    notification_email: string,
+    send_notifications: Boolean
   ) => {
     e.preventDefault();
     if (!name.slice()) {
@@ -242,7 +246,9 @@ export default function AccountPage() {
               gotoemail: email,
               gotopassword: password,
               initial_message: initial_message,
-              number: ''
+              number: '',
+              notification_email: notification_email,
+              send_notifcations: send_notifications
             },
           ])
           .select("*");
@@ -520,7 +526,9 @@ export default function AccountPage() {
     name: string,
     email: string,
     password: string,
-    initial_message: string
+    initial_message: string,
+    notification_email: string,
+    send_notifications: Boolean
   ) => {
     e.preventDefault();
     if (!password.slice() || !email.slice()) {
@@ -534,6 +542,8 @@ export default function AccountPage() {
       id: clinicId,
       name: name,
       initial_message: initial_message,
+      notification_email: notification_email,
+      send_notifications: send_notifications
     };
 
     // console.log(dataToInsertOrUpdate);

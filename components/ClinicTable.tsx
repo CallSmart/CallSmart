@@ -9,6 +9,8 @@ interface Clinic {
   gotoemail: string;
   gotopassword: string;
   initial_message: string;
+  notification_email: string,
+  send_notifications: Boolean
 }
 
 type IDBasedFunction = (id: number) => Promise<void>;
@@ -19,7 +21,9 @@ type editFunction = (
   name: string,
   email: string,
   password: string,
-  initial_message: string
+  initial_message: string,
+  notification_email: string,
+  send_notifications: Boolean
 ) => Promise<void>;
 
 type addFunction = (
@@ -27,7 +31,9 @@ type addFunction = (
   clinicName: string,
   email: string,
   password: string,
-  initial_message: string
+  initial_message: string,
+  notification_email: string,
+  send_notifications: Boolean
 ) => Promise<void>;
 
 const ClinicTable = ({
@@ -53,6 +59,8 @@ const ClinicTable = ({
   const [formPassword, setFormPassword] = useState("");
   const [formMessage, setFormMessage] = useState("");
   const [formName, setFormName] = useState("");
+  const [formNotificationEmail, setFormNotificationEmail] = useState("")
+  const [formNotificationOn, setFormNotificationOn] = useState(false)
 
   const populateFormInformation = async (clinic: Clinic) => {
     console.log("calling populate form information:", clinic);
@@ -173,7 +181,9 @@ const ClinicTable = ({
                             clinic.name,
                             formEmail,
                             formPassword,
-                            formMessage
+                            formMessage,
+                            formNotificationEmail,
+                            formNotificationOn
                           );
                         }}
                         className="flex flex-col gap-2"
@@ -212,6 +222,36 @@ const ClinicTable = ({
                             className="h-32 resize-none overflow-auto whitespace-normal"
                           />
                         </div>
+                        <div className="form-section">
+                          <label>Notification Email</label>
+                          <div
+                            style={{
+                              width: '50px',
+                              height: '30px',
+                              backgroundColor: formNotificationOn ? 'green' : 'red',
+                              cursor: 'pointer',
+                              borderRadius: '15px',
+                              textAlign: 'center',
+                              lineHeight: '30px',
+                              color: 'white',
+                              marginLeft: 'auto',
+                              padding: 'auto',
+                             
+                            }}
+                            onClick={() => setFormNotificationOn(!formNotificationOn)}
+                          >
+                            <div className="pr-2">
+                            {formNotificationOn ? 'ON' : 'OFF'}
+                            </div>
+                          </div>
+                          <input
+                            value={formNotificationEmail}
+                            placeholder="Email for ticket notifications"
+                            onChange={(e) => setFormNotificationEmail(e.target.value)}
+                            // className="h-32 resize-none overflow-auto whitespace-normal"
+                          />
+                        </div>
+
                       </form>
                     </Card>
                   ) : (
@@ -251,7 +291,9 @@ const ClinicTable = ({
                     formName,
                     formEmail,
                     formPassword,
-                    formMessage
+                    formMessage,
+                    formNotificationEmail,
+                    formNotificationOn
                   );
                   resetForm();
                 }}
