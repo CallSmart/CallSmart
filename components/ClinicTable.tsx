@@ -67,6 +67,12 @@ const ClinicTable = ({
     setFormEmail(clinic.gotoemail);
     setFormPassword(clinic.gotopassword);
     setFormMessage(clinic.initial_message);
+    setFormNotificationEmail(clinic.notification_email)
+    if(clinic.send_notifications){
+      setFormNotificationOn(true)
+    }else{
+      setFormNotificationOn(false)
+    }
   };
 
   useEffect(() => {
