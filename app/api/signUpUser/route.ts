@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const {data, error} = await supabaseAdmin.auth.admin.createUser({
         email: email,
-        password: password,
+        password: "temp",
       })
     //   data.user.id
     console.log(data.user?.id)

@@ -54,7 +54,7 @@ const ManagerEmployeeTable = ({
 
   // Form Values
   const [formEmail, setFormEmail] = useState("");
-  const [formPassword, setFormPassword] = useState("");
+  const [formPassword, setFormPassword] = useState("temp");
   const [formFirstName, setFormFirstName] = useState("");
   const [formLastName, setFormLastName] = useState("");
   const [formClinic, setFormClinic] = useState<number | null>(null);
@@ -235,15 +235,6 @@ const ManagerEmployeeTable = ({
                     value={formEmail}
                     placeholder="Email"
                     onChange={(e) => setFormEmail(e.target.value)}
-                  />
-                </div>
-                <div className="form-section">
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    value={formPassword}
-                    placeholder="password"
-                    onChange={(e) => setFormPassword(e.target.value)}
                   />
                 </div>
                 <div className="form-section">
