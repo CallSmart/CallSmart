@@ -54,6 +54,7 @@ export default function AnalyticsPage() {
     number: string;
     time: string;
     stage: number;
+    information_recieved: boolean;
   }
 
   const router = useRouter();
@@ -341,7 +342,7 @@ export default function AnalyticsPage() {
     let clinics: { [key: string]: any }[] | null;
 
     const getClinicData = async (IDs: any) => {
-      console.log(IDs)
+      console.log(IDs);
       // console.log("IDs: ", IDs);
       IDs = IDs.map((id: any) => id.clinic);
       const { data, error } = await supabase
@@ -623,10 +624,8 @@ export default function AnalyticsPage() {
         // console.log("Calls Missed Length:", source.length);
         return source.length;
       } else if (type === "Tickets Created") {
-        return source.filter(
-          (ticket) =>
-            ticket["stage"] == 3 || ticket["stage"] == 2 || ticket["stage"] == 1
-        ).length;
+        return source.filter((ticket) => ticket["information_recieved"] == true)
+          .length;
       } else if (type === "Tickets Completed") {
         return source.filter((ticket) => ticket["stage"] == 3).length;
       } else {
@@ -634,16 +633,16 @@ export default function AnalyticsPage() {
       }
     }
 
+    console.log(compareTickets);
+
     const source =
       dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
     if (type === "Missed Calls") {
       // console.log("here 1");
       return source.length;
     } else if (type === "Tickets Created") {
-      return source.filter(
-        (ticket) =>
-          ticket["stage"] == 3 || ticket["stage"] == 2 || ticket["stage"] == 1
-      ).length;
+      return source.filter((ticket) => ticket["information_recieved"] == true)
+        .length;
     } else if (type === "Tickets Completed") {
       return source.filter((ticket) => ticket["stage"] == 3).length;
     } else {
@@ -1157,17 +1156,17 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? percentageFormatter(
-                          callDetailData[0][
+                          callDetailData[1][
                             displayCustomDateFormatter(compareCustomSelect)
                           ] /
-                            callDetailData[1][
+                            callDetailData[0][
                               displayCustomDateFormatter(compareCustomSelect)
                             ],
                           null
                         )
                       : percentageFormatter(
-                          callDetailData[0][dateWordFormatter(compareSelect)] /
-                            callDetailData[1][dateWordFormatter(compareSelect)],
+                          callDetailData[1][dateWordFormatter(compareSelect)] /
+                            callDetailData[0][dateWordFormatter(compareSelect)],
                           null
                         )}
                   </TableCell>
@@ -1175,17 +1174,17 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? percentageFormatter(
-                          callDetailData[0][
+                          callDetailData[1][
                             displayCustomDateFormatter(withCustomSelect)
                           ] /
-                            callDetailData[1][
+                            callDetailData[0][
                               displayCustomDateFormatter(withCustomSelect)
                             ],
                           null
                         )
                       : percentageFormatter(
-                          callDetailData[0][dateWordFormatter(withSelect)] /
-                            callDetailData[1][dateWordFormatter(withSelect)],
+                          callDetailData[1][dateWordFormatter(withSelect)] /
+                            callDetailData[0][dateWordFormatter(withSelect)],
                           null
                         )}
                   </TableCell>
