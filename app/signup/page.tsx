@@ -13,7 +13,7 @@ const ChoosePlan = () => {
   };
 
   return (
-    <div className='flex flex-col items-center gap-24 py-12 md:pt-16 lg:pt-24'>
+    <div className='flex flex-col items-center gap-24 pb-12'>
       <NavBar />
       <h1 className='text-center'>Your Plan</h1>
       <Card
