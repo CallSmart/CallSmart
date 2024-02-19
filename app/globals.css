@@ -1,134 +1,100 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-:root {
-  height: 100%;
-  font-family: Inter, Arial, Helvetica, sans-serif;
-  font-size: 15px;
-}
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-::-webkit-scrollbar {
-  @apply hidden;
-}
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-.btn-action {
-  @apply px-4 py-2 bg-sec-blue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white w-fit;
-}
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-.btn-action2 {
-  @apply px-2 py-1 active:bg-sec-blue hover:bg-[#585A66] bg-[#454855] rounded-lg text-white w-fit;
-}
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-.btn-submit {
-  @apply px-4 py-1 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-lg text-white transition-all duration-200 w-fit;
-}
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-.form-section {
-  @apply flex justify-between items-center h-fit;
-}
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-input,
-textarea,
-select {
-  @apply bg-gray-100 ml-4 pl-2 rounded-md w-1/2 outline-none caret-prim-blue py-2 appearance-none;
-}
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-.product-nav-button {
-  @apply px-4 py-2 text-prim-blue hover:text-white hover:bg-[#80B2E5] focus:bg-prim-blue rounded-md;
-}
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-.product-nav-button.active {
-  @apply text-white bg-prim-blue;
-}
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-.container {
-  @apply flex px-8 py-4 bg-white border-[1px] border-[#CBCCD0] rounded-lg;
-}
-
-.sf-container {
-  @apply flex bg-white border-[1px] border-[#CBCCD0] py-4 px-6 rounded-xl;
-}
-
-.ticket-container {
-  @apply flex flex-col ring-1 ring-sec-blue rounded-lg bg-white overflow-hidden;
-}
-
-.backlog-container {
-  @apply flex bg-prim-blue/10 border-[1px] border-prim-blue p-4 rounded-xl w-full gap-4 overflow-y-scroll;
-}
-
-.ticket-prop {
-  @apply flex w-fit flex-row font-medium rounded-md gap-1 px-2 py-1 items-center leading-tight;
-}
-
-@media screen and (max-width: 449px) {
-  h4 {
-    @apply font-semibold text-xl text-sec-blue;
+    --radius: 0.5rem;
   }
 
-  h3 {
-    @apply font-medium text-sec-blue text-2xl;
-  }
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-  h1 {
-    @apply flex text-4xl font-bold text-prim-blue text-center;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
-@media screen and (min-width: 450px) {
-  h4 {
-    @apply font-semibold text-xl text-sec-blue;
+@layer base {
+  * {
+    @apply border-border;
   }
-
-  h3 {
-    @apply font-medium text-sec-blue text-2xl;
-  }
-
-  h1 {
-    @apply flex text-8xl font-bold text-prim-blue text-center;
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-.absolute-center {
-  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+.primary-button {
+  @apply bg-primary-blue text-white text-sm font-normal hover:!bg-primary-blue hover:text-secondary-blue;
 }
 
-form span {
-  @apply flex flex-col indent-0;
+.secondary-button {
+  @apply bg-white text-primary-blue text-sm font-normal hover:!bg-secondary-blue hover:text-primary-blue border border-primary-blue;
 }
 
-.landing-card {
-  @apply w-[36rem] flex flex-col items-center gap-3 text-center border-prim-blue;
+.body-text {
+  @apply text-sm text-black font-normal;
 }
 
-.message {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  width: fit-content;
-  max-width: 75%;
+.h1-text {
+  @apply md:text-6xl text-4xl text-black font-semibold;
 }
 
-.assistant,
-.system {
-  align-self: flex-end;
-  background-color: #a6bddf;
+.h2-text {
+  @apply md:text-2xl text-lg  text-black font-normal;
 }
 
-.user {
-  align-self: flex-start;
-  background-color: #69727a;
-  color: white;
-}
-
-.multiselectitem input {
-  -webkit-appearance: checkbox !important;
-  appearance: checkbox !important;
-  -moz-appearance: checkbox !important;
-  width: fit-content !important;
+.h3-text {
+  @apply md:text-xl text-base text-black font-light;
 }
