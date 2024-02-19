@@ -1,9 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    height: 100%;
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    font-size: 15px;
+
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -75,6 +81,10 @@
   }
 }
 
+::-webkit-scrollbar {
+  @apply hidden;
+}
+
 .primary-button {
   @apply bg-primary-blue text-white text-sm font-normal hover:!bg-primary-blue hover:text-secondary-blue;
 }
@@ -97,4 +107,121 @@
 
 .h3-text {
   @apply md:text-xl text-base text-black font-light;
+}
+
+.btn-action {
+  @apply px-4 py-2 bg-sec-blue hover:bg-[#585A66] active:bg-[#454855] rounded-xl text-white w-fit;
+}
+
+.btn-action2 {
+  @apply px-2 py-1 active:bg-sec-blue hover:bg-[#585A66] bg-[#454855] rounded-lg text-white w-fit;
+}
+
+.btn-submit {
+  @apply px-4 py-1 bg-prim-blue hover:bg-prim-blue/50 active:bg-prim-blue/75 rounded-lg text-white transition-all duration-200 w-fit;
+}
+
+.form-section {
+  @apply flex justify-between items-center h-fit;
+}
+
+input,
+textarea,
+select {
+  @apply bg-gray-100 ml-4 pl-2 rounded-md w-1/2 outline-none caret-prim-blue py-2 appearance-none;
+}
+
+.product-nav-button {
+  @apply px-4 py-2 text-prim-blue hover:text-white hover:bg-[#80B2E5] focus:bg-prim-blue rounded-md;
+}
+
+.product-nav-button.active {
+  @apply text-white bg-prim-blue;
+}
+
+.container {
+  @apply flex px-8 py-4 bg-white border-[1px] border-[#CBCCD0] rounded-lg;
+}
+
+.sf-container {
+  @apply flex bg-white border-[1px] border-[#CBCCD0] py-4 px-6 rounded-xl;
+}
+
+.ticket-container {
+  @apply flex flex-col ring-1 ring-sec-blue rounded-lg bg-white overflow-hidden;
+}
+
+.backlog-container {
+  @apply flex bg-prim-blue/10 border-[1px] border-prim-blue p-4 rounded-xl w-full gap-4 overflow-y-scroll;
+}
+
+.ticket-prop {
+  @apply flex w-fit flex-row font-medium rounded-md gap-1 px-2 py-1 items-center leading-tight;
+}
+
+@media screen and (max-width: 449px) {
+  h4 {
+    @apply font-semibold text-xl text-sec-blue;
+  }
+
+  h3 {
+    @apply font-medium text-sec-blue text-2xl;
+  }
+
+  h1 {
+    @apply flex text-4xl font-bold text-prim-blue text-center;
+  }
+}
+
+@media screen and (min-width: 450px) {
+  h4 {
+    @apply font-semibold text-xl text-sec-blue;
+  }
+
+  h3 {
+    @apply font-medium text-sec-blue text-2xl;
+  }
+
+  h1 {
+    @apply flex text-8xl font-bold text-prim-blue text-center;
+  }
+}
+
+.absolute-center {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
+
+form span {
+  @apply flex flex-col indent-0;
+}
+
+.landing-card {
+  @apply w-[36rem] flex flex-col items-center gap-3 text-center border-prim-blue;
+}
+
+.message {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  width: fit-content;
+  max-width: 75%;
+}
+
+.assistant,
+.system {
+  align-self: flex-end;
+  background-color: #a6bddf;
+}
+
+.user {
+  align-self: flex-start;
+  background-color: #69727a;
+  color: white;
+}
+
+.multiselectitem input {
+  -webkit-appearance: checkbox !important;
+  appearance: checkbox !important;
+  -moz-appearance: checkbox !important;
+  width: fit-content !important;
 }
