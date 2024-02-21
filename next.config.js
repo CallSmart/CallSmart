@@ -7,6 +7,11 @@ const nextConfig = {
     });
     return config;
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["*"],
+    },
+  },
 };
 
 module.exports = nextConfig;

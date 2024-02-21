@@ -25,9 +25,7 @@ import {
   TableRow,
   TableCell,
 } from "@tremor/react";
-
 import { DateRangePicker, DateRangePickerValue } from "@tremor/react";
-
 import {
   startOfDay,
   endOfDay,
@@ -43,6 +41,14 @@ import {
   subYears,
   set,
 } from "date-fns";
+
+import {
+  displayCustomDateFormatter,
+  percentageFormatter,
+  convertISOToTimestampTZ,
+  dateWordFormatter,
+  formattingDates,
+} from "@/lib/anlayticutils";
 
 export default function AnalyticsPage() {
   interface TicketType {
@@ -62,13 +68,12 @@ export default function AnalyticsPage() {
   const [chart2Format, setChart2Format] = useState("false");
 
   const [timeRange, setTimeRange] = useState("Day");
-  const [compareSelect, setCompareSelect] = useState("This");
   const [compareCustomSelect, setCompareCustomSelect] = useState<
     DateRangePickerValue | undefined
-  >();
-  const [withSelect, setWithSelect] = useState("Last");
-  const [withCustomSelect, setWithCustomSelect] =
-    useState<DateRangePickerValue>();
+  >(undefined);
+  const [withCustomSelect, setWithCustomSelect] = useState<
+    DateRangePickerValue | undefined
+  >(undefined);
 
   const [compareTickets, setCompareTickets] = useState<TicketType[]>([]);
   const [withTickets, setWithTickets] = useState<TicketType[]>([]);
@@ -104,167 +109,6 @@ export default function AnalyticsPage() {
   const [allClinicIDs, setAllClinicIDs] = useState<any[]>([]);
   const [activeClinicIDs, setActiveClinicIDs] = useState<any[]>([]);
 
-  const percentageFormatter = (value1: number, value2: number | null) => {
-    if (value2 === 0 || value2 === null) {
-      const roundedPercentage = Math.trunc(Math.round(value1 * 100));
-      if (roundedPercentage == Infinity || Number.isNaN(roundedPercentage)) {
-        return "0%";
-      }
-
-      return `${roundedPercentage}%`;
-    } else {
-      const percentageChange = ((value1 - value2) / value2) * 100;
-
-      const roundedPercentage = Math.trunc(
-        Math.round(percentageChange * 100) / 100
-      );
-      if (roundedPercentage == Infinity || NaN) {
-        return "0%";
-      }
-
-      return `${roundedPercentage}%`;
-    }
-  };
-
-  const dateWordFormatter = (selected: string): string => {
-    if (timeRange == "Day") {
-      if (selected == "This") {
-        return "Today";
-      } else if (selected == "Last") {
-        return "Yesterday";
-      } else {
-        return selected;
-      }
-    } else if (timeRange == "Week") {
-      if (selected == "This") {
-        return "This Week";
-      } else if (selected == "Last") {
-        return "Last Week";
-      } else {
-        return selected;
-      }
-    } else if (timeRange == "Month") {
-      if (selected == "This") {
-        return "This Month";
-      } else if (selected == "Last") {
-        return "Last Month";
-      } else {
-        return selected;
-      }
-    } else if (timeRange == "Year") {
-      if (selected == "This") {
-        return "This Year";
-      } else if (selected == "Last") {
-        return "Last Year";
-      } else {
-        return selected;
-      }
-    } else {
-      return selected;
-    }
-  };
-
-  const formattingDates = (date: string) => {
-    switch (dateWordFormatter(date)) {
-      case "Today":
-        return { start: startOfDay(new Date()), end: endOfDay(new Date()) };
-      case "Yesterday":
-        return {
-          start: startOfDay(subDays(new Date(), 1)),
-          end: endOfDay(subDays(new Date(), 1)),
-        };
-      case "This Week":
-        return { start: startOfWeek(new Date()), end: endOfWeek(new Date()) };
-      case "Last Week":
-        return {
-          start: startOfWeek(subDays(new Date(), 7)),
-          end: endOfWeek(subDays(new Date(), 7)),
-        };
-      case "This Month":
-        return { start: startOfMonth(new Date()), end: endOfMonth(new Date()) };
-      case "Last Month":
-        return {
-          start: startOfMonth(subMonths(new Date(), 1)),
-          end: endOfMonth(subMonths(new Date(), 1)),
-        };
-      case "This Year":
-        return {
-          start: startOfYear(new Date()),
-          end: endOfYear(new Date()),
-        };
-      case "Last Year":
-        return {
-          start: startOfYear(subYears(new Date(), 1)),
-          end: endOfYear(subYears(new Date(), 1)),
-        };
-      default:
-        return { start: startOfDay(new Date()), end: endOfDay(new Date()) };
-    }
-  };
-
-  function formatDateToCustomFormat(isoDate: string | undefined): string {
-    // console.log("Custom format date!!");
-
-    const date = new Date(isoDate || "");
-
-    // Extract date components
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const hours = String(date.getUTCHours()).padStart(2, "0");
-    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
-    const milliseconds = String(date.getUTCMilliseconds())
-      .padStart(6, "0")
-      .substr(0, 6); // taking up to 6 digits
-
-    // Concatenate into custom format
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}+00`;
-  }
-
-  function displayCustomDateFormatter(customDate: any): string {
-    function formatDate(date: Date): string {
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-
-      const day = date.getDate();
-      const monthIndex = date.getMonth();
-
-      let suffix = "th";
-      if (day === 1 || day === 21 || day === 31) {
-        suffix = "st";
-      } else if (day === 2 || day === 22) {
-        suffix = "nd";
-      } else if (day === 3 || day === 23) {
-        suffix = "rd";
-      }
-
-      return `${monthNames[monthIndex]} ${day}${suffix}`;
-    }
-
-    if (customDate?.to) {
-      return (
-        formatDate(new Date(customDate?.from)) +
-        " - " +
-        formatDate(new Date(customDate?.to))
-      );
-    } else {
-      return formatDate(new Date(customDate?.from));
-    }
-  }
-
   useEffect(() => {
     const session = supabase.auth.getSession();
     if (!session) {
@@ -277,27 +121,14 @@ export default function AnalyticsPage() {
     setTicketDetailData(null);
     setCallDetailData(null);
     settingDateRange();
-  }, [
-    compareSelect,
-    withSelect,
-    timeRange,
-    withCustomSelect,
-    compareCustomSelect,
-  ]);
+  }, [timeRange, withCustomSelect, compareCustomSelect]);
 
   useEffect(() => {
     setCompareTickets([]);
     setWithTickets([]);
     setTicketsCreatedData([]);
     setTicketDetailData([]);
-  }, [compareSelect, withSelect, timeRange, activeClinicIDs]);
-
-  useEffect(() => {
-    setCompareCustomSelect(undefined);
-    setWithCustomSelect(undefined);
-    setCompareSelect("This");
-    setWithSelect("Last");
-  }, [timeRange]);
+  }, [timeRange, activeClinicIDs]);
 
   useEffect(() => {
     if (compareStartDate && compareEndDate && allClinicIDs) {
@@ -323,7 +154,13 @@ export default function AnalyticsPage() {
     fetchAllClinicIDs();
   }, []);
 
+  /**
+   * Fetches all clinic IDs that correspond to the user
+   *
+   * @returns a list of clinic IDs
+   */
   const fetchAllClinicIDs = async () => {
+    console.log("fetchAllClinicIDs");
     const user = await supabase.auth.getUser();
     const id = user?.data?.user?.id;
 
@@ -343,13 +180,11 @@ export default function AnalyticsPage() {
 
     const getClinicData = async (IDs: any) => {
       console.log(IDs);
-      // console.log("IDs: ", IDs);
       IDs = IDs.map((id: any) => id.clinic);
       const { data, error } = await supabase
         .from("clinics")
         .select("name, id")
         .in("id", IDs);
-      // console.log("Clinic Data: ", data);
       return data;
     };
 
@@ -380,14 +215,12 @@ export default function AnalyticsPage() {
     if (!clinics) {
       return;
     } else {
-      // console.log("CLINIC IDs", clinics);
       setAllClinicIDs(clinics);
       setActiveClinicIDs(clinics);
     }
   };
 
   useEffect(() => {
-    // console.log("Active IDs", activeClinicIDs);
     if (activeClinicIDs && activeClinicIDs.length > 0) {
       fetchCompareTickets(activeClinicIDs);
       fetchWithTickets(activeClinicIDs);
@@ -395,12 +228,14 @@ export default function AnalyticsPage() {
   }, [activeClinicIDs]);
 
   const fetchCompareTickets = async (clinics: any[]) => {
+    console.log("fetchCompareTickets");
     const IDs = clinics.map((clinic) => String(clinic?.id));
 
     const { data: tickets, error: ticketsError } = await supabase
       .from("tickets")
       .select("*")
       .in("clinic", IDs)
+      .eq("information_recieved", true)
       .filter("time", "gte", compareStartDate)
       .filter("time", "lte", compareEndDate);
     if (ticketsError) {
@@ -414,12 +249,14 @@ export default function AnalyticsPage() {
   };
 
   const fetchWithTickets = async (clinics: any[]) => {
+    console.log("fetchWithTickets");
     const IDs = clinics.map((clinic) => String(clinic?.id));
 
     const { data: tickets, error: ticketsError } = await supabase
       .from("tickets")
       .select("*")
       .in("clinic", IDs)
+      .eq("information_recieved", true)
       .filter("time", "gte", withStartDate)
       .filter("time", "lte", withEndDate);
 
@@ -432,57 +269,51 @@ export default function AnalyticsPage() {
     setWithTickets(tickets);
   };
 
+  /**
+   * Sets the start and end date for the currently selected date range
+   */
   const settingDateRange = async () => {
+    console.log("settingDateRange");
     if (withCustomSelect || compareCustomSelect) {
-      // console.log("Custom Date Time!!");
-
-      setCompareStartDate(
-        formatDateToCustomFormat(compareCustomSelect?.from?.toISOString())
-      );
+      console.log(compareCustomSelect, withCustomSelect);
+      setCompareStartDate(convertISOToTimestampTZ(compareCustomSelect?.from));
       if (compareCustomSelect?.to) {
         setCompareEndDate(
-          formatDateToCustomFormat(
-            new Date(endOfDay(compareCustomSelect?.to))?.toISOString()
-          )
+          convertISOToTimestampTZ(new Date(endOfDay(compareCustomSelect?.to)))
         );
       } else {
         setCompareEndDate(
-          formatDateToCustomFormat(
-            new Date(addDays(compareCustomSelect?.from || 0, 1))?.toISOString()
+          convertISOToTimestampTZ(
+            new Date(addDays(compareCustomSelect?.from || 0, 1))
           )
         );
       }
 
-      setWithStartDate(
-        formatDateToCustomFormat(withCustomSelect?.from?.toISOString())
-      );
+      setWithStartDate(convertISOToTimestampTZ(withCustomSelect?.from));
       if (withCustomSelect?.to) {
-        setWithEndDate(new Date(endOfDay(withCustomSelect?.to))?.toISOString());
+        setWithEndDate(
+          convertISOToTimestampTZ(new Date(endOfDay(withCustomSelect?.to)))
+        );
       } else {
         setWithEndDate(
-          formatDateToCustomFormat(
-            new Date(addDays(withCustomSelect?.from || 0, 1))?.toISOString()
+          convertISOToTimestampTZ(
+            new Date(addDays(withCustomSelect?.from || 0, 1))
           )
         );
       }
     } else {
-      const compareDates = formattingDates(compareSelect);
-      setCompareStartDate(
-        formatDateToCustomFormat(compareDates["start"].toISOString())
-      );
-      setCompareEndDate(
-        formatDateToCustomFormat(compareDates["end"].toISOString())
-      );
+      const compareDates = formattingDates("This", timeRange);
+      setCompareStartDate(convertISOToTimestampTZ(compareDates["start"]));
+      setCompareEndDate(convertISOToTimestampTZ(compareDates["end"]));
 
-      const withDates = formattingDates(withSelect);
-      setWithStartDate(
-        formatDateToCustomFormat(withDates["start"].toISOString())
-      );
-      setWithEndDate(formatDateToCustomFormat(withDates["end"].toISOString()));
+      const withDates = formattingDates("Last", timeRange);
+      setWithStartDate(convertISOToTimestampTZ(withDates["start"]));
+      setWithEndDate(convertISOToTimestampTZ(withDates["end"]));
     }
   };
 
   const createdDictValueFinder = async (key: string, type: string) => {
+    console.log("createdDictValueFinder");
     if (key == displayCustomDateFormatter(compareCustomSelect)) {
       return compareTickets.filter(
         (ticket) => ticket["type"] === type.toLowerCase()
@@ -494,13 +325,15 @@ export default function AnalyticsPage() {
       ).length;
     }
     const source =
-      dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
+      dateWordFormatter("This", timeRange) === key
+        ? compareTickets
+        : withTickets;
     return source.filter((ticket) => ticket["type"] === type.toLowerCase())
       .length;
   };
 
   const populateCreatedTicketsData = async () => {
-    // console.log("populateCreatedTicketsData");
+    console.log("populateCreatedTicketsData");
     if (!compareCustomSelect && !withCustomSelect) {
       // console.log("regular route for pop created");
       setTicketsCreatedData(
@@ -542,6 +375,7 @@ export default function AnalyticsPage() {
   };
 
   const detailDictValueFinder = async (key: string, type: string) => {
+    console.log("detailDictValueFinder");
     if (
       key == displayCustomDateFormatter(compareCustomSelect) ||
       key == displayCustomDateFormatter(withCustomSelect)
@@ -562,7 +396,9 @@ export default function AnalyticsPage() {
     }
 
     const source =
-      dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
+      dateWordFormatter("This", timeRange) === key
+        ? compareTickets
+        : withTickets;
     if (type === "Urgent") {
       return source.filter((ticket) => ticket["urgent"] == true).length;
     } else if (type === "Non Urgent") {
@@ -575,6 +411,7 @@ export default function AnalyticsPage() {
   };
 
   const populateTicketDetailsData = async () => {
+    console.log("populateTicketDetailsData");
     if (!compareCustomSelect && !withCustomSelect) {
       setTicketDetailData(
         await Promise.all(
@@ -612,6 +449,7 @@ export default function AnalyticsPage() {
   };
 
   const callDictValueFinder = async (key: string, type: string) => {
+    console.log("callDictValueFinder");
     if (
       key == displayCustomDateFormatter(compareCustomSelect) ||
       key == displayCustomDateFormatter(withCustomSelect)
@@ -636,7 +474,9 @@ export default function AnalyticsPage() {
     console.log(compareTickets);
 
     const source =
-      dateWordFormatter(compareSelect) === key ? compareTickets : withTickets;
+      dateWordFormatter("This", timeRange) === key
+        ? compareTickets
+        : withTickets;
     if (type === "Missed Calls") {
       // console.log("here 1");
       return source.length;
@@ -651,7 +491,7 @@ export default function AnalyticsPage() {
   };
 
   const populateCallDetailsData = async () => {
-    // console.log("populateCallDetailsData");
+    console.log("populateCallDetailsData");
     if (!compareCustomSelect && !withCustomSelect) {
       // console.log("here");
       setCallDetailData(
@@ -727,96 +567,24 @@ export default function AnalyticsPage() {
               <SelectItem value={"Custom"}>Custom</SelectItem>
             </Select>
           </div>
-          <div>
-            <Text>Compare</Text>
-            {timeRange === "Day" ? (
-              <Select
-                value={compareSelect}
-                onValueChange={setCompareSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>Today</SelectItem>
-                <SelectItem value={"Last"}>Yesterday</SelectItem>
-              </Select>
-            ) : timeRange === "Week" ? (
-              <Select
-                value={compareSelect}
-                onValueChange={setCompareSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>This Week</SelectItem>
-                <SelectItem value={"Last"}>Last Week</SelectItem>
-              </Select>
-            ) : timeRange === "Month" ? (
-              <Select
-                value={compareSelect}
-                onValueChange={setCompareSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>This Month</SelectItem>
-                <SelectItem value={"Last"}>Last Month</SelectItem>
-              </Select>
-            ) : timeRange === "Year" ? (
-              <Select
-                value={compareSelect}
-                onValueChange={setCompareSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>This Year</SelectItem>
-                <SelectItem value={"Last"}>Last Year</SelectItem>
-              </Select>
-            ) : (
+          {timeRange == "Custom" ? (
+            <div>
+              <Text>Compare</Text>
               <DateRangePicker
                 value={compareCustomSelect}
                 onValueChange={setCompareCustomSelect}
               />
-            )}
-          </div>
-          <div>
-            <Text>With</Text>
-            {timeRange === "Day" ? (
-              <Select
-                value={withSelect}
-                onValueChange={setWithSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>Today</SelectItem>
-                <SelectItem value={"Last"}>Yesterday</SelectItem>
-              </Select>
-            ) : timeRange === "Week" ? (
-              <Select
-                value={withSelect}
-                onValueChange={setWithSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>This Week</SelectItem>
-                <SelectItem value={"Last"}>Last Week</SelectItem>
-              </Select>
-            ) : timeRange === "Month" ? (
-              <Select
-                value={withSelect}
-                onValueChange={setWithSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>This Month</SelectItem>
-                <SelectItem value={"Last"}>Last Month</SelectItem>
-              </Select>
-            ) : timeRange === "Year" ? (
-              <Select
-                value={withSelect}
-                onValueChange={setWithSelect}
-                className="w-fit"
-              >
-                <SelectItem value={"This"}>This Year</SelectItem>
-                <SelectItem value={"Last"}>Last Year</SelectItem>
-              </Select>
-            ) : (
+            </div>
+          ) : null}
+          {timeRange == "Custom" ? (
+            <div>
+              <Text>With</Text>
               <DateRangePicker
                 value={withCustomSelect}
                 onValueChange={setWithCustomSelect}
               />
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
         <div className="flex flex-row xl:flex-nowrap flex-wrap gap-4">
           <div className="flex flex-col gap-4 w-full xl:w-1/2">
@@ -835,13 +603,13 @@ export default function AnalyticsPage() {
                     <TableHeaderCell>
                       {compareCustomSelect
                         ? displayCustomDateFormatter(compareCustomSelect)
-                        : dateWordFormatter(compareSelect)}
+                        : dateWordFormatter("This", timeRange)}
                     </TableHeaderCell>
                     <TableHeaderCell />
                     <TableHeaderCell>
                       {withCustomSelect
                         ? displayCustomDateFormatter(withCustomSelect)
-                        : dateWordFormatter(withSelect)}
+                        : dateWordFormatter("Last", timeRange)}
                     </TableHeaderCell>
                   </TableRow>
                 </TableHead>
@@ -860,21 +628,21 @@ export default function AnalyticsPage() {
                       <TableCell>
                         {compareCustomSelect
                           ? key[displayCustomDateFormatter(compareCustomSelect)]
-                          : key[dateWordFormatter(compareSelect)]}
+                          : key[dateWordFormatter("This", timeRange)]}
                       </TableCell>
                       <TableCell>
                         {!compareCustomSelect || !withCustomSelect ? (
                           <BadgeDelta
                             deltaType={
-                              key[dateWordFormatter(compareSelect)] >
-                              key[dateWordFormatter(withSelect)]
+                              key[dateWordFormatter("This", timeRange)] >
+                              key[dateWordFormatter("Last", timeRange)]
                                 ? "increase"
                                 : "decrease"
                             }
                           >
                             {percentageFormatter(
-                              key[dateWordFormatter(compareSelect)],
-                              key[dateWordFormatter(withSelect)]
+                              key[dateWordFormatter("This", timeRange)],
+                              key[dateWordFormatter("Last", timeRange)]
                             )}
                           </BadgeDelta>
                         ) : (
@@ -900,7 +668,7 @@ export default function AnalyticsPage() {
                       <TableCell>
                         {withCustomSelect
                           ? key[displayCustomDateFormatter(withCustomSelect)]
-                          : key[dateWordFormatter(withSelect)]}
+                          : key[dateWordFormatter("Last", timeRange)]}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -930,8 +698,8 @@ export default function AnalyticsPage() {
                         displayCustomDateFormatter(withCustomSelect),
                       ]
                     : [
-                        dateWordFormatter(compareSelect),
-                        dateWordFormatter(withSelect),
+                        dateWordFormatter("This", timeRange),
+                        dateWordFormatter("Last", timeRange),
                       ]
                 }
                 relative={chart1Format == "true"}
@@ -956,13 +724,13 @@ export default function AnalyticsPage() {
                     <TableHeaderCell>
                       {compareCustomSelect
                         ? displayCustomDateFormatter(compareCustomSelect)
-                        : dateWordFormatter(compareSelect)}
+                        : dateWordFormatter("This", timeRange)}
                     </TableHeaderCell>
                     <TableHeaderCell />
                     <TableHeaderCell>
                       {withCustomSelect
                         ? displayCustomDateFormatter(withCustomSelect)
-                        : dateWordFormatter(withSelect)}
+                        : dateWordFormatter("Last", timeRange)}
                     </TableHeaderCell>
                   </TableRow>
                 </TableHead>
@@ -981,21 +749,21 @@ export default function AnalyticsPage() {
                       <TableCell>
                         {compareCustomSelect
                           ? key[displayCustomDateFormatter(compareCustomSelect)]
-                          : key[dateWordFormatter(compareSelect)]}
+                          : key[dateWordFormatter("This", timeRange)]}
                       </TableCell>
                       <TableCell>
                         {!compareCustomSelect || !withCustomSelect ? (
                           <BadgeDelta
                             deltaType={
-                              key[dateWordFormatter(compareSelect)] >
-                              key[dateWordFormatter(withSelect)]
+                              key[dateWordFormatter("This", timeRange)] >
+                              key[dateWordFormatter("Last", timeRange)]
                                 ? "increase"
                                 : "decrease"
                             }
                           >
                             {percentageFormatter(
-                              key[dateWordFormatter(compareSelect)],
-                              key[dateWordFormatter(withSelect)]
+                              key[dateWordFormatter("This", timeRange)],
+                              key[dateWordFormatter("Last", timeRange)]
                             )}
                           </BadgeDelta>
                         ) : (
@@ -1021,7 +789,7 @@ export default function AnalyticsPage() {
                       <TableCell>
                         {withCustomSelect
                           ? key[displayCustomDateFormatter(withCustomSelect)]
-                          : key[dateWordFormatter(withSelect)]}
+                          : key[dateWordFormatter("Last", timeRange)]}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1051,8 +819,8 @@ export default function AnalyticsPage() {
                         displayCustomDateFormatter(withCustomSelect),
                       ]
                     : [
-                        dateWordFormatter(compareSelect),
-                        dateWordFormatter(withSelect),
+                        dateWordFormatter("This", timeRange),
+                        dateWordFormatter("Last", timeRange),
                       ]
                 }
                 colors={["blue"]}
@@ -1071,20 +839,19 @@ export default function AnalyticsPage() {
                 <TableHeaderCell>
                   {compareCustomSelect
                     ? displayCustomDateFormatter(compareCustomSelect)
-                    : dateWordFormatter(compareSelect)}
+                    : dateWordFormatter("This", timeRange)}
                 </TableHeaderCell>
                 <TableHeaderCell />
                 <TableHeaderCell>
                   {withCustomSelect
                     ? displayCustomDateFormatter(withCustomSelect)
-                    : dateWordFormatter(withSelect)}
+                    : dateWordFormatter("Last", timeRange)}
                 </TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {callDetailData?.map((key: any, index: number) => (
                 <TableRow key={index}>
-                  {/* Category Title */}
                   <TableCell>
                     <TicketProp
                       type={key["Type"]}
@@ -1097,27 +864,27 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {compareCustomSelect
                       ? key[displayCustomDateFormatter(compareCustomSelect)]
-                      : key[dateWordFormatter(compareSelect)]}
+                      : key[dateWordFormatter("This", timeRange)]}
                   </TableCell>
                   <TableCell>
                     {!compareCustomSelect || !withCustomSelect ? (
                       <BadgeDelta
                         deltaType={
-                          key[dateWordFormatter(compareSelect)] >
-                          key[dateWordFormatter(withSelect)]
+                          key[dateWordFormatter("This", timeRange)] >
+                          key[dateWordFormatter("Last", timeRange)]
                             ? "increase"
                             : "decrease"
                         }
                         isIncreasePositive={
-                          key[dateWordFormatter(compareSelect)] ===
+                          key[dateWordFormatter("This", timeRange)] ===
                           "Calls Missed"
                             ? false
                             : true
                         }
                       >
                         {percentageFormatter(
-                          key[dateWordFormatter(compareSelect)],
-                          key[dateWordFormatter(withSelect)]
+                          key[dateWordFormatter("This", timeRange)],
+                          key[dateWordFormatter("Last", timeRange)]
                         )}
                       </BadgeDelta>
                     ) : (
@@ -1146,7 +913,7 @@ export default function AnalyticsPage() {
                   <TableCell>
                     {withCustomSelect
                       ? key[displayCustomDateFormatter(withCustomSelect)]
-                      : key[dateWordFormatter(withSelect)]}
+                      : key[dateWordFormatter("Last", timeRange)]}
                   </TableCell>
                 </TableRow>
               ))}
@@ -1165,8 +932,12 @@ export default function AnalyticsPage() {
                           null
                         )
                       : percentageFormatter(
-                          callDetailData[1][dateWordFormatter(compareSelect)] /
-                            callDetailData[0][dateWordFormatter(compareSelect)],
+                          callDetailData[1][
+                            dateWordFormatter("This", timeRange)
+                          ] /
+                            callDetailData[0][
+                              dateWordFormatter("This", timeRange)
+                            ],
                           null
                         )}
                   </TableCell>
@@ -1183,8 +954,12 @@ export default function AnalyticsPage() {
                           null
                         )
                       : percentageFormatter(
-                          callDetailData[1][dateWordFormatter(withSelect)] /
-                            callDetailData[0][dateWordFormatter(withSelect)],
+                          callDetailData[1][
+                            dateWordFormatter("Last", timeRange)
+                          ] /
+                            callDetailData[0][
+                              dateWordFormatter("Last", timeRange)
+                            ],
                           null
                         )}
                   </TableCell>
@@ -1205,8 +980,12 @@ export default function AnalyticsPage() {
                           null
                         )
                       : percentageFormatter(
-                          callDetailData[2][dateWordFormatter(compareSelect)] /
-                            callDetailData[1][dateWordFormatter(compareSelect)],
+                          callDetailData[2][
+                            dateWordFormatter("This", timeRange)
+                          ] /
+                            callDetailData[1][
+                              dateWordFormatter("This", timeRange)
+                            ],
                           null
                         )}
                   </TableCell>
@@ -1223,8 +1002,12 @@ export default function AnalyticsPage() {
                           null
                         )
                       : percentageFormatter(
-                          callDetailData[2][dateWordFormatter(withSelect)] /
-                            callDetailData[1][dateWordFormatter(withSelect)],
+                          callDetailData[2][
+                            dateWordFormatter("Last", timeRange)
+                          ] /
+                            callDetailData[1][
+                              dateWordFormatter("Last", timeRange)
+                            ],
                           null
                         )}
                   </TableCell>
