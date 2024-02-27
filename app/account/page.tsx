@@ -248,7 +248,7 @@ export default function AccountPage() {
               initial_message: initial_message,
               number: '',
               notification_email: notification_email,
-              send_notifcations: send_notifications
+              send_notifications: send_notifications
             },
           ])
           .select("*");
